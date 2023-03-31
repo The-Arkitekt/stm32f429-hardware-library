@@ -1,0 +1,6 @@
+# Build stuffs
+bld/
+bld/*
+
+# eclipse stuffs
+.project
