@@ -1,15 +1,22 @@
-cmake_minimum_required(VERSION 3.10)
+# Set directories
+set(SYSTEM_DIR                 ${CMAKE_CURRENT_SOURCE_DIR}/system)
 
-project(Tutorial)
+set(CMSIS_INCLUDE_DIR          ${SYSTEM_DIR}/include/cmsis)
 
-# TODO 7: Set the project version number as 1.0 in the above project command
+set(GPIO_SRC_DIR               ${CMAKE_CURRENT_SOURCE_DIR}/Gpio/src)
+set(GPIO_INCLUDE_DIR           ${CMAKE_CURRENT_SOURCE_DIR}/Gpio/include)
 
-# TODO 6: Set the variable CMAKE_CXX_STANDARD to 11
-#         and the variable CMAKE_CXX_STANDARD_REQUIRED to True
+####################################
+#  Add STM32f429CommonLibrary 
+#  libraries
+####################################
 
-# TODO 8: Use configure_file to configure and copy TutorialConfig.h.in to
-#         TutorialConfig.h
+# Gpio
+add_library(Gpio ${GPIO_SRC_DIR}/Gpio.cpp)
+target_include_directories(Gpio PUBLIC
+  ${GPIO_INCLUDE_DIR}
+  ${CMSIS_INCLUDE_DIR}
+)
 
-add_executable(Tutorial tutorial.cxx)
 
-# TODO 9: Use target_include_directories to include ${PROJECT_BINARY_DIR}
+

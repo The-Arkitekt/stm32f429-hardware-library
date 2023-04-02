@@ -4,3 +4,4 @@ bld/*
 
 # eclipse stuffs
 .project
+.externalToolBuilders
