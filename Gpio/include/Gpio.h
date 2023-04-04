@@ -1,68 +1,29 @@
 #ifndef GPIO_H
 #define GPIO_H
 
-#include "gpioDef.h"
+#ifdef __cplusplus
+	extern "C" {
+#endif
 
-namespace STM32f429{
+#include "GpioDef.h"
 
-namespace GPIO{
+void GpioWrite(const GpioStruct gpio, const PinState);
+PinState GpioRead(const GpioStruct gpio);
 
-class Gpio {
-public:
-	/**
-	 * Constructor
-	 * 	- Defaults mode as output
-	 * 	- Defaults speed as fast
-	 * 	- Defaults pull as pull up
-	 */
-	Gpio();
+/**
+ * Initialize the GPIO pin
+ */
+void GpioInit(const GpioStruct gpio);
 
-	/**
-	 * Getters
-	 */
-	PortSelect  getPort()  const {return m_port;};
-	PinSelect   getPin()   const {return m_pin;};
-	ModeSelect  getMode()  const {return m_mode;};
-	OTypeSelect getOType() const {return m_oType;};
-	SpeedSelect getSpeed() const {return m_speed;};
-	PullSelect  getPull()  const {return m_pull;};
+/**
+ * deInitialize the GPIO so it is no longer useable until initialized again
+ */
+void GpioDeInit(const GpioStruct gpio);
 
-	bool isInitialized() const {return m_initialized;};
-	/**
-	 * Setters
-	 */
-	void setPort (const PortSelect&  port);
-	void setPin  (const PinSelect&   pin);
-	void setMode (const ModeSelect&  mode);
-	void setOType(const OTypeSelect& oType);
-	void setSpeed(const SpeedSelect& speed);
-	void setPull (const PullSelect&  pull);
+PORT_TYPE getPortType(uint32_t port);
 
-	void gpioWrite(const PinState) const;
-	PinState gpioRead() const;
-
-	/**
-	 * Initialize the GPIO pin
-	 */
-	void init();
-
-	/**
-	 * deInitialize the GPIO so it is no longer useable until initialized again
-	 */
-	void deInit();
-
-private:
-	PortSelect  m_port;
-	PinSelect   m_pin;
-	ModeSelect  m_mode;
-	OTypeSelect m_oType;
-	SpeedSelect m_speed;
-	PullSelect  m_pull;
-	bool        m_initialized;
-};
-
+#ifdef __cplusplus
 }
-
-}
+#endif
 
 #endif //GPIO_H
