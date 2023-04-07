@@ -5,22 +5,24 @@
 	extern "C" {
 #endif
 
+#include "BitManipulation.h"
+#include "ReturnCodesDef.h"
 #include "GpioDef.h"
 
-void GpioWrite(const GpioStruct gpio, const PinState);
-PinState GpioRead(const GpioStruct gpio);
+ReturnCode GpioWrite(const GpioStruct gpio, const PinState);
+ReturnCode GpioRead(const GpioStruct gpio, PinState* const pinState);
 
 /**
  * Initialize the GPIO pin
  */
-void GpioInit(const GpioStruct gpio);
+ReturnCode GpioInit(const GpioStruct gpio);
 
 /**
  * deInitialize the GPIO so it is no longer useable until initialized again
  */
-void GpioDeInit(const GpioStruct gpio);
+ReturnCode GpioDeInit(const GpioStruct gpio);
 
-PORT_TYPE getPortType(uint32_t port);
+PORT_TYPE getPortType(PortSelect portNum);
 
 #ifdef __cplusplus
 }
