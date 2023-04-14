@@ -5,11 +5,6 @@
 	extern "C" {
 #endif
 
-/**
- * All definitions are coming for HAL for now
- *
- * If HAL is no longer used, this file will have it's own definitions
- */
 #include "stm32.h"
 
 // custom types for type safety
@@ -58,7 +53,7 @@ typedef enum PinState{
 typedef enum ModeSelect{
 	MODESELECT_INPUT = 0U,  /* !< Input Floating Mode     */
 	MODESELECT_OUTPUT,      /* !< Output General Purpose  */
-	MODESELECT_,   /* !< Alternate Function Mode */
+	MODESELECT_ALT,         /* !< Alternate Function Mode */
 	MODESELECT_ANALOG       /* !< Analog Mode             */
 }ModeSelect;
 
