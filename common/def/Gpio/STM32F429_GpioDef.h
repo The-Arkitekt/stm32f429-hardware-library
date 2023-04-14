@@ -11,7 +11,6 @@
  * If HAL is no longer used, this file will have it's own definitions
  */
 #include "stm32.h"
-#include "stdint.h"
 
 // custom types for type safety
 typedef GPIO_TypeDef * PORT_TYPE;

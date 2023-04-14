@@ -4,4 +4,7 @@ bld/*
 
 # eclipse stuffs
 .project
+.cproject
 .externalToolBuilders
+.settings/
+.settings/*
