@@ -9,18 +9,18 @@
 #include "Gpio.h"
 #include "BitManipulation.h"
 
-ReturnCode GpioWrite(const GpioStruct gpio, const PinState value){
+ReturnCode GpioWrite(const GpioStruct gpio, const GpioPinState value){
 
-	PORT_TYPE port = getPortType(gpio.port);
+	GPIO_PORT_TYPE port = getPortType(gpio.port);
 	if (port == NULL){
 		return RETURNCODE_NULL_POINTER;
 	}
 
 	// set bit BSRR
-	if (value == PINSTATE_SET){
+	if (value == GPIO_PINSTATE_SET){
 		setWordBits(1U, gpio.pin, &(port->BSRR));
 	}
-	else if (value == PINSTATE_RESET){
+	else if (value == GPIO_PINSTATE_RESET){
 		setWordBits(1U, gpio.pin + HALF_WORD_SIZE, &(port->BSRR));
 	}
 	else {
@@ -30,19 +30,19 @@ ReturnCode GpioWrite(const GpioStruct gpio, const PinState value){
     return RETURNCODE_SUCCESS;
 }
 
-ReturnCode GpioRead(const GpioStruct gpio, PinState* const pinState){
+ReturnCode GpioRead(const GpioStruct gpio, GpioPinState* const pinState){
 
-	PORT_TYPE port = getPortType(gpio.port);
+	GPIO_PORT_TYPE port = getPortType(gpio.port);
 	if (port == NULL){
 		(*pinState) = RETURNCODE_UNKNOWN;
 		return RETURNCODE_NULL_POINTER;
 	}
 
 	if (checkWordBits(port->IDR, 1U, gpio.pin) == 1){
-		(*pinState) =  PINSTATE_SET;
+		(*pinState) =  GPIO_PINSTATE_SET;
 	}
 	else{
-		(*pinState) = PINSTATE_RESET;
+		(*pinState) = GPIO_PINSTATE_RESET;
 	}
 
 	return RETURNCODE_SUCCESS;
@@ -58,7 +58,7 @@ ReturnCode GpioInit(const GpioStruct gpio){
 	setWordBits(1U, gpio.port, &(RCC->AHB1ENR));
 
 	// get port struct
-	PORT_TYPE port = getPortType(gpio.port);
+	GPIO_PORT_TYPE port = getPortType(gpio.port);
 	if (port == NULL){
 		return RETURNCODE_NULL_POINTER;
 	}
@@ -84,7 +84,7 @@ ReturnCode GpioInit(const GpioStruct gpio){
 
 ReturnCode GpioDeInit(const GpioStruct gpio){
 
-	PORT_TYPE port = getPortType(gpio.port);
+	GPIO_PORT_TYPE port = getPortType(gpio.port);
 	if (port == NULL){
 		return RETURNCODE_NULL_POINTER;
 	}
@@ -107,7 +107,7 @@ ReturnCode GpioDeInit(const GpioStruct gpio){
 	return RETURNCODE_SUCCESS;
 }
 
-PORT_TYPE getPortType(PortSelect port){
+GPIO_PORT_TYPE getPortType(GpioPortSelect port){
 
-	return (PORT_TYPE)(GPIOA_BASE + (port * (GPIOB_BASE - GPIOA_BASE)));
+	return (GPIO_PORT_TYPE)(GPIOA_BASE + (port * (GPIOB_BASE - GPIOA_BASE)));
 }
