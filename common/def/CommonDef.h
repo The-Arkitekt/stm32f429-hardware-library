@@ -8,6 +8,11 @@
 
 #define NULL 0
 
+typedef enum Boolean{
+	FALSE = 0U,
+	TRUE
+}Boolean;
+
 #ifdef __cplusplus
 }
 #endif

@@ -5,6 +5,7 @@
 	extern "C" {
 #endif
 
+#include "CommonDef.h"
 #include "ReturnCodesDef.h"
 #include "GpioDef.h"
 #include "SystemConfigDef.h"
@@ -35,6 +36,7 @@ void SysCfgSelectEthInterface(SysCfgEthInterface interface);
 ReturnCode SysCfgEnableExti(SysCfgExtiCr controlRegister, GpioPortSelect port, GpioPinSelect pin);
 ReturnCode SysCfgDisableExti(SysCfgExtiCr controlRegister, GpioPortSelect port, GpioPinSelect pin);
 
+Boolean isValidExtiPin(SysCfgExtiCr controlRegister, GpioPinSelect pin);
 
 #ifdef __cplusplus
 }
