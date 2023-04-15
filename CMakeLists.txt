@@ -15,6 +15,11 @@ set(GPIO_DEF_DIR                 ${COMMON_DEF_DIR}/Gpio)
 set(BIT_MANIPULATION_SRC_DIR     ${CMAKE_CURRENT_SOURCE_DIR}/BitManipulation/src)
 set(BIT_MANIPULATION_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/BitManipulation/include)
 
+set(SYSTEM_CONFIG_SRC_DIR        ${CMAKE_CURRENT_SOURCE_DIR}/SystemConfig/src)
+set(SYSTEM_CONFIG_INCLUDE_DIR    ${CMAKE_CURRENT_SOURCE_DIR}/SystemConfig/include)
+set(SYSTEM_CONFIG_DEF_DIR        ${COMMON_DEF_DIR}/SystemConfig)
+
+
 
 ####################################
 #  Add STM32f429CommonLibrary 
@@ -41,5 +46,17 @@ target_link_libraries(Gpio PUBLIC
   BitManipulation
 )
 
-
+#SystemConfig
+add_library(SystemConfig ${SYSTEM_CONFIG_SRC_DIR}/SystemConfig.c)
+target_include_directories(SystemConfig PUBLIC
+  ${SYSTEM_INCLUDE_DIR}
+  ${CONFIGURATION_FILE_PATH}
+  ${GPIO_DEF_DIR}
+  ${SYSTEM_CONFIG_DEF_DIR}
+  ${SYSTEM_CONFIG_INCLUDE_DIR}
+  ${CMSIS_INCLUDE_DIR}
+)
+target_link_libraries(SystemConfig PUBLIC
+  BitManipulation
+)
 
