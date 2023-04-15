@@ -5,8 +5,9 @@
 	extern "C" {
 #endif
 
-
-#define NULL 0
+#ifndef NULL
+	#define NULL 0
+#endif //NULL
 
 typedef enum Boolean{
 	FALSE = 0U,

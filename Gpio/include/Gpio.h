@@ -9,8 +9,11 @@
 #include "ReturnCodesDef.h"
 #include "GpioDef.h"
 
-ReturnCode GpioWrite(const GpioStruct gpio, const PinState);
-ReturnCode GpioRead(const GpioStruct gpio, GpioPinState* const pinState);
+void GpioEnable(const GpioPortSelect port);
+void GpioDisable(const GpioPortSelect port);
+
+ReturnCode GpioWrite(const GpioPortSelect port, const GpioPinSelect pin, const GpioPinState PinState);
+ReturnCode GpioRead(const GpioPortSelect port, const GpioPinSelect pin, GpioPinState* const pinState);
 
 /**
  * Initialize the GPIO pin

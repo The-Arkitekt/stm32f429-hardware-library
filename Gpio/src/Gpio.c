@@ -9,19 +9,28 @@
 #include "Gpio.h"
 #include "BitManipulation.h"
 
-ReturnCode GpioWrite(const GpioStruct gpio, const GpioPinState value){
+void GpioEnable(const GpioPortSelect port){
+	setWordBits(1U, port, &(RCC->AHB1ENR));
+}
 
-	GPIO_PORT_TYPE port = getPortType(gpio.port);
+void GpioDisable(const GpioPortSelect port){
+	clearWordBits(1U, port, &(RCC->AHB1ENR));
+}
+
+ReturnCode GpioWrite(const GpioPortSelect port, const GpioPinSelect pin, const GpioPinState value){
+
+	GpioEnable(port);
+	GPIO_PORT_TYPE portType = getPortType(port);
 	if (port == NULL){
 		return RETURNCODE_NULL_POINTER;
 	}
 
 	// set bit BSRR
 	if (value == GPIO_PINSTATE_SET){
-		setWordBits(1U, gpio.pin, &(port->BSRR));
+		setWordBits(1U, pin, &(portType->BSRR));
 	}
 	else if (value == GPIO_PINSTATE_RESET){
-		setWordBits(1U, gpio.pin + HALF_WORD_SIZE, &(port->BSRR));
+		setWordBits(1U, pin + HALF_WORD_SIZE, &(portType->BSRR));
 	}
 	else {
 		return RETURNCODE_INVALID_INPUT;
@@ -30,15 +39,16 @@ ReturnCode GpioWrite(const GpioStruct gpio, const GpioPinState value){
     return RETURNCODE_SUCCESS;
 }
 
-ReturnCode GpioRead(const GpioStruct gpio, GpioPinState* const pinState){
+ReturnCode GpioRead(const GpioPortSelect port, const GpioPinSelect pin, GpioPinState* const pinState){
 
-	GPIO_PORT_TYPE port = getPortType(gpio.port);
+	GpioEnable(port);
+	GPIO_PORT_TYPE portType = getPortType(port);
 	if (port == NULL){
 		(*pinState) = RETURNCODE_UNKNOWN;
 		return RETURNCODE_NULL_POINTER;
 	}
 
-	if (checkWordBits(port->IDR, 1U, gpio.pin) == 1){
+	if (checkWordBits(portType->IDR, 1U, pin) == 1){
 		(*pinState) =  GPIO_PINSTATE_SET;
 	}
 	else{
@@ -51,11 +61,7 @@ ReturnCode GpioRead(const GpioStruct gpio, GpioPinState* const pinState){
 ReturnCode GpioInit(const GpioStruct gpio){
 
 	// Enable GPIO Peripheral clock
-	if (RCC == NULL){
-		return RETURNCODE_NULL_POINTER;
-	}
-
-	setWordBits(1U, gpio.port, &(RCC->AHB1ENR));
+	GpioEnable(gpio.port);
 
 	// get port struct
 	GPIO_PORT_TYPE port = getPortType(gpio.port);
@@ -89,9 +95,6 @@ ReturnCode GpioDeInit(const GpioStruct gpio){
 		return RETURNCODE_NULL_POINTER;
 	}
 
-	// Disable GPIO Peripheral clock
-	clearWordBits(1U, gpio.port, &(RCC->AHB1ENR));
-
 	// clear MODER
 	clearWordBits(0b11, 2*gpio.pin, &(port->MODER));
 
@@ -103,6 +106,8 @@ ReturnCode GpioDeInit(const GpioStruct gpio){
 
 	// clear PUPDR
 	clearWordBits(0b11, 2*gpio.pin, &(port->PUPDR));
+
+	GpioDisable(gpio.port);
 
 	return RETURNCODE_SUCCESS;
 }

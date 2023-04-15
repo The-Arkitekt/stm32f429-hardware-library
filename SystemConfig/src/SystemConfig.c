@@ -2,29 +2,55 @@
 #include "SystemConfig.h"
 #include "BitManipulation.h"
 
+void SysCfgEnable(){
+	setWordBits(1U, 14U, &(RCC->APB2ENR));
+}
+
+void SysCfgDisable(){
+	clearWordBits(1U, 14U, &(RCC->APB2ENR));
+}
+
 void SysCfgSetSwap(){
-	setWordBits(1U, SYSCFG_SWP_FMC_POS, &(SYSCFG_REG->MEMRMP));
+	SysCfgEnable();
+	SYSCFG_TYPE sysConfigReg = (SYSCFG_TYPE)SYSCONFIG_BASE;
+	setWordBits(1U, SYSCFG_SWP_FMC_POS, &(sysConfigReg->MEMRMP));
+	SysCfgDisable();
 }
 void SysCfgResetSwap(){
-	clearWordBits(3U, SYSCFG_SWP_FMC_POS, &(SYSCFG_REG->MEMRMP));
+	SysCfgEnable();
+	SYSCFG_TYPE sysConfigReg = (SYSCFG_TYPE)SYSCONFIG_BASE;
+	clearWordBits(3U, SYSCFG_SWP_FMC_POS, &(sysConfigReg->MEMRMP));
+	SysCfgDisable();
 }
 
 void SysCfgSetFbMode(){
-	setWordBits(1U, SYSCFG_FB_MODE_POS, &(SYSCFG_REG->MEMRMP));
+	SysCfgEnable();
+	SYSCFG_TYPE sysConfigReg = (SYSCFG_TYPE)SYSCONFIG_BASE;
+	setWordBits(1U, SYSCFG_FB_MODE_POS, &(sysConfigReg->MEMRMP));
+	SysCfgDisable();
 }
 void SysCfgResetFbMode(){
-	clearWordBits(1U, SYSCFG_FB_MODE_POS, &(SYSCFG_REG->MEMRMP));
+	SysCfgEnable();
+	SYSCFG_TYPE sysConfigReg = (SYSCFG_TYPE)SYSCONFIG_BASE;
+	clearWordBits(1U, SYSCFG_FB_MODE_POS, &(sysConfigReg->MEMRMP));
+	SysCfgDisable();
 }
-void SysCfgMemMapSetMode(SysCfgMemMapMode mode){
-	setWordBits(mode, SYSCFG_MEM_MODE_POS, &(SYSCFG_REG->MEMRMP));
+void SysCfgMemMapSetMode(const SysCfgMemMapMode mode){
+	SysCfgEnable();
+	SYSCFG_TYPE sysConfigReg = (SYSCFG_TYPE)SYSCONFIG_BASE;
+	setWordBits(mode, SYSCFG_MEM_MODE_POS, &(sysConfigReg->MEMRMP));
+	SysCfgDisable();
 }
 
 
-void SysCfgSelectEthInterface(SysCfgEthInterface interface){
-	setWordBits(interface, SYSCFG_ETH_SEL_POS, &(SYSCFG_REG->PMC));
+void SysCfgSelectEthInterface(const SysCfgEthInterface interface){
+	SysCfgEnable();
+	SYSCFG_TYPE sysConfigReg = (SYSCFG_TYPE)SYSCONFIG_BASE;
+	setWordBits(interface, SYSCFG_ETH_SEL_POS, &(sysConfigReg->PMC));
+	SysCfgDisable();
 }
 
-ReturnCode SysCfgEnableExti(SysCfgExtiCr controlRegister, GpioPortSelect port, GpioPinSelect pin){
+ReturnCode SysCfgEnableExti(const SysCfgExtiCr controlRegister, const GpioPortSelect port, const GpioPinSelect pin){
 	if (isValidExtiPin(controlRegister, pin) == FALSE){
 		return RETURNCODE_INVALID_INPUT;
 	}
@@ -34,22 +60,29 @@ ReturnCode SysCfgEnableExti(SysCfgExtiCr controlRegister, GpioPortSelect port, G
 	 *
 	 * (pin % 4) * 4 == (pin & 3) << 2
 	 */
-	BYTE_TYPE location = (pin & 3) << 2;
-	setWordBits(port, location, &(SYSCFG_REG->EXTICR[controlRegister]));
+
+	SysCfgEnable();
+	BYTE_TYPE location = (pin - (4*controlRegister)) * 4;
+	SYSCFG_TYPE sysConfigReg = (SYSCFG_TYPE)SYSCONFIG_BASE;
+	setWordBits(port, location, &(sysConfigReg->EXTICR[controlRegister]));
+	//SysCfgDisable();
 
 	return RETURNCODE_SUCCESS;
 }
-ReturnCode SysCfgDisableExti(SysCfgExtiCr controlRegister, GpioPortSelect port, GpioPinSelect pin){
+ReturnCode SysCfgDisableExti(const SysCfgExtiCr controlRegister, const GpioPortSelect port, const GpioPinSelect pin){
 	if (isValidExtiPin(controlRegister, pin) == FALSE){
 		return RETURNCODE_INVALID_INPUT;
 	}
 
+	SysCfgEnable();
 	BYTE_TYPE location = (pin & 3) << 2;
-	clearWordBits(port, location, &(SYSCFG_REG)->EXTICR[controlRegister]);
+	SYSCFG_TYPE sysConfigReg = (SYSCFG_TYPE)SYSCONFIG_BASE;
+	clearWordBits(port, location, &(sysConfigReg->EXTICR[controlRegister]));
+	SysCfgDisable();
 
 	return RETURNCODE_SUCCESS;
 }
-Boolean isValidExtiPin(SysCfgExtiCr controlRegister, GpioPinSelect pin){
+Boolean isValidExtiPin(const SysCfgExtiCr controlRegister, const GpioPinSelect pin){
 	if (controlRegister == SYSCFG_EXTI_CR1){
 		if ((pin >= EXTI_CR1_MIN_PIN) && (pin <= EXTI_CR1_MAX_PIN)){
 			return TRUE;

@@ -5,6 +5,7 @@
 	extern "C" {
 #endif
 
+#include "BitManipulationDef.h"
 #include "GpioDef.h"
 #include "stm32.h"
 
@@ -12,13 +13,7 @@
  * SYSCFG registers definition
  */
 typedef SYSCFG_TypeDef * SYSCFG_TYPE;
-
-/**
- * SYSCFG registers location
- *
- * There is only one set of SYSCFG registers
- */
-const SYSCFG_TYPE SYSCFG_REG = SYSCFG_BASE;
+const WORD_TYPE SYSCONFIG_BASE = SYSCFG_BASE;
 
 /**
  * Memory Mapping Selection

@@ -10,6 +10,9 @@
 #include "GpioDef.h"
 #include "SystemConfigDef.h"
 
+// Enable/Disable SysCfg clock
+void SysCfgEnable();
+void SysCfgDisable();
 /**
  * Memory Mapping functions
  */
