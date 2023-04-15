@@ -107,8 +107,6 @@ ReturnCode GpioDeInit(const GpioStruct gpio){
 	// clear PUPDR
 	clearWordBits(0b11, 2*gpio.pin, &(port->PUPDR));
 
-	GpioDisable(gpio.port);
-
 	return RETURNCODE_SUCCESS;
 }
 
