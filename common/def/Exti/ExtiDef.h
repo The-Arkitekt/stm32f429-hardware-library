@@ -1,5 +1,5 @@
-#ifndef INTERRUPT_DEF_H
-#define INTERRUPT_DEF_H
+#ifndef EXTI_DEF_H
+#define EXTI_DEF_H
 
 #ifdef __cplusplus
 	extern "C" {
@@ -8,11 +8,11 @@
 #include "system_conf.h"
 
 #ifdef STM32F429
-#include "STM32F429_InterruptDef.h"
+#include "STM32F429_ExtiDef.h"
 #endif
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif //INTERRUPT_DEF_H
+#endif //EXTI_DEF_H

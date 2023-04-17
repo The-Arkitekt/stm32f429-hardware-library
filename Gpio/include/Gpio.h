@@ -5,7 +5,6 @@
 	extern "C" {
 #endif
 
-#include "BitManipulation.h"
 #include "ReturnCodesDef.h"
 #include "GpioDef.h"
 
@@ -18,12 +17,12 @@ ReturnCode GpioRead(const GpioPortSelect port, const GpioPinSelect pin, GpioPinS
 /**
  * Initialize the GPIO pin
  */
-ReturnCode GpioInit(const GpioStruct gpio);
+ReturnCode GpioInit(const GpioConfigStruct gpio);
 
 /**
  * deInitialize the GPIO so it is no longer useable until initialized again
  */
-ReturnCode GpioDeInit(const GpioStruct gpio);
+ReturnCode GpioDeInit(const GpioConfigStruct gpio);
 
 GPIO_PORT_TYPE getPortType(GpioPortSelect portNum);
 
