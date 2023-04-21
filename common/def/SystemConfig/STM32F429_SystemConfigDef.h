@@ -13,7 +13,7 @@
  * SYSCFG registers definition
  */
 typedef SYSCFG_TypeDef * SYSCFG_TYPE;
-const WORD_TYPE SYSCFG_BASE_ADDR = SYSCFG_BASE;
+static const WORD_TYPE SYSCFG_BASE_ADDR = SYSCFG_BASE;
 
 // Position in the RCC->APB2ENR register to enable the preipheral clock
 const BYTE_TYPE SYSCFG_RCC_POS = 14U;
@@ -23,9 +23,9 @@ const BYTE_TYPE SYSCFG_RCC_POS = 14U;
  *
  * sets which memory is mapped at address 0x0
  */
-const BYTE_TYPE SYSCFG_SWP_FMC_POS  = 10U;
-const BYTE_TYPE SYSCFG_FB_MODE_POS  = 8U;
-const BYTE_TYPE SYSCFG_MEM_MODE_POS = 0U;
+static const BYTE_TYPE SYSCFG_SWP_FMC_POS  = 10U;
+static const BYTE_TYPE SYSCFG_FB_MODE_POS  = 8U;
+static const BYTE_TYPE SYSCFG_MEM_MODE_POS = 0U;
 typedef enum SysCfgMemMapMode{
 	SYSCFG_MEMMAP_MODE_MAIN_FLASH = 0U,
 	SYSCFG_MEMMAP_MODE_SYS_FLASH,

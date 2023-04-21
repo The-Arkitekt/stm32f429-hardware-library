@@ -6,9 +6,41 @@
 #endif
 
 #include "stm32.h"
+#include "BitManipulationDef.h"
 
 // custom types for type safety
 typedef GPIO_TypeDef * GPIO_PORT_TYPE;
+
+// Port constants
+#ifndef NUM_GPIO_PORTS
+	#define NUM_GPIO_PORTS 11U
+#endif //NUM_GPIO_PORTS
+
+static const WORD_TYPE GPIOA_ADDR = GPIOA_BASE;
+static const WORD_TYPE GPIOB_ADDR = GPIOB_BASE;
+static const WORD_TYPE GPIOC_ADDR = GPIOC_BASE;
+static const WORD_TYPE GPIOD_ADDR = GPIOD_BASE;
+static const WORD_TYPE GPIOE_ADDR = GPIOE_BASE;
+static const WORD_TYPE GPIOF_ADDR = GPIOF_BASE;
+static const WORD_TYPE GPIOG_ADDR = GPIOG_BASE;
+static const WORD_TYPE GPIOH_ADDR = GPIOH_BASE;
+static const WORD_TYPE GPIOI_ADDR = GPIOI_BASE;
+static const WORD_TYPE GPIOJ_ADDR = GPIOJ_BASE;
+static const WORD_TYPE GPIOK_ADDR = GPIOK_BASE;
+
+static const WORD_TYPE GPIO_PORT_ADDRS[NUM_GPIO_PORTS] = {
+	GPIOA_ADDR,
+	GPIOB_ADDR,
+	GPIOC_ADDR,
+	GPIOD_ADDR,
+	GPIOE_ADDR,
+	GPIOF_ADDR,
+	GPIOG_ADDR,
+	GPIOH_ADDR,
+	GPIOI_ADDR,
+	GPIOJ_ADDR,
+	GPIOK_ADDR
+};
 
 typedef enum GpioPortSelect{
 	GPIO_PORTSELECT_A = 0U,

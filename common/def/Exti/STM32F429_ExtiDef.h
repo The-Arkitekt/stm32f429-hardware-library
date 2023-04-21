@@ -129,7 +129,7 @@ typedef	EXTI_TypeDef * EXTI_TYPE;
 //} IRQn_Type;
 typedef IRQn_Type IRQ_TYPE;
 
-const WORD_TYPE EXTI_BASE_ADDR = EXTI_BASE;
+static const WORD_TYPE EXTI_BASE_ADDR = EXTI_BASE;
 #define NUM_EXTI_IRQS 16U
 
 /**
