@@ -24,8 +24,6 @@ ReturnCode GpioInit(const GpioConfigStruct gpio);
  */
 ReturnCode GpioDeInit(const GpioConfigStruct gpio);
 
-GPIO_PORT_TYPE getPortType(GpioPortSelect portNum);
-
 #ifdef __cplusplus
 }
 #endif
