@@ -56,6 +56,11 @@ typedef enum GpioPortSelect{
 	GPIO_PORTSELECT_K
 }GpioPortSelect;
 
+
+#ifndef NUM_GPIO_PINS
+	#define NUM_GPIO_PINS 16U
+#endif //NUM_GPIO_PINS
+
 typedef enum GpioPinSelect{
 	GPIO_PINSELECT_0 = 0U,
 	GPIO_PINSELECT_1,
