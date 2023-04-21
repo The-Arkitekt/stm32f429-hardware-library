@@ -29,11 +29,8 @@ void ExtiEventDeinit(const ExtiConfigStruct exti);
  * For both
  */
 void ExtiTrigger(const ExtiLineSelect line);
-ReturnCode enableExtiIrq(const IRQ_TYPE irq);
-ReturnCode disableExtiIrq(const IRQ_TYPE irq);
-
-Boolean isValidExtiIrq(const IRQ_TYPE irq);
-ReturnCode getExtiIrqType(const ExtiLineSelect line, IRQ_TYPE* const irq);
+void enableExtiIrq(const ExtiIrqSelect irq);
+void disableExtiIrq(const ExtiIrqSelect irq);
 
 #ifdef __cplusplus
 }

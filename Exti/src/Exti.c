@@ -101,44 +101,10 @@ void ExtiTrigger(const ExtiLineSelect line){
 	EXTI_TYPE extiReg = (EXTI_TYPE)EXTI_BASE_ADDR;
 	setWordBits(1U, line, &(extiReg->SWIER));
 }
-ReturnCode enableExtiIrq(const IRQ_TYPE irq){
-
-	if (isValidExtiIrq(irq) == FALSE){
-		return RETURNCODE_INVALID_INPUT;
-	}
-
-	NVIC_EnableIRQ(irq);
-
-	return RETURNCODE_SUCCESS;
+void enableExtiIrq(const ExtiIrqSelect irq){
+	NVIC_EnableIRQ((IRQ_TYPE)irq);
 }
 
-ReturnCode disableExtiIrq(const IRQ_TYPE irq){
-	if (isValidExtiIrq(irq) == FALSE){
-		return RETURNCODE_INVALID_INPUT;
-	}
-
-	NVIC_DisableIRQ(irq);
-
-	return RETURNCODE_SUCCESS;
-}
-
-Boolean isValidExtiIrq(const IRQ_TYPE irq){
-	for (BYTE_TYPE i = 0U; i < NUM_EXTI_IRQS; ++i){
-		if (irq == EXTI_IRQS[i]){
-			return TRUE;
-		}
-	}
-
-	return FALSE;
-}
-
-ReturnCode getExtiIrqType(const ExtiLineSelect line, IRQ_TYPE* const irq){
-
-	if (line > NUM_EXTI_IRQS){
-		return RETURNCODE_INVALID_INPUT;
-	}
-
-	(*irq) = EXTI_IRQS[line];
-
-	return RETURNCODE_SUCCESS;
+void disableExtiIrq(const ExtiIrqSelect irq){
+	NVIC_DisableIRQ((IRQ_TYPE)irq);
 }
