@@ -19,6 +19,9 @@ set(SYSTEM_CONFIG_SRC_DIR        ${CMAKE_CURRENT_SOURCE_DIR}/SystemConfig/src)
 set(SYSTEM_CONFIG_INCLUDE_DIR    ${CMAKE_CURRENT_SOURCE_DIR}/SystemConfig/include)
 set(SYSTEM_CONFIG_DEF_DIR        ${COMMON_DEF_DIR}/SystemConfig)
 
+set(EXTI_SRC_DIR                 ${CMAKE_CURRENT_SOURCE_DIR}/Exti/src)
+set(EXTI_INCLUDE_DIR             ${CMAKE_CURRENT_SOURCE_DIR}/Exti/include)
+set(EXTI_DEF_DIR                 ${COMMON_DEF_DIR}/Exti)
 
 
 ####################################
@@ -59,4 +62,19 @@ target_include_directories(SystemConfig PUBLIC
 target_link_libraries(SystemConfig PUBLIC
   BitManipulation
 )
+
+#Exti
+add_library(Exti ${EXTI_SRC_DIR}/Exti.c)
+target_include_directories(Exti PUBLIC
+  ${SYSTEM_INCLUDE_DIR}
+  ${CONFIGURATION_FILE_PATH}
+  ${GPIO_DEF_DIR}
+  ${EXTI_DEF_DIR}
+  ${EXTI_INCLUDE_DIR}
+  ${CMSIS_INCLUDE_DIR}
+)
+target_link_libraries(Exti PUBLIC
+  BitManipulation
+)
+
 

@@ -36,10 +36,10 @@ void SysCfgSelectEthInterface(SysCfgEthInterface interface);
 /**
  * External Interrupt Configuration
  */
-ReturnCode SysCfgEnableExti(SysCfgExtiCr controlRegister, GpioPortSelect port, GpioPinSelect pin);
-ReturnCode SysCfgDisableExti(SysCfgExtiCr controlRegister, GpioPortSelect port, GpioPinSelect pin);
+ReturnCode SysCfgEnableExti(GpioPortSelect port, GpioPinSelect pin);
+ReturnCode SysCfgDisableExti(GpioPortSelect port, GpioPinSelect pin);
 
-Boolean isValidExtiPin(SysCfgExtiCr controlRegister, GpioPinSelect pin);
+SysCfgExtiCr getExtiCr(GpioPinSelect pin);
 
 #ifdef __cplusplus
 }

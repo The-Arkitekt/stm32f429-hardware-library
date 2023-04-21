@@ -48,7 +48,7 @@ ReturnCode GpioRead(const GpioPortSelect port, const GpioPinSelect pin, GpioPinS
 		return RETURNCODE_NULL_POINTER;
 	}
 
-	if (checkWordBits(portType->IDR, 1U, pin) == 1){
+	if (checkWordBits(portType->IDR, 1U, pin) == TRUE){
 		(*pinState) =  GPIO_PINSTATE_SET;
 	}
 	else{
@@ -58,7 +58,7 @@ ReturnCode GpioRead(const GpioPortSelect port, const GpioPinSelect pin, GpioPinS
 	return RETURNCODE_SUCCESS;
 }
 
-ReturnCode GpioInit(const GpioStruct gpio){
+ReturnCode GpioInit(const GpioConfigStruct gpio){
 
 	// Enable GPIO Peripheral clock
 	GpioEnable(gpio.port);
@@ -69,26 +69,53 @@ ReturnCode GpioInit(const GpioStruct gpio){
 		return RETURNCODE_NULL_POINTER;
 	}
 
+	WORD_TYPE tmp = 0U;
 	// clear and set MODER
-	clearWordBits(0b11, 2*gpio.pin, &(port->MODER));
-	setWordBits(gpio.mode, 2*gpio.pin, &(port->MODER));
+	tmp = port->MODER;
+	clearWordBits(0b11, 2*gpio.pin, &tmp);
+	setWordBits(gpio.mode, 2*gpio.pin, &tmp);
+	port->MODER = tmp;
+
+	// Handle alt mode if mode is Alternate
+	if (gpio.mode == GPIO_MODESELECT_ALT){
+		if (gpio.pin < 8U){
+			tmp = port->AFR[0];
+			BYTE_TYPE location = (gpio.pin - 8U) * 4U;
+			clearWordBits(0b1111, location, &tmp);
+			setWordBits(gpio.altMode, location, &tmp);
+			port->AFR[0] = tmp;
+		}
+		else{
+			tmp = port->AFR[1];
+			BYTE_TYPE location = gpio.pin * 4U;
+			clearWordBits(0b1111, location, &tmp);
+			setWordBits(gpio.altMode, location, &tmp);
+			port->AFR[1] = tmp;
+		}
+	}
 
 	// clear and set OType
-	clearWordBits(0b1, gpio.pin, &(port->OTYPER));
-	setWordBits(gpio.oType, gpio.pin, &(port->OTYPER));
+	tmp = port->OTYPER;
+	clearWordBits(0b1, gpio.pin, &tmp);
+	setWordBits(gpio.oType, gpio.pin, &tmp);
+	port->OTYPER = tmp;
 
 	// clear and set OSPEEDR
-	clearWordBits(0b11, 2*gpio.pin, &(port->OSPEEDR));
-	setWordBits(gpio.speed, 2*gpio.pin, &(port->OSPEEDR));
+	tmp = port->OSPEEDR;
+	clearWordBits(0b11, 2*gpio.pin, &tmp);
+	setWordBits(gpio.speed, 2*gpio.pin, &tmp);
+	port->OSPEEDR = tmp;
 
 	// clear and set PUPDR
-	clearWordBits(0b11, 2*gpio.pin, &(port->PUPDR));
-	setWordBits(gpio.pull, 2*gpio.pin,  &(port->PUPDR));
+	tmp = port->PUPDR;
+	clearWordBits(0b11, 2*gpio.pin, &tmp);
+	setWordBits(gpio.pull, 2*gpio.pin,  &tmp);
+	port->PUPDR = tmp;
 
 	return RETURNCODE_SUCCESS;
 }
 
-ReturnCode GpioDeInit(const GpioStruct gpio){
+ReturnCode GpioDeInit(const GpioConfigStruct gpio){
 
 	GPIO_PORT_TYPE port = getPortType(gpio.port);
 	if (port == NULL){

@@ -5,13 +5,14 @@
 	extern "C" {
 #endif
 
+#include "CommonDef.h"
 #include "BitManipulationDef.h"
 #include "ReturnCodesDef.h"
 
 ReturnCode clearWordBits(const WORD_TYPE mask, const BYTE_TYPE location, volatile WORD_TYPE* const wordPtr);
 ReturnCode setWordBits(const WORD_TYPE mask, const BYTE_TYPE location, volatile WORD_TYPE* const wordPtr);
 
-BIT_TYPE checkWordBits(const WORD_TYPE word, const WORD_TYPE mask, const BYTE_TYPE location);
+Boolean checkWordBits(const WORD_TYPE word, const WORD_TYPE mask, const BYTE_TYPE location);
 
 WORD_TYPE      generateWordMask(const WORD_TYPE seed, const BYTE_TYPE shiftAmt);
 HALF_WORD_TYPE generateHalfWordMask(const HALF_WORD_TYPE seed, const BYTE_TYPE shiftAmt);
