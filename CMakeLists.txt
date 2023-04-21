@@ -23,6 +23,10 @@ set(EXTI_SRC_DIR                 ${CMAKE_CURRENT_SOURCE_DIR}/Exti/src)
 set(EXTI_INCLUDE_DIR             ${CMAKE_CURRENT_SOURCE_DIR}/Exti/include)
 set(EXTI_DEF_DIR                 ${COMMON_DEF_DIR}/Exti)
 
+set(DMA_SRC_DIR                  ${CMAKE_CURRENT_SOURCE_DIR}/Dma/src)
+set(DMA_INCLUDE_DIR              ${CMAKE_CURRENT_SOURCE_DIR}/Dma/include)
+set(DMA_DEF_DIR                  ${COMMON_DEF_DIR}/Dma)
+
 
 ####################################
 #  Add STM32f429CommonLibrary 
@@ -76,5 +80,16 @@ target_include_directories(Exti PUBLIC
 target_link_libraries(Exti PUBLIC
   BitManipulation
 )
+
+#Dma
+add_library(Dma ${DMA_SRC_DIR}/Dma.c)
+target_include_directories(Dma PUBLIC
+  &{SYSTEM_INCLUDE_DIR}
+  ${CONFIGURATION_FILE_PATH}
+  ${DMA_DEF_DIR}
+  ${DMA_INCLUDE_DIR}
+  ${CMSIS_INCLUDE_DIR}
+)
+
 
 
