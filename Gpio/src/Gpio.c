@@ -20,7 +20,7 @@ void GpioDisable(const GpioPortSelect port){
 ReturnCode GpioWrite(const GpioPortSelect port, const GpioPinSelect pin, const GpioPinState value){
 
 	GpioEnable(port);
-	GPIO_PORT_TYPE portType = getPortType(port);
+	GPIO_PORT_TYPE portType = (GPIO_PORT_TYPE)GPIO_PORT_ADDRS[port];
 	if (port == NULL){
 		return RETURNCODE_NULL_POINTER;
 	}
@@ -42,7 +42,7 @@ ReturnCode GpioWrite(const GpioPortSelect port, const GpioPinSelect pin, const G
 ReturnCode GpioRead(const GpioPortSelect port, const GpioPinSelect pin, GpioPinState* const pinState){
 
 	GpioEnable(port);
-	GPIO_PORT_TYPE portType = getPortType(port);
+	GPIO_PORT_TYPE portType = (GPIO_PORT_TYPE)GPIO_PORT_ADDRS[port];;
 	if (port == NULL){
 		(*pinState) = RETURNCODE_UNKNOWN;
 		return RETURNCODE_NULL_POINTER;
@@ -64,7 +64,7 @@ ReturnCode GpioInit(const GpioConfigStruct gpio){
 	GpioEnable(gpio.port);
 
 	// get port struct
-	GPIO_PORT_TYPE port = getPortType(gpio.port);
+	GPIO_PORT_TYPE port = (GPIO_PORT_TYPE)GPIO_PORT_ADDRS[gpio.port];
 	if (port == NULL){
 		return RETURNCODE_NULL_POINTER;
 	}
@@ -117,7 +117,7 @@ ReturnCode GpioInit(const GpioConfigStruct gpio){
 
 ReturnCode GpioDeInit(const GpioConfigStruct gpio){
 
-	GPIO_PORT_TYPE port = getPortType(gpio.port);
+	GPIO_PORT_TYPE port = (GPIO_PORT_TYPE)GPIO_PORT_ADDRS[gpio.port];
 	if (port == NULL){
 		return RETURNCODE_NULL_POINTER;
 	}
@@ -135,9 +135,4 @@ ReturnCode GpioDeInit(const GpioConfigStruct gpio){
 	clearWordBits(0b11, 2*gpio.pin, &(port->PUPDR));
 
 	return RETURNCODE_SUCCESS;
-}
-
-GPIO_PORT_TYPE getPortType(GpioPortSelect port){
-
-	return (GPIO_PORT_TYPE)(GPIOA_BASE + (port * (GPIOB_BASE - GPIOA_BASE)));
 }

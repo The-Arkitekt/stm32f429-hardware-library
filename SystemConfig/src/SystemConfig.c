@@ -56,10 +56,10 @@ void SysCfgSelectEthInterface(const SysCfgEthInterface interface){
 }
 
 ReturnCode SysCfgEnableExti(const GpioPortSelect port, const GpioPinSelect pin){
-	SysCfgExtiCr controlRegister = getExtiCr(pin);
+	SysCfgExtiCr controlRegister = SYSCFG_EXTI_CR_REGS[pin];
 
 	/*
-	 * four pins per register, each pin gets 4 cbits
+	 * four pins per register, each pin gets 4 bits
 	 *
 	 * (pin % 4) * 4 == (pin & 3) << 2
 	 */
@@ -73,7 +73,7 @@ ReturnCode SysCfgEnableExti(const GpioPortSelect port, const GpioPinSelect pin){
 	return RETURNCODE_SUCCESS;
 }
 ReturnCode SysCfgDisableExti(const GpioPortSelect port, const GpioPinSelect pin){
-	SysCfgExtiCr controlRegister = getExtiCr(pin);
+	SysCfgExtiCr controlRegister = SYSCFG_EXTI_CR_REGS[pin];
 
 	SysCfgEnable();
 	BYTE_TYPE location = (pin & 3) << 2;
@@ -82,18 +82,4 @@ ReturnCode SysCfgDisableExti(const GpioPortSelect port, const GpioPinSelect pin)
 	SysCfgDisable();
 
 	return RETURNCODE_SUCCESS;
-}
-SysCfgExtiCr getExtiCr(const GpioPinSelect pin){
-
-	if ((pin >= EXTI_1_MIN_PIN) && (pin <= EXTI_1_MAX_PIN)){
-		return SYSCFG_EXTI_CR1;
-	}
-	if ((pin >= EXTI_2_MIN_PIN) && (pin <= EXTI_2_MAX_PIN)){
-		return SYSCFG_EXTI_CR2;
-	}
-	if ((pin >= EXTI_3_MIN_PIN) && (pin <= EXTI_3_MAX_PIN)){
-		return SYSCFG_EXTI_CR3;
-	}
-	// Must be cr4
-	return SYSCFG_EXTI_CR4;
 }

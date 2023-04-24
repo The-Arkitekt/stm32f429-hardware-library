@@ -39,8 +39,6 @@ void SysCfgSelectEthInterface(SysCfgEthInterface interface);
 ReturnCode SysCfgEnableExti(GpioPortSelect port, GpioPinSelect pin);
 ReturnCode SysCfgDisableExti(GpioPortSelect port, GpioPinSelect pin);
 
-SysCfgExtiCr getExtiCr(GpioPinSelect pin);
-
 #ifdef __cplusplus
 }
 #endif
