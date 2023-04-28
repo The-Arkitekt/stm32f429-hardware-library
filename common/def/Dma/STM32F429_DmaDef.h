@@ -6,6 +6,7 @@
 #endif
 
 #include "stm32.h"
+#include "CommonDef.h"
 
 //	typedef struct
 //	{
