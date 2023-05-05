@@ -1,13 +1,14 @@
 
 #include "SystemConfig.h"
 #include "BitManipulation.h"
+#include "RccDef.h"
 
 void SysCfgEnable(){
-	setWordBits(1U, SYSCFG_RCC_POS, &(RCC->APB2ENR));
+	setWordBits(1U, SYSCFG_RCC_POS, &(RCC_REG->APB2ENR));
 }
 
 void SysCfgDisable(){
-	clearWordBits(1U, SYSCFG_RCC_POS, &(RCC->APB2ENR));
+	clearWordBits(1U, SYSCFG_RCC_POS, &(RCC_REG->APB2ENR));
 }
 
 void SysCfgSetSwap(){

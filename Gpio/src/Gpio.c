@@ -6,15 +6,16 @@
  */
 
 #include "CommonDef.h"
+#include "RccDef.h"
 #include "Gpio.h"
 #include "BitManipulation.h"
 
 void GpioEnable(const GpioPortSelect port){
-	setWordBits(1U, port, &(RCC->AHB1ENR));
+	setWordBits(1U, port, &(RCC_REG->AHB1ENR));
 }
 
 void GpioDisable(const GpioPortSelect port){
-	clearWordBits(1U, port, &(RCC->AHB1ENR));
+	clearWordBits(1U, port, &(RCC_REG->AHB1ENR));
 }
 
 ReturnCode GpioWrite(const GpioPortSelect port, const GpioPinSelect pin, const GpioPinState value){

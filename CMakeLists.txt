@@ -8,6 +8,8 @@ set(CMSIS_INCLUDE_DIR            ${SYSTEM_INCLUDE_DIR}/cmsis)
 
 set(COMMON_DEF_DIR               ${CMAKE_CURRENT_SOURCE_DIR}/common/def)
 
+set(RCC_DEF_DIR                  ${COMMON_DEF_DIR}/Rcc)
+
 set(GPIO_SRC_DIR                 ${CMAKE_CURRENT_SOURCE_DIR}/Gpio/src)
 set(GPIO_INCLUDE_DIR             ${CMAKE_CURRENT_SOURCE_DIR}/Gpio/include)
 set(GPIO_DEF_DIR                 ${COMMON_DEF_DIR}/Gpio)
@@ -18,6 +20,8 @@ set(BIT_MANIPULATION_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/BitManipulation/inc
 set(SYSTEM_CONFIG_SRC_DIR        ${CMAKE_CURRENT_SOURCE_DIR}/SystemConfig/src)
 set(SYSTEM_CONFIG_INCLUDE_DIR    ${CMAKE_CURRENT_SOURCE_DIR}/SystemConfig/include)
 set(SYSTEM_CONFIG_DEF_DIR        ${COMMON_DEF_DIR}/SystemConfig)
+
+set(IRQ_DEF_DIR                  ${COMMON_DEF_DIR}/Irq)
 
 set(EXTI_SRC_DIR                 ${CMAKE_CURRENT_SOURCE_DIR}/Exti/src)
 set(EXTI_INCLUDE_DIR             ${CMAKE_CURRENT_SOURCE_DIR}/Exti/include)
@@ -45,6 +49,7 @@ add_library(Gpio ${GPIO_SRC_DIR}/Gpio.c)
 target_include_directories(Gpio PUBLIC
   ${SYSTEM_INCLUDE_DIR}
   ${CONFIGURATION_FILE_PATH}
+  ${RCC_DEF_DIR}  
   ${GPIO_DEF_DIR}
   ${GPIO_INCLUDE_DIR}
   ${CMSIS_INCLUDE_DIR}
@@ -58,6 +63,7 @@ add_library(SystemConfig ${SYSTEM_CONFIG_SRC_DIR}/SystemConfig.c)
 target_include_directories(SystemConfig PUBLIC
   ${SYSTEM_INCLUDE_DIR}
   ${CONFIGURATION_FILE_PATH}
+  ${RCC_DEF_DIR} 
   ${GPIO_DEF_DIR}
   ${SYSTEM_CONFIG_DEF_DIR}
   ${SYSTEM_CONFIG_INCLUDE_DIR}
@@ -73,6 +79,7 @@ target_include_directories(Exti PUBLIC
   ${SYSTEM_INCLUDE_DIR}
   ${CONFIGURATION_FILE_PATH}
   ${GPIO_DEF_DIR}
+  ${IRQ_DEF_DIR}
   ${EXTI_DEF_DIR}
   ${EXTI_INCLUDE_DIR}
   ${CMSIS_INCLUDE_DIR}

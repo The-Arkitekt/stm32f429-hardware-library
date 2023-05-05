@@ -1,5 +1,7 @@
 
 #include "Exti.h"
+
+#include "../../common/def/Irq/IrqDef.h"
 #include "BitManipulation.h"
 
 /*
