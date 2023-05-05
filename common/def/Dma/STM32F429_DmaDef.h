@@ -173,8 +173,36 @@ typedef struct DmaStreamConfigStruct{
  * DMA_SxFCR Stream FIFO control register
  */
 // Register field positions
-static const BYTE_TYPE DMA_STREAM_FCR_FEIE_POS = DMA_SxFCR_FEIE_Pos;
-static const BYTE_TYPE DMA_STREAM_FCR_FS = DMA_SxFCR_FS_Pos;
+static const BYTE_TYPE DMA_STREAM_FCR_FEIE_POS  = DMA_SxFCR_FEIE_Pos;
+static const BYTE_TYPE DMA_STREAM_FCR_FS_POS    = DMA_SxFCR_FS_Pos;
+static const BYTE_TYPE DMA_STREAM_FCR_DMDIS_POS = DMA_SxFCR_DMDIS_Pos;
+static const BYTE_TYPE DMA_STREAM_FCR_FTH_POS   = DMA_SxFCR_FTH_Pos;
+
+// FIFO Status options
+typedef enum DmaStreamFcrFifoStatusSelect{
+	DMA_STREAM_FCR_FSSELECT_LT_FOURTH = 0U,
+	DMA_STREAM_FCR_FSSELECT_LT_HALF,
+	DMA_STREAM_FCR_FSSELECT_LT_THREE_FOURTHS,
+	DMA_STREAM_FCR_FSSELECT_LT_FULL,
+	DMA_STREAM_FCR_FSSELECT_EMPTY,
+	DMA_STREAM_FCR_FSSELECT_LT_FULL
+}DmaStreamFcrFifoStatusSelect;
+
+// FIFO threshold selection options
+typedef enum DmaStreamFcrFifoThreshSelect{
+	DMA_STREAM_FCR_FTHSELECT_FOURTH = 0U,
+	DMA_STREAM_FCR_FTHSELECT_HALF,
+	DMA_STREAM_FCR_FTHSELECT_THREE_FOURTHS,
+	DMA_STREAM_FCR_FTHSELECT_FULL
+}DmaStreamFcrFifoThreshSelect;
+
+// Struct used to set the FCR register for a given stream
+typedef struct DmaStreamFifoConfigStruct{
+	Boolean                      FifoErrorInterruptEnable;
+	DmaStreamFcrFifoStatusSelect fifoStatus;
+	Boolean                      directModeDisable;
+	DmaStreamFcrFifoThreshSelect fifoThresholdSelection;
+}DmaStreamFifoConfigStruct;
 
 //typedef struct
 //{
@@ -185,8 +213,11 @@ static const BYTE_TYPE DMA_STREAM_FCR_FS = DMA_SxFCR_FS_Pos;
 //} DMA_TypeDef;
 typedef DMA_TypeDef * DMA_TYPE;
 
-
-
+/**
+ * DMA_LISR DMA low interrupt status register 
+*/
+// Register field locations
+static const BYTE_TYPE
 
 
 #ifdef __cplusplus
