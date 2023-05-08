@@ -1,11 +1,9 @@
-#ifndef BITMANIPULATION_DEF_H
-#define BITMANIPULATION_DEF_H
+#ifndef REGISTER_H
+#define REGISTER_H
 
 #ifdef __cplusplus
 	extern "C" {
 #endif
-
-#include <stdint.h>
 
 typedef uint32_t WORD_TYPE;
 typedef uint16_t HALF_WORD_TYPE;
@@ -18,4 +16,4 @@ static const uint8_t HALF_WORD_SIZE = 16U;
 }
 #endif
 
-#endif //BITMANIPULATION_DEF_H
+#endif //REGISTER_H

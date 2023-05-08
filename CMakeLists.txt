@@ -2,7 +2,7 @@
 
 set(CONFIGURATION_FILE_PATH      ${CMAKE_SOURCE_DIR})
 
-set(SYSTEM_INCLUDE_DIR                   ${CMAKE_CURRENT_SOURCE_DIR}/system/include)
+set(SYSTEM_INCLUDE_DIR           ${CMAKE_CURRENT_SOURCE_DIR}/system/include)
  
 set(CMSIS_INCLUDE_DIR            ${SYSTEM_INCLUDE_DIR}/cmsis)
 
