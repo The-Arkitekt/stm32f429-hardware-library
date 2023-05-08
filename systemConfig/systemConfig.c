@@ -1,4 +1,3 @@
-
 #include "systemConfig.h"
 
 void sysCfgEnable(){
@@ -10,79 +9,71 @@ void sysCfgDisable(){
 }
 
 void sysCfgMemRmpSetSwap(const Boolean value){
-	SysCfgEnable();
+	sysCfgEnable();
 	if (value == TRUE){
 		SYSCFG->MEMRMP |= SYSCFG_MEMRMP_SWP_FMC_0;
 	}
 	else{
 		SYSCFG->MEMRMP &= ~SYSCFG_MEMRMP_SWP_FMC;
 	}
-	SysCfgDisable();
-}
-void SysCfgResetSwap(){
-	SysCfgEnable();
-	SYSCFG_TypeDef* sysConfig = (SYSCFG_TypeDef*)SYSCFG_BASE;
-	clearWordBits(0b11, SYSCFG_SWP_FMC_POS, &(sysConfig->MEMRMP));
-	SysCfgDisable();
+	sysCfgDisable();
 }
 
-void SysCfgSetFbMode(){
-	SysCfgEnable();
-	SYSCFG_TypeDef* sysConfig = (SYSCFG_TypeDef*)SYSCFG_BASE;
-	setWordBits(1U, SYSCFG_FB_MODE_POS, &(sysConfig->MEMRMP));
-	SysCfgDisable();
+void sysCfgMemRmpSetFbMode(const Boolean value){
+	sysCfgEnable();
+	if (value == TRUE){
+		SYSCFG->MEMRMP |= SYSCFG_MEMRMP_UFB_MODE;
+	}
+	else{
+		SYSCFG->MEMRMP &= ~SYSCFG_MEMRMP_UFB_MODE;
+	}
+	sysCfgDisable();
 }
-void SysCfgResetFbMode(){
-	SysCfgEnable();
-	SYSCFG_TypeDef* sysConfig = (SYSCFG_TypeDef*)SYSCFG_BASE;
-	clearWordBits(1U, SYSCFG_FB_MODE_POS, &(sysConfig->MEMRMP));
-	SysCfgDisable();
-}
-void SysCfgMemMapSetMode(const SysCfgMemMapMode mode){
-	SysCfgEnable();
-	SYSCFG_TypeDef* sysConfig = (SYSCFG_TypeDef*)SYSCFG_BASE;
 
-	WORD_TYPE tmp = sysConfig->MEMRMP;
-	clearWordBits(0b111, SYSCFG_FB_MODE_POS, &tmp);
-	setWordBits(mode, SYSCFG_MEM_MODE_POS, &tmp);
-	sysConfig->MEMRMP = tmp;
-
-	SysCfgDisable();
+void sysCfgMemRmpSetMemMode(const SysCfgMemoryRemapModeSelect value){
+	sysCfgEnable();
+	WORD_TYPE tmp = SYSCFG->MEMRMP;
+	tmp &= ~SYSCFG_MEMRMP_MEM_MODE;
+	tmp |= ((BYTE_TYPE)value << SYSCFG_MEMRMP_MEM_MODE_Pos);
+	SYSCFG->MEMRMP = tmp;
+	sysCfgDisable();
 }
 
 
-void SysCfgSelectEthInterface(const SysCfgEthInterface interface){
-	SysCfgEnable();
-	SYSCFG_TypeDef* sysConfig = (SYSCFG_TypeDef*)SYSCFG_BASE;
-	setWordBits(interface, SYSCFG_ETH_SEL_POS, &(sysConfig->PMC));
-	SysCfgDisable();
+void sysCfgPmcSetEthernet(const Boolean value){
+	sysCfgEnable();
+	if (value == TRUE){
+		SYSCFG->PMC |= SYSCFG_PMC_MII_RMII_SEL;
+	}
+	else{
+		SYSCFG->PMC &= ~SYSCFG_PMC_MII_RMII_SEL;
+	}
+	sysCfgDisable();
 }
 
-ReturnCode SysCfgEnableExti(const GpioPortSelect port, const GpioPinSelect pin){
-	SysCfgExtiCr controlRegister = SYSCFG_EXTI_CR_REGS[pin];
-
-	/*
-	 * four pins per register, each pin gets 4 bits
-	 *
-	 * (pin % 4) * 4 == (pin & 3) << 2
-	 */
-
-	SysCfgEnable();
-	BYTE_TYPE location = (pin - (4*controlRegister)) * 4;
-	SYSCFG_TypeDef* sysConfig = (SYSCFG_TypeDef*)SYSCFG_BASE;
-	setWordBits(port, location, &(sysConfig->EXTICR[controlRegister]));
-	//SysCfgDisable();
-
-	return RETURNCODE_SUCCESS;
+void sysCfgPmcSetAdcDc2(const SysCfgMemoryRemapModeSelect position, const Boolean value){
+	sysCfgEnable();
+	if (value == TRUE){
+		SYSCFG->PMC |= ((BYTE_TYPE)value << (BYTE_TYPE)position);
+	}
+	else{
+		SYSCFG->PMC &= ~((BYTE_TYPE)value << (BYTE_TYPE)position);
+	}
 }
-ReturnCode SysCfgDisableExti(const GpioPortSelect port, const GpioPinSelect pin){
-	SysCfgExtiCr controlRegister = SYSCFG_EXTI_CR_REGS[pin];
 
+void sysCfgSetExti(const GpioPortSelect portSelect, 
+				   const GpioPinSelect pinSelect, Boolean value){
 	SysCfgEnable();
-	BYTE_TYPE location = (pin & 3) << 2;
-	SYSCFG_TypeDef* sysConfig = (SYSCFG_TypeDef*)SYSCFG_BASE;
-	clearWordBits(0b1111, location, &(sysConfig->EXTICR[controlRegister]));
-	SysCfgDisable();
+	BYTE_TYPE extiCrIndex = ((BYTE_TYPE)pinSelect / NUM_PINS_PER_CR_REG);
+	BYTE_TYPE extiCrPosition = (BYTE_TYPE)pinSelect - (extiCrIndex * NUM_PINS_PER_CR_REG);
 
-	return RETURNCODE_SUCCESS;
+	WORD_TYPE tmp = SYSCFG->EXTICR[extiCrIndex];
+	// clear the bits
+	tmp &= ~(0xF << extiCrPosition);
+	if (value == TRUE){
+		// set bits for port
+		tmp |= ((BYTE_TYPE)portSelect << extiCrPosition);
+	}
+
+	SYSCFG->EXTICR[extiCrIndex] = tmp;
 }
