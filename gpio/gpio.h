@@ -115,6 +115,12 @@ typedef enum GpioAltModeSelect{
 }GpioAltModeSelect;
 
 /**
+ * This constant is calculated using the following formula:
+ * 	num_gpio_pins / ((log_2(num_AF_modes) * num_gpio_pins) / bits_per_register)
+*/
+static const BYTE_TYPE NUM_PINS_PER_AFR_REG = 8U;	/* !< The number of pins that are represented in each AFR register*/
+
+/**
  * GPIO output type selection enum
 */
 typedef enum GpioOTypeSelect{
@@ -157,27 +163,27 @@ typedef struct GpioConfigStruct{
 //@{
 /**
  * Gpio port disable/enable
- * @param port The port to be disabled/enabled
+ * @param portSelect The port to be disabled/enabled
 */
-void gpioEnable(const GpioPortSelect port);
-void gpioDisable(const GpioPortSelect port);
+void gpioEnable(const GpioPortSelect portSelect);
+void gpioDisable(const GpioPortSelect portSelect);
 //@}
 
 /**
  * Set digital output of given port-pin combination
- * @param port The port name where the target pin is located
- * @param pin The target pin number
- * @param pinState The desired output
+ * @param portSelect The port name where the target pin is located
+ * @param pinSelect The target pin number
+ * @param value If True, set pin high, else set pin low
 */
-void GpioWrite(const GpioPortSelect port, const GpioPinSelect pin, const GpioPinState PinState);
+void gpioWrite(const GpioPortSelect portSelect, const GpioPinSelect pinSelect, const Boolean value);
 
 /**
  * Read current digital value of given port-pin combination
- * @param port The port name where the target pin is located
- * @param pin The target pin name
- * @return The current state of the pin
+ * @param portSelect The port name where the target pin is located
+ * @param pinSelect The target pin name
+ * @return True if pin is high, False otherwise
 */
-GpioPinState gpioRead(const GpioPortSelect port, const GpioPinSelect pin);
+Boolean gpioRead(const GpioPortSelect portSelect, const GpioPinSelect pinSelect);
 
 /**
  * Intialize a given GPIO port
@@ -187,10 +193,10 @@ void gpioInit(const GpioConfigStruct gpioConfig);
 
 /**
  * De-Initialize a given port-pin combination, clear register values
- * @param port The port name where the target pin is located
- * @param pin The target pin number 
+ * @param portSelect The port name where the target pin is located
+ * @param pinSelect The target pin number 
 */
-void gpioDeInit(const GpioPortSelect port, const GpioPinSelect pin);
+void gpioDeInit(const GpioPortSelect portSelect, const GpioPinSelect pinSelect);
 
 #ifdef __cplusplus
 }
