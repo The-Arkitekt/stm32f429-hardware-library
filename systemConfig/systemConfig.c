@@ -61,11 +61,10 @@ void sysCfgPmcSetAdcDc2(const SysCfgMemoryRemapModeSelect position, const Boolea
 	}
 }
 
-void sysCfgSetExti(const GpioPortSelect portSelect, 
-				   const GpioPinSelect pinSelect, Boolean value){
+void sysCfgSetExti(const GpioPortSelect portSelect, const GpioPinSelect pinSelect, Boolean value){
 	SysCfgEnable();
 	BYTE_TYPE extiCrIndex = ((BYTE_TYPE)pinSelect / NUM_PINS_PER_CR_REG);
-	BYTE_TYPE extiCrPosition = (BYTE_TYPE)pinSelect - (extiCrIndex * NUM_PINS_PER_CR_REG);
+	BYTE_TYPE extiCrPosition = ((BYTE_TYPE)pinSelect - (extiCrIndex * NUM_PINS_PER_CR_REG)) << 2U;
 
 	WORD_TYPE tmp = SYSCFG->EXTICR[extiCrIndex];
 	// clear the bits
