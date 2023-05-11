@@ -51,18 +51,18 @@ void sysCfgPmcSetEthernet(const Boolean value){
 	sysCfgDisable();
 }
 
-void sysCfgPmcSetAdcDc2(const SysCfgMemoryRemapModeSelect position, const Boolean value){
+void sysCfgPmcSetAdcDc2(const SysCfgPmcAdcDc2Select position, const Boolean value){
 	sysCfgEnable();
 	if (value == TRUE){
-		SYSCFG->PMC |= ((BYTE_TYPE)value << (BYTE_TYPE)position);
+		SYSCFG->PMC |= (1U << (BYTE_TYPE)position);
 	}
 	else{
-		SYSCFG->PMC &= ~((BYTE_TYPE)value << (BYTE_TYPE)position);
+		SYSCFG->PMC &= ~(1U << (BYTE_TYPE)position);
 	}
 }
 
-void sysCfgSetExti(const GpioPortSelect portSelect, const GpioPinSelect pinSelect, Boolean value){
-	SysCfgEnable();
+void sysCfgSetExti(const GpioPortSelect portSelect, const GpioPinSelect pinSelect, const Boolean value){
+	sysCfgEnable();
 	BYTE_TYPE extiCrIndex = ((BYTE_TYPE)pinSelect / NUM_PINS_PER_CR_REG);
 	BYTE_TYPE extiCrPosition = ((BYTE_TYPE)pinSelect - (extiCrIndex * NUM_PINS_PER_CR_REG)) << 2U;
 

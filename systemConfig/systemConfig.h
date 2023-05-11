@@ -58,8 +58,7 @@ void sysCfgDisable();
  */
 void sysCfgMemRmpSetSwap(const Boolean value);						    /* !< SWP_FMC bit field */
 void sysCfgMemRmpSetFbMode(const Boolean value);  					    /* !< FB_MODE bit field */
-void sysCfgMemRmpSetMemMode(const SysCfgMemoryRemapModeSelect position, 
-							const Boolean value); 						/* !< MEM_MODE bit field */
+void sysCfgMemRmpSetMemMode(const SysCfgMemoryRemapModeSelect value);   /* !< MEM_MODE bit field */
 //@}
 
 //@{
@@ -67,8 +66,8 @@ void sysCfgMemRmpSetMemMode(const SysCfgMemoryRemapModeSelect position,
  * Set value of bitfield in PMC register
  * @param value The value used to set the bitfield
  */
-void sysCfgPmcSetEthernet(const Boolean value);		       /* !< MII_RMII_SEL bit field */
-void sysCfgPmcSetAdcDc2(const SysCfgPmcAdcDc2Select value); /* !< ADCxDC@ bit field*/
+void sysCfgPmcSetEthernet(const Boolean value);		                         	    /* !< MII_RMII_SEL bit field */
+void sysCfgPmcSetAdcDc2(const SysCfgPmcAdcDc2Select position, const Boolean value); /* !< ADCxDC@ bit field*/
 
 /**
  * Set value of bitfield in EXTICRx register
@@ -76,7 +75,7 @@ void sysCfgPmcSetAdcDc2(const SysCfgPmcAdcDc2Select value); /* !< ADCxDC@ bit fi
  * @param pinSelect THe pin to be set as the source
  * @param value If True, the pin is set as source, else the pin is removed as source
  */
-void sysCfgSetExti(const GpioPortSelect portSelect, const GpioPinSelect pinSelect, Boolean value);
+void sysCfgSetExti(const GpioPortSelect portSelect, const GpioPinSelect pinSelect, const Boolean value);
 
 #ifdef __cplusplus
 }

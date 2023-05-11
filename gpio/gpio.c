@@ -9,7 +9,7 @@ void gpioDisable(const GpioPortSelect portSelect){
 }
 
 void gpioWrite(const GpioPortSelect portSelect, const GpioPinSelect pinSelect, const Boolean value){
-	GpioEnable(portSelect);
+	gpioEnable(portSelect);
 	GPIO_TypeDef* const port = GPIO_PORTS[(BYTE_TYPE)portSelect];
 
 	// set bit BSRR
@@ -17,18 +17,18 @@ void gpioWrite(const GpioPortSelect portSelect, const GpioPinSelect pinSelect, c
 		port->BSRR |= (GPIO_BSRR_BS0 << (BYTE_TYPE)pinSelect);
 	}
 	else{
-		portType->BSRR |= (GPIO_BSRR_BR0 << (BYTE_TYPE)pinSelect);
+		port->BSRR |= (GPIO_BSRR_BR0 << (BYTE_TYPE)pinSelect);
 	}
 }
 
 Boolean gpioRead(const GpioPortSelect portSelect, const GpioPinSelect pinSelect){
-	GpioEnable(portSelect);
+	gpioEnable(portSelect);
 	GPIO_TypeDef* const port = GPIO_PORTS[(BYTE_TYPE)portSelect];
 
 	// check if bit for the pinSelect is set
 	WORD_TYPE pinMask = (GPIO_IDR_ID0 << (BYTE_TYPE)pinSelect);
 	if ((port->IDR & pinMask) == pinMask){
-		return TRUE
+		return TRUE;
 	}
 	// The bit is not set
 	return FALSE;
@@ -37,7 +37,7 @@ Boolean gpioRead(const GpioPortSelect portSelect, const GpioPinSelect pinSelect)
 void gpioInit(const GpioConfigStruct gpioConfig){
 
 	// Enable GPIO Peripheral clock
-	GpioEnable(gpioConfig.port);
+	gpioEnable(gpioConfig.port);
 
 	// get port struct
 	GPIO_TypeDef* const port = GPIO_PORTS[(BYTE_TYPE)(gpioConfig.port)];
@@ -49,11 +49,11 @@ void gpioInit(const GpioConfigStruct gpioConfig){
 	// shift left 1 = multiply by 2
 	bitPosition = (BYTE_TYPE)(gpioConfig.pin) << 1U;
 	tmp &= ~(GPIO_MODER_MODER0 << bitPosition);
-	tmp |= ((BYTE_TYPE)(gpioConfig.mode) << bitPosition)
+	tmp |= ((BYTE_TYPE)(gpioConfig.mode) << bitPosition);
 	port->MODER = tmp;
 
 	// Handle alt mode if mode is Alternate
-	if (gpio.mode == GPIO_MODESELECT_ALT){
+	if (gpioConfig.mode == GPIO_MODESELECT_ALT){
 		if ((BYTE_TYPE)(gpioConfig.pin) < NUM_PINS_PER_AFR_REG){
 			tmp = port->AFR[0];
 			// shift left 2 = multiply by 4
@@ -74,7 +74,7 @@ void gpioInit(const GpioConfigStruct gpioConfig){
 	// clear and set OType
 	tmp = port->OTYPER;
 	tmp &= ~(GPIO_OTYPER_OT0 << (BYTE_TYPE)(gpioConfig.pin));
-	tmp |= ((BYTE_TYPE)(gpioConfig.oType) << (BYTE_TYPE)(gpioConfig.pin))
+	tmp |= ((BYTE_TYPE)(gpioConfig.oType) << (BYTE_TYPE)(gpioConfig.pin));
 	port->OTYPER = tmp;
 
 	// clear and set OSPEEDR
@@ -93,9 +93,12 @@ void gpioInit(const GpioConfigStruct gpioConfig){
 }
 
 void gpioDeInit(const GpioPortSelect portSelect, const GpioPinSelect pinSelect){
+	
+	// Enable GPIO Peripheral clock
+	gpioEnable(portSelect);
 
-	GPIO_TypeDef* const port = GPIO_PORTS[(BYTE_TYPE)port];
-	BYTE_TYPE bitPosition = (BYTE_TYPE)PinSelect << 1U;
+	GPIO_TypeDef* const port = GPIO_PORTS[(BYTE_TYPE)portSelect];
+	BYTE_TYPE bitPosition = (BYTE_TYPE)pinSelect << 1U;
 
 	// clear MODER
 	port->MODER &= ~(GPIO_MODER_MODER0 << bitPosition);
@@ -107,6 +110,6 @@ void gpioDeInit(const GpioPortSelect portSelect, const GpioPinSelect pinSelect){
 	port->PUPDR &= ~(GPIO_PUPDR_PUPD0 << bitPosition);
 
 	// clear OType
-	bitPosition = (BYTE_TYPE)pinSelect
+	bitPosition = (BYTE_TYPE)pinSelect;
 	port->OTYPER &= ~(GPIO_OTYPER_OT0 << bitPosition);
 }

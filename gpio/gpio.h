@@ -6,7 +6,8 @@
 #endif
 
 #include "stm32f429xx.h"
-#include "Boolean.h"
+#include "boolean.h"
+#include "register.h"
 
 /**
  * Define the number of GPIO ports
