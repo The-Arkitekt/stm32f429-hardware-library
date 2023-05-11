@@ -6,6 +6,7 @@
 #endif
 
 #include "stm32f429xx.h"
+#include "Boolean.h"
 
 /**
  * Define the number of GPIO ports
@@ -85,7 +86,7 @@ static GPIO_TypeDef* const GPIO_PORTS[NUM_GPIO_PORTS] = {
 typedef enum GpioModeSelect{
 	GPIO_MODESELECT_INPUT = 0U,  /* !< Input Floating Mode     */
 	GPIO_MODESELECT_OUTPUT,      /* !< Output General Purpose  */
-	GPIO_MODESELECT_ALT ,		 /* !< Alternate Mode          */
+	GPIO_MODESELECT_ALT,		 /* !< Alternate Mode          */
 	GPIO_MODESELECT_ANALOG       /* !< Analog Mode             */
 }GpioModeSelect;
 
