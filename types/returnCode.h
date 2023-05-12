@@ -1,6 +1,6 @@
-#ifndef RETURN_CODES_H
-#define RETURN_CODES_H
-
+#ifndef RETURN_CODE_H
+#define RETURN_CODE_H
+// TODO: Delete this type, shouldnt be necessary
 #ifdef __cplusplus
 	extern "C" {
 #endif
@@ -16,4 +16,4 @@ typedef enum ReturnCode{
 }
 #endif
 
-#endif //RETURN_CODES
+#endif //RETURN_CODE_H
