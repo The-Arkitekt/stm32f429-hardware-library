@@ -25,9 +25,6 @@ target_include_directories(Gpio PUBLIC
   ${TYPES_DIR}
   ${GPIO_DIR}
 )
-target_link_libraries(Gpio PUBLIC
-  BitManipulation
-)
 
 #SystemConfig
 add_library(SystemConfig ${SYSTEM_CONFIG_DIR}/systemConfig.c)
@@ -44,4 +41,12 @@ target_include_directories(Exti PUBLIC
   ${CMSIS_DIR}
   ${TYPES_DIR}
   ${EXTI_DIR}
+)
+
+#Dma
+add_library(Dma ${DMA_DIR}/dma.c)
+target_include_directories(Dma PUBLIC
+  ${CMSIS_DIR}
+  ${TYPES_DIR}
+  ${DMA_DIR}
 )
