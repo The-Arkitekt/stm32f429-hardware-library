@@ -1,102 +1,47 @@
 # Set directories
+set(DEVICE_LIB_DIR    ${CMAKE_CURRENT_SOURCE_DIR}/deviceLibraries/${DEVICE})
 
-set(CONFIGURATION_FILE_PATH      ${CMAKE_SOURCE_DIR})
+set(CMSIS_DIR         ${DEVICE_LIB_DIR}/cmsis)
 
-set(SYSTEM_INCLUDE_DIR                   ${CMAKE_CURRENT_SOURCE_DIR}/system/include)
- 
-set(CMSIS_INCLUDE_DIR            ${SYSTEM_INCLUDE_DIR}/cmsis)
+set(GPIO_DIR          ${CMAKE_CURRENT_SOURCE_DIR}/gpio)
 
-set(COMMON_DEF_DIR               ${CMAKE_CURRENT_SOURCE_DIR}/common/def)
+set(SYSTEM_CONFIG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/systemConfig)
 
-set(RCC_DEF_DIR                  ${COMMON_DEF_DIR}/Rcc)
+set(DMA_DIR           ${CMAKE_CURRENT_SOURCE_DIR}/dma)
 
-set(GPIO_SRC_DIR                 ${CMAKE_CURRENT_SOURCE_DIR}/Gpio/src)
-set(GPIO_INCLUDE_DIR             ${CMAKE_CURRENT_SOURCE_DIR}/Gpio/include)
-set(GPIO_DEF_DIR                 ${COMMON_DEF_DIR}/Gpio)
+set(EXTI_DIR          ${CMAKE_CURRENT_SOURCE_DIR}/exti)
 
-set(BIT_MANIPULATION_SRC_DIR     ${CMAKE_CURRENT_SOURCE_DIR}/BitManipulation/src)
-set(BIT_MANIPULATION_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/BitManipulation/include)
-
-set(SYSTEM_CONFIG_SRC_DIR        ${CMAKE_CURRENT_SOURCE_DIR}/SystemConfig/src)
-set(SYSTEM_CONFIG_INCLUDE_DIR    ${CMAKE_CURRENT_SOURCE_DIR}/SystemConfig/include)
-set(SYSTEM_CONFIG_DEF_DIR        ${COMMON_DEF_DIR}/SystemConfig)
-
-set(IRQ_DEF_DIR                  ${COMMON_DEF_DIR}/Irq)
-
-set(EXTI_SRC_DIR                 ${CMAKE_CURRENT_SOURCE_DIR}/Exti/src)
-set(EXTI_INCLUDE_DIR             ${CMAKE_CURRENT_SOURCE_DIR}/Exti/include)
-set(EXTI_DEF_DIR                 ${COMMON_DEF_DIR}/Exti)
-
-set(DMA_SRC_DIR                  ${CMAKE_CURRENT_SOURCE_DIR}/Dma/src)
-set(DMA_INCLUDE_DIR              ${CMAKE_CURRENT_SOURCE_DIR}/Dma/include)
-set(DMA_DEF_DIR                  ${COMMON_DEF_DIR}/Dma)
-
+set(TYPES_DIR         ${CMAKE_CURRENT_SOURCE_DIR}/types)
 
 ####################################
 #  Add STM32f429CommonLibrary 
 #  libraries
 ####################################
 
-# BitManipulation
-add_library(BitManipulation ${BIT_MANIPULATION_SRC_DIR}/BitManipulation.c)
-target_include_directories(BitManipulation PUBLIC
-  ${COMMON_DEF_DIR}
-  ${BIT_MANIPULATION_INCLUDE_DIR}
-)
-
 # Gpio
-add_library(Gpio ${GPIO_SRC_DIR}/Gpio.c)
+add_library(Gpio ${GPIO_DIR}/gpio.c)
 target_include_directories(Gpio PUBLIC
-  ${SYSTEM_INCLUDE_DIR}
-  ${CONFIGURATION_FILE_PATH}
-  ${RCC_DEF_DIR}  
-  ${GPIO_DEF_DIR}
-  ${GPIO_INCLUDE_DIR}
-  ${CMSIS_INCLUDE_DIR}
+  ${CMSIS_DIR}
+  ${TYPES_DIR}
+  ${GPIO_DIR}
 )
 target_link_libraries(Gpio PUBLIC
   BitManipulation
 )
 
 #SystemConfig
-add_library(SystemConfig ${SYSTEM_CONFIG_SRC_DIR}/SystemConfig.c)
+add_library(SystemConfig ${SYSTEM_CONFIG_DIR}/systemConfig.c)
 target_include_directories(SystemConfig PUBLIC
-  ${SYSTEM_INCLUDE_DIR}
-  ${CONFIGURATION_FILE_PATH}
-  ${RCC_DEF_DIR} 
-  ${GPIO_DEF_DIR}
-  ${SYSTEM_CONFIG_DEF_DIR}
-  ${SYSTEM_CONFIG_INCLUDE_DIR}
-  ${CMSIS_INCLUDE_DIR}
-)
-target_link_libraries(SystemConfig PUBLIC
-  BitManipulation
+  ${CMSIS_DIR}
+  ${TYPES_DIR}
+  ${GPIO_DIR}
+  ${SYSTEM_CONFIG_DIR}
 )
 
 #Exti
-add_library(Exti ${EXTI_SRC_DIR}/Exti.c)
+add_library(Exti ${EXTI_DIR}/exti.c)
 target_include_directories(Exti PUBLIC
-  ${SYSTEM_INCLUDE_DIR}
-  ${CONFIGURATION_FILE_PATH}
-  ${GPIO_DEF_DIR}
-  ${IRQ_DEF_DIR}
-  ${EXTI_DEF_DIR}
-  ${EXTI_INCLUDE_DIR}
-  ${CMSIS_INCLUDE_DIR}
+  ${CMSIS_DIR}
+  ${TYPES_DIR}
+  ${EXTI_DIR}
 )
-target_link_libraries(Exti PUBLIC
-  BitManipulation
-)
-
-#Dma
-add_library(Dma ${DMA_SRC_DIR}/Dma.c)
-target_include_directories(Dma PUBLIC
-  &{SYSTEM_INCLUDE_DIR}
-  ${CONFIGURATION_FILE_PATH}
-  ${DMA_DEF_DIR}
-  ${DMA_INCLUDE_DIR}
-  ${CMSIS_INCLUDE_DIR}
-)
-
-
-
