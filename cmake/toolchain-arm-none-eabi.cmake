@@ -10,12 +10,12 @@ set(MCU_SPEC cortex-m4)
 # Set toolchain paths
 #---------------------------------------------------------------------------------------
 set(TOOLCHAIN arm-none-eabi)
-#if(WIN32)
-set(TOOLCHAIN_PREFIX "C:/Program\ Files\ (x86)/GNU\ Arm\ Embedded\ Toolchain/10 2021.10")
-set(TOOLCHAIN_EXT ".exe")
-#else()
-#    set(TOOLCHAIN_PREFIX "/usr")
-#endif()
+if(WIN32)
+  set(TOOLCHAIN_PREFIX "C:/Program\ Files\ (x86)/GNU\ Arm\ Embedded\ Toolchain/10 2021.10")
+  set(TOOLCHAIN_EXT ".exe")
+else()
+    set(TOOLCHAIN_PREFIX "/usr")
+endif()
 
 set(TOOLCHAIN_BIN_DIR ${TOOLCHAIN_PREFIX}/bin)
 set(TOOLCHAIN_INC_DIR ${TOOLCHAIN_PREFIX}/${TOOLCHAIN}/include)
