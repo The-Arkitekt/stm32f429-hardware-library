@@ -10,7 +10,7 @@ void gpioDisable(const GpioPortSelect portSelect){
 
 void gpioWrite(const GpioPortSelect portSelect, const GpioPinSelect pinSelect, const Boolean value){
 	gpioEnable(portSelect);
-	GPIO_TypeDef* const port = GPIO_PORTS[(BYTE_TYPE)portSelect];
+	GPIO_TypeDef* const port = (GPIO_TypeDef*)portSelect;
 
 	// set bit BSRR
 	if (value == TRUE){
@@ -23,7 +23,7 @@ void gpioWrite(const GpioPortSelect portSelect, const GpioPinSelect pinSelect, c
 
 Boolean gpioRead(const GpioPortSelect portSelect, const GpioPinSelect pinSelect){
 	gpioEnable(portSelect);
-	GPIO_TypeDef* const port = GPIO_PORTS[(BYTE_TYPE)portSelect];
+	GPIO_TypeDef* const port = (GPIO_TypeDef*)portSelect;
 
 	// check if bit for the pinSelect is set
 	WORD_TYPE pinMask = (GPIO_IDR_ID0 << (BYTE_TYPE)pinSelect);
@@ -34,13 +34,13 @@ Boolean gpioRead(const GpioPortSelect portSelect, const GpioPinSelect pinSelect)
 	return FALSE;
 }
 
-void gpioInit(const GpioConfigStruct gpioConfig){
+void gpioConfigure(const GpioConfigStruct gpioConfig){
 
 	// Enable GPIO Peripheral clock
 	gpioEnable(gpioConfig.port);
 
 	// get port struct
-	GPIO_TypeDef* const port = GPIO_PORTS[(BYTE_TYPE)(gpioConfig.port)];
+	GPIO_TypeDef* const port = (GPIO_TypeDef*)gpioConfig.port;
 
 	WORD_TYPE tmp         = 0U;
 	BYTE_TYPE bitPosition = 0U;
@@ -90,26 +90,4 @@ void gpioInit(const GpioConfigStruct gpioConfig){
 	tmp &= ~(GPIO_PUPDR_PUPD0 << bitPosition);
 	tmp |= ((BYTE_TYPE)(gpioConfig.pull) << bitPosition);
 	port->PUPDR = tmp;
-}
-
-void gpioDeInit(const GpioPortSelect portSelect, const GpioPinSelect pinSelect){
-	
-	// Enable GPIO Peripheral clock
-	gpioEnable(portSelect);
-
-	GPIO_TypeDef* const port = GPIO_PORTS[(BYTE_TYPE)portSelect];
-	BYTE_TYPE bitPosition = (BYTE_TYPE)pinSelect << 1U;
-
-	// clear MODER
-	port->MODER &= ~(GPIO_MODER_MODER0 << bitPosition);
-
-	// clear OSPEEDR
-	port->OSPEEDR &= ~(GPIO_OSPEEDR_OSPEED0 << bitPosition);
-
-	// clear PUPDR
-	port->PUPDR &= ~(GPIO_PUPDR_PUPD0 << bitPosition);
-
-	// clear OType
-	bitPosition = (BYTE_TYPE)pinSelect;
-	port->OTYPER &= ~(GPIO_OTYPER_OT0 << bitPosition);
 }
