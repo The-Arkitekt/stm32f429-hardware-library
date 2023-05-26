@@ -14,23 +14,46 @@
  * 	Enum maps to the address in memory of the stream registers
 */
 typedef enum DmaStreamSelect{
-	DMA1_STREAMSELECT_0 = (WORD_TYPE)DMA1_Stream0_BASE,
-	DMA1_STREAMSELECT_1 = (WORD_TYPE)DMA1_Stream1_BASE,
-	DMA1_STREAMSELECT_2 = (WORD_TYPE)DMA1_Stream2_BASE,
-	DMA1_STREAMSELECT_3 = (WORD_TYPE)DMA1_Stream3_BASE,
-	DMA1_STREAMSELECT_4 = (WORD_TYPE)DMA1_Stream4_BASE,
-	DMA1_STREAMSELECT_5 = (WORD_TYPE)DMA1_Stream5_BASE,
-	DMA1_STREAMSELECT_6 = (WORD_TYPE)DMA1_Stream6_BASE,
-	DMA1_STREAMSELECT_7 = (WORD_TYPE)DMA1_Stream7_BASE,
-	DMA2_STREAMSELECT_0 = (WORD_TYPE)DMA2_Stream0_BASE,
-	DMA2_STREAMSELECT_1 = (WORD_TYPE)DMA2_Stream1_BASE,
-	DMA2_STREAMSELECT_2 = (WORD_TYPE)DMA2_Stream2_BASE,
-	DMA2_STREAMSELECT_3 = (WORD_TYPE)DMA2_Stream3_BASE,
-	DMA2_STREAMSELECT_4 = (WORD_TYPE)DMA2_Stream4_BASE,
-	DMA2_STREAMSELECT_5 = (WORD_TYPE)DMA2_Stream5_BASE,
-	DMA2_STREAMSELECT_6 = (WORD_TYPE)DMA2_Stream6_BASE,
-	DMA2_STREAMSELECT_7 = (WORD_TYPE)DMA2_Stream7_BASE
+	DMA1_STREAMSELECT_0 = 0U,
+	DMA1_STREAMSELECT_1,
+	DMA1_STREAMSELECT_2,
+	DMA1_STREAMSELECT_3,
+	DMA1_STREAMSELECT_4,
+	DMA1_STREAMSELECT_5,
+	DMA1_STREAMSELECT_6,
+	DMA1_STREAMSELECT_7,
+	DMA2_STREAMSELECT_0,
+	DMA2_STREAMSELECT_1,
+	DMA2_STREAMSELECT_2,
+	DMA2_STREAMSELECT_3,
+	DMA2_STREAMSELECT_4,
+	DMA2_STREAMSELECT_5,
+	DMA2_STREAMSELECT_6,
+	DMA2_STREAMSELECT_7
 }DmaStreamSelect;
+
+#ifndef NUM_DMA_STREAMS
+	#define NUM_DMA_STREAMS 16
+#endif //NUM_DMA_STREAMS
+
+static const WORD_TYPE DMA_STREAMS[NUM_DMA_STREAMS] = {
+	(WORD_TYPE)DMA1_Stream0_BASE,
+	(WORD_TYPE)DMA1_Stream1_BASE,
+	(WORD_TYPE)DMA1_Stream2_BASE,
+	(WORD_TYPE)DMA1_Stream3_BASE,
+	(WORD_TYPE)DMA1_Stream4_BASE,
+	(WORD_TYPE)DMA1_Stream5_BASE,
+	(WORD_TYPE)DMA1_Stream6_BASE,
+	(WORD_TYPE)DMA1_Stream7_BASE,
+	(WORD_TYPE)DMA2_Stream0_BASE,
+	(WORD_TYPE)DMA2_Stream1_BASE,
+	(WORD_TYPE)DMA2_Stream2_BASE,
+	(WORD_TYPE)DMA2_Stream3_BASE,
+	(WORD_TYPE)DMA2_Stream4_BASE,
+	(WORD_TYPE)DMA2_Stream5_BASE,
+	(WORD_TYPE)DMA2_Stream6_BASE,
+	(WORD_TYPE)DMA2_Stream7_BASE
+}
 
 /**
  * DMA_SxCR Stream Configure Register Channel Select enum
@@ -103,33 +126,32 @@ typedef enum DmaStreamCrDirSelect{
 	DMA_STREAM_CR_DIRSELECT_MEMTOMEM
 }DmaStreamCrDirSelect;
 
+
+
+
 /**
- *  Struct used to set the CR register for a given stream
+ *  DMA_SxCR bitfield selection enum
  */
-typedef struct DmaStreamConfigStruct{
-	DmaStreamCrChanSelect   channel;
-	DmaStreamCrMBurstSelect memoryBurst;
-	DmaStreamCrPBurstSelect peripheralBurst;
-	Boolean				    currentTarget;	            //!< if FALSE, mem0 else, mem1
-	Boolean                 doubleBufferModeEnable;
-	DmaStreamCrPlSelect     priorityLevel;
-	Boolean					PeripheralIncrementOffset;	//!< if FALSE, PeripheralDataSize else, 4
-	DmaStreamCrMSizeSelect  memoryDataSize;	
-	DmaStreamCrPSizeSelect  peripheralDataSize;
-	Boolean				    memoryIncrementModeEnable;	 
-	Boolean				    peripheralIncrementModeEnable;
-	Boolean                 circularModeEnable;
-	DmaStreamCrDirSelect    dataTransferDirection;
-	Boolean                 peripheralFlowController;   //!< if FALSE, DMA is flow controller else, peripheral is flow controller
-	Boolean                 transferCompleteInterrupEnable;
-	Boolean                 halfTransferInterruptEnable;
-	Boolean					transferErrorInterruptEnable;
-	Boolean					directModeErrorInterruptEnable;
-	WORD_TYPE               peripheralAddress;
-	WORD_TYPE				memory0Address;
-	WORD_TYPE               memory1Address;			//!< Used in double buffer mode
-	WORD_TYPE				numDataItemsPerTransfer;
-}DmaStreamConfigStruct;
+typedef enum Dma_SxCR_BitFieldSelect{
+	DMA_SxCR_CHANNEL_SELECT = 0U,
+	DMA_SxCR_MBURST_SELECT,
+	DMA_SxCR_PBURST_SELECT,
+	DMA_SxCR_CT_SELECT,
+	DMA_SxCR_DBM_SELECT,
+	DMA_SxCR_PL_SELECT,
+	DMA_SxCR_PINCOS_SELECT,
+	DMA_SxCR_MSIZE_SELECT,	
+	DMA_SxCR_PSIZE_SELECT,
+	DMA_SxCR_MINC_SELECT,	 
+	DMA_SxCR_PINC_SELECT,
+	DMA_SxCR_CIRC_SELECT,
+	DMA_SxCR_DIR_SELECT,
+	DMA_SxCR_PFCTRL_SELECT,
+	DMA_SxCR_TCIE_SELECT,
+	DMA_SxCR_HTIE_SELECT,
+	DMA_SxCR_TEIE_SELECT,
+	DMA_SxCR_DMEIE_SELECT
+}Dma_SxCR_BitFieldSelect;
 
 /*
  * DMA_SxFCR Stream FIFO Control Register FIFO Status enum
