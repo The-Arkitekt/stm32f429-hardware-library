@@ -1,87 +1,86 @@
 #include "exti.h"
-#include "register.h"
 
-void extiInterruptInit(const ExtiConfigStruct extiConfig){
+void setExtiLineInterruptMask(const ExtiLineSelect extiLine, const Boolean value)
+{
+	WORD_TYPE tmp = EXTI->IMR;
+	tmp &= ~(1U << (BYTE_TYPE)extiLine);
+	tmp |= ((BYTE_TYPE)value << (BYTE_TYPE)extiLine);
 
-	// Set Rising Trigger
-	if (extiConfig.risingTrigger == TRUE){
-		EXTI->RTSR |= (WORD_TYPE)(extiConfig.line);
-	}
-	else{
-		EXTI->RTSR &= ~((WORD_TYPE)(extiConfig.line));
-	}
-
-	// Set Falling Trigger
-	if (extiConfig.fallingTrigger == TRUE){
-		EXTI->FTSR |= (WORD_TYPE)(extiConfig.line);
-	}
-	else{
-		EXTI->FTSR &= ~((WORD_TYPE)(extiConfig.line));
-	}
-
-	// set Mask bit
-	EXTI->IMR |= (WORD_TYPE)(extiConfig.line);
+	EXTI->IMR = tmp;
 }
 
-void extiInterruptDeinit(const ExtiLineSelect line){
-
-	// Clear Rising Trigger
-	EXTI->RTSR &= ~((WORD_TYPE)line);
-
-	// Clear Falling Trigger
-	EXTI->FTSR &= ~((WORD_TYPE)line);
-
-	// Clear Mask Bit
-	EXTI->IMR &= ~((WORD_TYPE)line);
-}
-
-void extiResetInterrupt(const ExtiLineSelect line){
-
-	// the bit is cleared by setting it
-	EXTI->PR |= (WORD_TYPE)line;
-}
-
-void extiEventInit(const ExtiConfigStruct extiConfig){
-
-	// Set Rising Trigger
-	if (extiConfig.risingTrigger == TRUE){
-		EXTI->RTSR |= (WORD_TYPE)(extiConfig.line);
+void readExtiLineInterruptMask(const ExtiLineSelect extiLine, Boolean* const out)
+{
+	if (out != NULL)
+	{
+		(*out) = (((EXTI->IMR >> (BYTE_TYPE)extiLine) & 1U) == 1U) ? TRUE : FALSE;
 	}
-	else{
-		EXTI->RTSR &= ~((WORD_TYPE)(extiConfig.line));
+}
+
+void setExtiLineEventMask(const ExtiLineSelect extiLine, const Boolean value)
+{
+	WORD_TYPE tmp = EXTI->EMR;
+	tmp &= ~(1U << (BYTE_TYPE)extiLine);
+	tmp |= ((BYTE_TYPE)value << (BYTE_TYPE)extiLine);
+	
+	EXTI->EMR = tmp;
+}
+
+void readExtiLineEventMask(const ExtiLineSelect extiLine, Boolean* const out)
+{
+	if (out != NULL)
+	{
+		(*out) = (((EXTI->EMR >> (BYTE_TYPE)extiLine) & 1U) == 1U) ? TRUE : FALSE;
 	}
+}
 
-	// Set Falling Trigger
-	if (extiConfig.fallingTrigger == TRUE){
-		EXTI->FTSR |= (WORD_TYPE)(extiConfig.line);
+void setExtiLineRisingTrigger(const ExtiLineSelect extiLine, const Boolean value)
+{
+	EXTI->RTSR |= (1U << (BYTE_TYPE)extiLine);
+}
+
+void readExtiLineRisingTrigger(const ExtiLineSelect extiLine, Boolean* const out)
+{
+	if (out != NULL)
+	{
+		(*out) = (((EXTI->RTSR >> (BYTE_TYPE)extiLine) & 1U) == 1U) ? TRUE : FALSE;
 	}
-	else{
-		EXTI->FTSR &= ~((WORD_TYPE)(extiConfig.line));
+}
+
+void setExtiLineFallingTrigger(const ExtiLineSelect extiLine, const Boolean value)
+{
+	EXTI->FTSR |= (1U << (BYTE_TYPE)extiLine);
+}
+
+void readExtiLineFallingTrigger(const ExtiLineSelect extiLine, Boolean* const out)
+{
+	if (out != NULL)
+	{
+		(*out) = (((EXTI->FTSR >> (BYTE_TYPE)extiLine) & 1U) == 1U) ? TRUE : FALSE;
 	}
-
-	// set Mask bit
-	EXTI->EMR |= (WORD_TYPE)(extiConfig.line);
 }
 
-void extiEventDeinit(const ExtiLineSelect line){
-
-	// Clear Rising Trigger
-	EXTI->RTSR &= ~((WORD_TYPE)line);
-
-	// Clear Falling Trigger
-	EXTI->FTSR &= ~((WORD_TYPE)line);
-
-	// Clear Mask Bit
-	EXTI->EMR &= ~((WORD_TYPE)line);
+void requestExtiLineInterrupt(const ExtiLineSelect extiLine)
+{
+	EXTI->SWIER |= (1U << (BYTE_TYPE)extiLine);
 }
 
-void extiTrigger(const ExtiLineSelect line){
-	EXTI->SWIER |= (WORD_TYPE)line;
-}
-void enableExtiIrq(const ExtiIrqSelect irq){
-	NVIC_EnableIRQ((IRQn_Type)irq);
+Boolean isExtiLineInterruptRequestPending(const ExtiLineSelect extiLine)
+{
+	Boolean ret = (((EXTI->PR >> (BYTE_TYPE)extiLine) & 1U) == 1U) ? TRUE : FALSE;
+	return ret;
 }
 
-void disableExtiIrq(const ExtiIrqSelect irq){
-	NVIC_DisableIRQ((IRQn_Type)irq);
+void clearPendingExtiLineInterruptRequest(const ExtiLineSelect extiLine)
+{
+	// The pending request bit is cleared by setting it to 1
+	EXTI->PR |= (1U << (BYTE_TYPE)extiLine);
+}
+
+void enableExtiIrq(const ExtiIrqSelect irqSelect){
+	NVIC_EnableIRQ(EXTI_IRQ_NUMS[(BYTE_TYPE)irqSelect]);
+}
+
+void disableExtiIrq(const ExtiIrqSelect irqSelect){
+	NVIC_DisableIRQ(EXTI_IRQ_NUMS[(BYTE_TYPE)irqSelect]);
 }
