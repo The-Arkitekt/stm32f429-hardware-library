@@ -98,32 +98,32 @@ typedef enum DmaStreamSelect{
  * 		1: Direct Mode Error Interrupt enabled
  * 	EN:
  * 		0: Stream disabled
- * 		1: Strean enabled
+ * 		1: Stream enabled
  */
 
 /**
  *  DMA_SxCR bitfield selection enum 	
  */
 typedef enum DmaStreamControlFieldSelect{ //TODO: add comments for each field
-	DMA_STREAM_CONTROL_CHSEL_FIELD = 0U,
-	DMA_STREAM_CONTROL_MBURST_FIELD,
-	DMA_STREAM_CONTROL_PBURST_FIELD,
-	DMA_STREAM_CONTROL_CT_FIELD,
-	DMA_STREAM_CONTROL_DBM_FIELD,
-	DMA_STREAM_CONTROL_PL_FIELD,
-	DMA_STREAM_CONTROL_PINCOS_FIELD,
-	DMA_STREAM_CONTROL_MSIZE_FIELD,	
-	DMA_STREAM_CONTROL_PSIZE_FIELD,
-	DMA_STREAM_CONTROL_MINC_FIELD,	 
-	DMA_STREAM_CONTROL_PINC_FIELD,
-	DMA_STREAM_CONTROL_CIRC_FIELD,
-	DMA_STREAM_CONTROL_DIR_FIELD,
-	DMA_STREAM_CONTROL_PFCTRL_FIELD,
-	DMA_STREAM_CONTROL_TCIE_FIELD,
-	DMA_STREAM_CONTROL_HTIE_FIELD,
-	DMA_STREAM_CONTROL_TEIE_FIELD,
-	DMA_STREAM_CONTROL_DMEIE_FIELD,
-	DMA_STREAM_CONTROL_EN_FIELD
+	DMA_STREAM_CONTROL_CHSEL_FIELD = 0U, //!< Channel selection
+	DMA_STREAM_CONTROL_MBURST_FIELD,	 //!< Memory burst transfer configuration
+	DMA_STREAM_CONTROL_PBURST_FIELD,	 //!< Peripheral burst transfer configuration
+	DMA_STREAM_CONTROL_CT_FIELD,		 //!< Current target (only in double buffer mode)
+	DMA_STREAM_CONTROL_DBM_FIELD,		 //!< Double buffer mode
+	DMA_STREAM_CONTROL_PL_FIELD,		 //!< Priority level
+	DMA_STREAM_CONTROL_PINCOS_FIELD,	 //!< Peripheral increment offset size
+	DMA_STREAM_CONTROL_MSIZE_FIELD,		 //!< Memory data size
+	DMA_STREAM_CONTROL_PSIZE_FIELD,	     //!< Peripheral data size
+	DMA_STREAM_CONTROL_MINC_FIELD,	 	 //!< Memory increment mode 
+	DMA_STREAM_CONTROL_PINC_FIELD,		 //!< Peripheral increment mode
+	DMA_STREAM_CONTROL_CIRC_FIELD,		 //!< Circular mode
+	DMA_STREAM_CONTROL_DIR_FIELD,		 //!< Data transfer direction
+	DMA_STREAM_CONTROL_PFCTRL_FIELD,	 //!< Peripheral flow controller
+	DMA_STREAM_CONTROL_TCIE_FIELD,	     //!< Transfer complete interrupt enable
+	DMA_STREAM_CONTROL_HTIE_FIELD,       //!< Half transfer interrupt enable
+	DMA_STREAM_CONTROL_TEIE_FIELD,	     //!< Transfer error interrupt enable
+	DMA_STREAM_CONTROL_DMEIE_FIELD,	     //!< Direct mode error interrupt enable
+	DMA_STREAM_CONTROL_EN_FIELD			 //!< Stream enable / flag stream ready when read low
 }DmaStreamControlFieldSelect;
 
 /**
@@ -137,16 +137,11 @@ typedef enum DmaStreamControlFieldSelect{ //TODO: add comments for each field
  * Array of the bitfield positions in DMA_SxCR register
 */
 static const BYTE_TYPE DMA_STREAM_CONTROL_FIELD_POS[NUM_DMA_STREAM_CONTROL_FIELDS] = {
-	DMA_SxCR_CHSEL_Pos, DMA_SxCR_MBURST_Pos,
-	DMA_SxCR_PBURST_Pos, DMA_SxCR_CT_Pos,
-	DMA_SxCR_DBM_Pos, DMA_SxCR_PL_Pos,
-	DMA_SxCR_PINCOS_Pos, DMA_SxCR_MSIZE_Pos,
-	DMA_SxCR_PSIZE_Pos, DMA_SxCR_MINC_Pos,
-	DMA_SxCR_PINC_Pos, DMA_SxCR_CIRC_Pos,
-	DMA_SxCR_DIR_Pos, DMA_SxCR_PFCTRL_Pos,
-	DMA_SxCR_TCIE_Pos, DMA_SxCR_HTIE_Pos,
-	DMA_SxCR_TEIE_Pos, DMA_SxCR_DMEIE_Pos,
-	DMA_SxCR_EN_Pos
+	DMA_SxCR_CHSEL_Pos, DMA_SxCR_MBURST_Pos, DMA_SxCR_PBURST_Pos, DMA_SxCR_CT_Pos,
+	DMA_SxCR_DBM_Pos, DMA_SxCR_PL_Pos, DMA_SxCR_PINCOS_Pos, DMA_SxCR_MSIZE_Pos,
+	DMA_SxCR_PSIZE_Pos, DMA_SxCR_MINC_Pos, DMA_SxCR_PINC_Pos, DMA_SxCR_CIRC_Pos,
+	DMA_SxCR_DIR_Pos, DMA_SxCR_PFCTRL_Pos, DMA_SxCR_TCIE_Pos, DMA_SxCR_HTIE_Pos,
+	DMA_SxCR_TEIE_Pos, DMA_SxCR_DMEIE_Pos, DMA_SxCR_EN_Pos
 };
 
 /**
@@ -162,12 +157,12 @@ static const DMA_STREAM_CONTROL_FIELD_MAX[NUM_DMA_STREAM_CONTROL_FIELDS] = {
  * DMA Stream Interrupt Types Select enum
 */
 typedef enum DmaStreamInterruptTypeSelect{	// TODO: comments explaining the fields
-	DMA_STREAM_TRANSFER_COMPLETE_INTERRUPT = 0U,
-	DMA_STREAM_INTERRUPT_RESERVED,
-	DMA_STREAM_HALF_TRANSFER_INTERRUPT,
-	DMA_STREAM_TRANSFER_ERROR_INTERRUPT,
-	DMA_STREAM_DIRECT_MODE_ERROR_INTERRUPT,
-	DMA_STREAM_FIFO_ERROR_INTERRUPT
+	DMA_STREAM_TRANSFER_COMPLETE_INTERRUPT = 0U,	//!<  Stream transfer complete interrupt		    
+	DMA_STREAM_HALF_TRANSFER_INTERRUPT,			    //!< Stream half transfer interrupt
+	DMA_STREAM_TRANSFER_ERROR_INTERRUPT,			//!< Stream transfer error interrupt
+	DMA_STREAM_DIRECT_MODE_ERROR_INTERRUPT,			//!< Stream direct mode error interrupt
+	DMA_STREAM_RESERVED,							//!< Reserved Bit (Read-Only)
+	DMA_STREAM_FIFO_ERROR_INTERRUPT					//!< Stream FIFO error interrupt
 }DmaStreamInterruptTypeSelect;
 
 /**
@@ -185,16 +180,38 @@ static const BYTE_TYPE DMA_INTERRUPT_REG_STREAM_POS[NUM_DMA_STREAMS_PER_INT_REG]
 	0U, 6U, 16U, 22U
 }
 
-//TODO: Comment block explaining field values
+/**
+ * Valid DMA_SxFCR bitfield values
+ * 
+ * 	FEIE:
+ * 		0: FE interrupt disabled
+ * 		1: FE interrupt enabled
+ * 	FS:
+ * 		0: 0 < fifo_level < 1/4 
+ * 		1: 1/4 ≤ fifo_level < 1/2 
+ * 		2: 1/2 ≤ fifo_level < 3/4
+ * 		3: 3/4 ≤ fifo_level < full
+ * 		4: FIFO is empty
+ * 		5: FIFO is full
+ * 		6-7: no meaning or effect
+ * 	DMDIS:
+ * 		0: Direct mode enabled
+ * 		1: Direct mode disabled
+ * 	FTH:
+ * 		0: 1/4 full FIFO
+ * 		1: 1/2 full FIFO
+ * 		2: 3/4 full FIFO
+ * 		3: full FIFO
+*/
 
 /**
  * DMA Stream FIFO COntrol field selection enum
 */
-typedef enum DmaStreamFifoControlFieldSelect{ //TODO: comments explaining the fields
-	DMA_STREAM_FIFO_CTRL_FEIE_FIELD,
-	DMA_STREAM_FIFO_CTRL_STATUS_FIELD,
-	DMA_STREAM_FIFO_CTRL_DMDIS_FIELD,
-	DMA_STREAM_FIFO_CTRL_FTH_FIELD
+typedef enum DmaStreamFifoControlFieldSelect{
+	DMA_STREAM_FIFO_CTRL_FEIE_FIELD,	//!< FIFO error interrupt enable
+	DMA_STREAM_FIFO_CTRL_STATUS_FIELD,	//!< FIFO status (Read-only)
+	DMA_STREAM_FIFO_CTRL_DMDIS_FIELD,	//!< Direct mode disable
+	DMA_STREAM_FIFO_CTRL_FTH_FIELD		//!< FIFO threshold selection
 }DmaStreamFifoControlFieldSelect;
 
 /**
