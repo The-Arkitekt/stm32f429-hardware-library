@@ -1,93 +1,147 @@
 #include "gpio.h"
 
-void gpioEnable(const GpioPortSelect portSelect){
-	RCC->AHB1ENR |= (RCC_AHB1ENR_GPIOAEN << (BYTE_TYPE)portSelect);
+GPIO_TypeDef* getGpioPort(const GpioPortSelect portSelect)
+{
+	return (GPIO_TypeDef*)(GPIOA_BASE + ((BYTE_TYPE)portSelect * (GPIOB_BASE - GPIOA_BASE)));
 }
 
-void gpioDisable(const GpioPortSelect portSelect){
-	RCC->AHB1ENR &= ~(RCC_AHB1ENR_GPIOAEN << (BYTE_TYPE)portSelect);
-}
+void setGpioConfig(GPIO_TypeDef* portPtr, const GpioPinSelect pin,
+				   const GpioConfigSelect configSelect, const BYTE_TYPE value)
+{
+	if ((portPtr != NULL) && (value <= GPIO_CONFIG_MAX[(BYTE_TYPE)configSelect]))
+	{
+		WORD_TYPE* configPtr = NULL;
+		Boolean alternateHigh = FALSE;
 
-void gpioWrite(const GpioPortSelect portSelect, const GpioPinSelect pinSelect, const Boolean value){
-	gpioEnable(portSelect);
-	GPIO_TypeDef* const port = (GPIO_TypeDef*)portSelect;
-
-	// set bit BSRR
-	if (value == TRUE){
-		port->BSRR |= (GPIO_BSRR_BS0 << (BYTE_TYPE)pinSelect);
-	}
-	else{
-		port->BSRR |= (GPIO_BSRR_BR0 << (BYTE_TYPE)pinSelect);
-	}
-}
-
-Boolean gpioRead(const GpioPortSelect portSelect, const GpioPinSelect pinSelect){
-	gpioEnable(portSelect);
-	GPIO_TypeDef* const port = (GPIO_TypeDef*)portSelect;
-
-	// check if bit for the pinSelect is set
-	WORD_TYPE pinMask = (GPIO_IDR_ID0 << (BYTE_TYPE)pinSelect);
-	if ((port->IDR & pinMask) == pinMask){
-		return TRUE;
-	}
-	// The bit is not set
-	return FALSE;
-}
-
-void gpioConfigure(const GpioConfigStruct gpioConfig){
-
-	// Enable GPIO Peripheral clock
-	gpioEnable(gpioConfig.port);
-
-	// get port struct
-	GPIO_TypeDef* const port = (GPIO_TypeDef*)gpioConfig.port;
-
-	WORD_TYPE tmp         = 0U;
-	BYTE_TYPE bitPosition = 0U;
-	// clear and set MODER
-	tmp = port->MODER;
-	// shift left 1 = multiply by 2
-	bitPosition = (BYTE_TYPE)(gpioConfig.pin) << 1U;
-	tmp &= ~(GPIO_MODER_MODER0 << bitPosition);
-	tmp |= ((BYTE_TYPE)(gpioConfig.mode) << bitPosition);
-	port->MODER = tmp;
-
-	// Handle alt mode if mode is Alternate
-	if (gpioConfig.mode == GPIO_MODESELECT_ALT){
-		if ((BYTE_TYPE)(gpioConfig.pin) < NUM_PINS_PER_AFR_REG){
-			tmp = port->AFR[0];
-			// shift left 2 = multiply by 4
-			bitPosition = (BYTE_TYPE)(gpioConfig.pin) << 2U;
-			tmp &= ~(GPIO_AFRL_AFSEL0 << bitPosition);
-			tmp |= ((BYTE_TYPE)(gpioConfig.altMode) << bitPosition);
-			port->AFR[0] = tmp;
+		switch(configSelect)
+		{
+			case GPIO_MODE:
+				configPtr = &(portPtr->MODER);
+				break;
+			case GPIO_OUTPUT_TYPE:
+				configPtr = &(portPtr->OTYPER);
+				break;
+			case GPIO_OUTPUT_SPEED:
+				configPtr = &(portPtr->OSPEEDR);
+				break;
+			case GPIO_PULL_UP_DOWN:
+				configPtr = &(portPtr->PUPDR);
+				break;
+			case GPIO_ALTERNATE_FUNCTION:
+				if ((BYTE_TYPE)pin < NUM_PINS_PER_AFR_REG)
+				{
+					configPtr = &(portPtr->AFR[0U]);
+				}
+				else
+				{
+					configPtr = &(portPtr->AFR[1U]);
+					alternateHigh = TRUE;
+				}
+				break;
 		}
-		else{
-			tmp = port->AFR[1];
-			bitPosition = ((BYTE_TYPE)(gpioConfig.pin) - NUM_PINS_PER_AFR_REG) << 2U;
-			tmp &= ~(GPIO_AFRH_AFSEL8 << bitPosition);
-			tmp |= ((BYTE_TYPE)(gpioConfig.altMode) << bitPosition);
-			port->AFR[1] = tmp;
+
+		WORD_TYPE tmp = (*configPtr);
+		BYTE_TYPE pos = (BYTE_TYPE)pin * GPIO_CONFIG_BITS_PER_PIN[(BYTE_TYPE)configSelect];
+		
+		// Pos needs to be modified if AFRH register
+		if (alternateHigh == TRUE)
+		{
+			pos = ((BYTE_TYPE)pin - NUM_PINS_PER_AFR_REG) * GPIO_CONFIG_BITS_PER_PIN[(BYTE_TYPE)configSelect];
 		}
+
+		tmp &= ~(GPIO_CONFIG_MAX[(BYTE_TYPE)configSelect] << pos);
+		tmp |= (value << pos);
+
+		(*configPtr) = tmp;			
+	}
+}
+
+Boolean readGpioConfig(const GPIO_TypeDef* portPtr, const GpioPinSelect pin,
+					   const GpioConfigSelect configSelect, BYTE_TYPE* const out)
+{
+	Boolean success = FALSE;
+	if ((portPtr != NULL) && (out != NULL))
+	{
+		WORD_TYPE configRegister;
+		Boolean alternateHigh = FALSE;
+
+		switch(configSelect)
+		{
+			case GPIO_MODE:
+				configRegister = portPtr->MODER;
+				break;
+			case GPIO_OUTPUT_TYPE:
+				configRegister = portPtr->OTYPER;
+				break;
+			case GPIO_OUTPUT_SPEED:
+				configRegister = portPtr->OSPEEDR;
+				break;
+			case GPIO_PULL_UP_DOWN:
+				configRegister = portPtr->PUPDR;
+				break;
+			case GPIO_ALTERNATE_FUNCTION:
+				if ((BYTE_TYPE)pin < NUM_PINS_PER_AFR_REG)
+				{
+					configRegister = portPtr->AFR[0U];
+				}
+				else
+				{
+					configRegister = portPtr->AFR[1U];
+					alternateHigh = TRUE;
+				}
+				break;			
+		}
+
+		BYTE_TYPE pos = (BYTE_TYPE)pin * GPIO_CONFIG_BITS_PER_PIN[(BYTE_TYPE)configSelect];
+		
+		// Pos needs to be modified if AFRH register
+		if (alternateHigh == TRUE)
+		{
+			pos = ((BYTE_TYPE)pin - NUM_PINS_PER_AFR_REG) * GPIO_CONFIG_BITS_PER_PIN[(BYTE_TYPE)configSelect];
+		}
+
+		configRegister = configRegister >> pos;
+		(*out) = (BYTE_TYPE)(configRegister & GPIO_CONFIG_MAX[(BYTE_TYPE)configSelect]);
+
+		success = TRUE;
 	}
 
-	// clear and set OType
-	tmp = port->OTYPER;
-	tmp &= ~(GPIO_OTYPER_OT0 << (BYTE_TYPE)(gpioConfig.pin));
-	tmp |= ((BYTE_TYPE)(gpioConfig.oType) << (BYTE_TYPE)(gpioConfig.pin));
-	port->OTYPER = tmp;
+	return success;
+}
 
-	// clear and set OSPEEDR
-	tmp = port->OSPEEDR;
-	bitPosition = (BYTE_TYPE)(gpioConfig.pin) << 1U;
-	tmp &= ~(GPIO_OSPEEDR_OSPEED0 << bitPosition);
-	tmp |= ((BYTE_TYPE)(gpioConfig.speed) << bitPosition);
-	port->OSPEEDR = tmp;
+void setGpioPinValue(GPIO_TypeDef* const portPtr, const GpioPinSelect pin,
+				     const Boolean value)
+{
+	if (portPtr != NULL)
+	{
+		if (value == TRUE)
+		{
+			portPtr->BSRR |= (1U << (BYTE_TYPE)pin);
+		}
+		else
+		{
+			portPtr->BSRR |= (1U << (BYTE_TYPE)pin + NUM_GPIO_PINS_PER_PORT);	
+		}
+	}
+}
 
-	// clear and set PUPDR
-	tmp = port->PUPDR;
-	bitPosition = (BYTE_TYPE)(gpioConfig.pin) << 1U;
-	tmp &= ~(GPIO_PUPDR_PUPD0 << bitPosition);
-	tmp |= ((BYTE_TYPE)(gpioConfig.pull) << bitPosition);
-	port->PUPDR = tmp;
+Boolean readGpioPinValue(const GPIO_TypeDef* const portPtr, const GpioPinSelect pin,
+						 Boolean* const out)
+{
+	Boolean success = FALSE;
+	if ((portPtr != NULL) && (out != NULL))
+	{
+		if (((portPtr->IDR >> (BYTE_TYPE)pin) && 1U) == 1U)
+		{
+			(*out) = TRUE;
+		}
+		else
+		{
+			(*out) = FALSE;
+		}
+
+		success = TRUE;
+	}
+
+	return success;
 }

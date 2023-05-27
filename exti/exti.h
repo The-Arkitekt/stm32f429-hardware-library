@@ -12,7 +12,8 @@
 /**
  * EXTI interrupt request selection
  */
-typedef enum ExtiIrqSelect{
+typedef enum ExtiIrqSelect
+{
 	EXTI_IRQSELECT_0 = 0U,	
 	EXTI_IRQSELECT_1,
 	EXTI_IRQSELECT_2,
@@ -32,7 +33,8 @@ typedef enum ExtiIrqSelect{
 /**
  * Array of IRQ numbers in vector table
 */
-static const IRQn_Type EXTI_IRQ_NUMS[NUM_EXTI_IRQS] = {
+static const IRQn_Type EXTI_IRQ_NUMS[NUM_EXTI_IRQS] = 
+{
 	EXTI0_IRQn, EXTI1_IRQn, EXTI2_IRQn, EXTI3_IRQn,
 	EXTI4_IRQn, EXTI9_5_IRQn, EXTI15_10_IRQn
 };
@@ -41,7 +43,8 @@ static const IRQn_Type EXTI_IRQ_NUMS[NUM_EXTI_IRQS] = {
  * EXTI source line enum
  * 	The RTSR register masks are used here but the RTSR and FTSR are masks are the same
 */
-typedef enum ExtiLineSelect{
+typedef enum ExtiLineSelect
+{
 	EXTI_LINESELECT_NONE = 0U,
 	EXTI_LINESELECT_0,
 	EXTI_LINESELECT_1,

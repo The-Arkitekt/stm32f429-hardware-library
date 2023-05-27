@@ -29,10 +29,14 @@ typedef uint8_t BYTE_TYPE;
 //@{
 /**
  * Define max values
- * 	Shouldnt need to make arrays this big so typed constants are used
 */
-static const WORD_TYPE      WORD_MAX_VALUE      = 0xFFFFFFFF;
+static const BYTE_TYPE      ONE_BIT_MAX         = 0b1;
+static const BYTE_TYPE      TWO_BIT_MAX         = 0b11;
+static const BYTE_TYPE      THREE_BIT_MAX       = 0b111;
+static const BYTE_TYPE      FOUR_BIT_MAX        = 0xF;
+
 static const HALF_WORD_TYPE HALF_WORD_MAX_VALUE = 0xFFFF;
+static const WORD_TYPE      WORD_MAX_VALUE      = 0xFFFFFFFF;
 //@}
 
 #ifdef __cplusplus

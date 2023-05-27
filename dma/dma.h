@@ -10,18 +10,19 @@
 #include "register.h"
 
 /**
- * DMA Select enum
+ * DMA Selection
 */
-typedef enum DmaSelect{
+typedef enum DmaSelect
+{
 	DMA1_SELECT = 0U,
 	DMA2_SELECT
 }DmaSelect;
 
 /**
- * DMA Stream Select enum
- * 	Enum maps to the address in memory of the stream registers
+ * DMA Stream Selection
 */
-typedef enum DmaStreamSelect{
+typedef enum DmaStreamSelect
+{
 	DMA_STREAMSELECT_0 = 0U,
 	DMA_STREAMSELECT_1,
 	DMA_STREAMSELECT_2,
@@ -104,7 +105,8 @@ typedef enum DmaStreamSelect{
 /**
  *  DMA_SxCR bitfield selection enum 	
  */
-typedef enum DmaStreamControlFieldSelect{ //TODO: add comments for each field
+typedef enum DmaStreamControlFieldSelect
+{
 	DMA_STREAM_CONTROL_CHSEL_FIELD = 0U, //!< Channel selection
 	DMA_STREAM_CONTROL_MBURST_FIELD,	 //!< Memory burst transfer configuration
 	DMA_STREAM_CONTROL_PBURST_FIELD,	 //!< Peripheral burst transfer configuration
@@ -136,7 +138,8 @@ typedef enum DmaStreamControlFieldSelect{ //TODO: add comments for each field
 /**
  * Array of the bitfield positions in DMA_SxCR register
 */
-static const BYTE_TYPE DMA_STREAM_CONTROL_FIELD_POS[NUM_DMA_STREAM_CONTROL_FIELDS] = {
+static const BYTE_TYPE DMA_STREAM_CONTROL_FIELD_POS[NUM_DMA_STREAM_CONTROL_FIELDS] = 
+{
 	DMA_SxCR_CHSEL_Pos, DMA_SxCR_MBURST_Pos, DMA_SxCR_PBURST_Pos, DMA_SxCR_CT_Pos,
 	DMA_SxCR_DBM_Pos, DMA_SxCR_PL_Pos, DMA_SxCR_PINCOS_Pos, DMA_SxCR_MSIZE_Pos,
 	DMA_SxCR_PSIZE_Pos, DMA_SxCR_MINC_Pos, DMA_SxCR_PINC_Pos, DMA_SxCR_CIRC_Pos,
@@ -148,15 +151,19 @@ static const BYTE_TYPE DMA_STREAM_CONTROL_FIELD_POS[NUM_DMA_STREAM_CONTROL_FIELD
  * Array of max values for each bit field
  * min is always zero
 */
-static const DMA_STREAM_CONTROL_FIELD_MAX[NUM_DMA_STREAM_CONTROL_FIELDS] = {
-	7U, 3U, 3U, 1U, 1U, 3U, 1U, 3U, 3U, 1U,
-	1U, 1U, 3U, 1U, 1U, 1U, 1U, 1U, 1U
+static const DMA_STREAM_CONTROL_FIELD_MAX[NUM_DMA_STREAM_CONTROL_FIELDS] = 
+{
+	THREE_BIT_MAX, TWO_BIT_MAX, TWO_BIT_MAX, ONE_BIT_MAX, ONE_BIT_MAX, 
+	TWO_BIT_MAX, ONE_BIT_MAX, TWO_BIT_MAX, TWO_BIT_MAX, ONE_BIT_MAX,
+	ONE_BIT_MAX, ONE_BIT_MAX, TWO_BIT_MAX, ONE_BIT_MAX, ONE_BIT_MAX, 
+	ONE_BIT_MAX, ONE_BIT_MAX, ONE_BIT_MAX, ONE_BIT_MAX
 };
 
 /**
  * DMA Stream Interrupt Types Select enum
 */
-typedef enum DmaStreamInterruptTypeSelect{	// TODO: comments explaining the fields
+typedef enum DmaStreamInterruptTypeSelect
+{	
 	DMA_STREAM_TRANSFER_COMPLETE_INTERRUPT = 0U,	//!<  Stream transfer complete interrupt		    
 	DMA_STREAM_HALF_TRANSFER_INTERRUPT,			    //!< Stream half transfer interrupt
 	DMA_STREAM_TRANSFER_ERROR_INTERRUPT,			//!< Stream transfer error interrupt
@@ -176,7 +183,8 @@ typedef enum DmaStreamInterruptTypeSelect{	// TODO: comments explaining the fiel
  * Array used to find position of specific stream bits in interrupt registers
  * For streams > 3, subtract 4 from stream number to get element in this array
 */
-static const BYTE_TYPE DMA_INTERRUPT_REG_STREAM_POS[NUM_DMA_STREAMS_PER_INT_REG] = {
+static const BYTE_TYPE DMA_INTERRUPT_REG_STREAM_POS[NUM_DMA_STREAMS_PER_INT_REG] = 
+{
 	0U, 6U, 16U, 22U
 }
 
@@ -207,7 +215,8 @@ static const BYTE_TYPE DMA_INTERRUPT_REG_STREAM_POS[NUM_DMA_STREAMS_PER_INT_REG]
 /**
  * DMA Stream FIFO COntrol field selection enum
 */
-typedef enum DmaStreamFifoControlFieldSelect{
+typedef enum DmaStreamFifoControlFieldSelect
+{
 	DMA_STREAM_FIFO_CTRL_FEIE_FIELD,	//!< FIFO error interrupt enable
 	DMA_STREAM_FIFO_CTRL_STATUS_FIELD,	//!< FIFO status (Read-only)
 	DMA_STREAM_FIFO_CTRL_DMDIS_FIELD,	//!< Direct mode disable
@@ -224,15 +233,17 @@ typedef enum DmaStreamFifoControlFieldSelect{
 /**
  * Array used to find position if bitfield in DMA_SxCR_FCTRL register
 */
-static const BYTE_TYPE DMA_STREAM_FIFO_CONTROL_FIELD_POS[NUM_DMA_STREAM_FIFO_CONTROL_FIELDS] = {
+static const BYTE_TYPE DMA_STREAM_FIFO_CONTROL_FIELD_POS[NUM_DMA_STREAM_FIFO_CONTROL_FIELDS] = 
+{
 	DMA_SxFCR_FEIE_Pos, DMA_SxFCR_FS_Pos, DMA_SxFCR_DMDIS_Pos, DMA_SxFCR_FTH_Pos
 }
 
 /**
  *  Array of max values for each FIFO COntrol field
 */
-static const BYTE_TYPE DMA_STREAM_FIFO_CONTROL_FIELD_MAX[NUM_DMA_STREAM_FIFO_CONTROL_FIELDS] = {
-	1U, 7U, 1U, 3U
+static const BYTE_TYPE DMA_STREAM_FIFO_CONTROL_FIELD_MAX[NUM_DMA_STREAM_FIFO_CONTROL_FIELDS] = 
+{
+	ONE_BIT_MAX, THREE_BIT_MAX, ONE_BIT_MAX, TWO_BIT_MAX
 }
 
 /**
@@ -264,7 +275,7 @@ void setDmaStreamControl(DMA_Stream_TypeDef* const streamPtr,
  * read a bitfield value in the DMA_SxCR register
  * @param streamPtr The DMA_Stream_Typedef pointer containing the register
  * @param field The bitfield select enum for the desired bitfield
- * @param out The value of the selected field
+ * @param[out] out The value of the selected field
  * @return True if successful, false otherwise
 */
 Boolean readDmaStreamControl(const DMA_Stream_TypeDef* const streamPtr,
@@ -284,7 +295,7 @@ void clearDmaInterruptFlag(DMA_TypeDef* const dmaPtr, const DmaStreamSelect stre
  * @param dmaPtr The DMA_Typedef pointer containing the interrupt flag values
  * @param stream The Dma Stream Select enum value
  * @param interruptType The Dma Stream Interrupt flag type to check
- * @param out True if the flag is set, false otherwise
+ * @param[out] out True if the flag is set, false otherwise
  * @return TRUE if successful, false otherwise
 */
 Boolean readDmaInterruptFlag(const DMA_TypeDef* const dmaPtr, const DmaStreamSelect stream,
@@ -301,7 +312,7 @@ void setDmaNumberItemsToTransfer(DMA_Stream_TypeDef* const streamPtr, const HALF
 /**
  * Read number of remaining data items to be transferred
  * @param streamPtr DMA_Stream_Typedef pointer containing the register to read 
- * @param out The value from the register
+ * @param[out] out The value from the register
  * @return True if successful, false otherwise
 */
 Boolean readDmaNumberItemsToTransfer(const DMA_Stream_TypeDef* const streamPtr, HALF_WORD* const out);
@@ -332,7 +343,7 @@ void setDmaMemory0Address(DMA_Stream_TypeDef* const streamPtr, const WORD_TYPE a
 /**
  * read the base address of memory area 0 which data will be transfered to/from
  * @param streamPtr DMA_Stream_Typedef pointer containing the register
- * @param out The memory address
+ * @param[out] out The memory address
  * @return True if successful, false otherwise
 */
 Boolean readDmaMemory0Address(const DMA_Stream_TypeDef* const streamPtr, WORD_TYPE* const out);
@@ -349,7 +360,7 @@ void setDmaMemory1Address(DMA_Stream_TypeDef* const streamPtr, const WORD_TYPE a
 /**
  * read base address of memory area 1 which data will be transferred to/from
  * @param streamPtr DMA_Stream_Typedef pointer containing the register
- * @param out The memory address
+ * @param[out] out The memory address
  * @return True if successful, false otherwise
 */
 Boolean readDmaMemory1Address(const DMA_Stream_TypeDef* const streamPtr, WORD_TYPE* const out);
@@ -368,7 +379,7 @@ void setDmaStreamFifoControl(DMA_Stream_TypeDef* const streamPtr, const DmaStrea
  * read bitfield value in the DMA_SxFCR register (FIFO Control)
  * @param streamPtr THe DMA_Stream_Typedef pointer containing the register
  * @param field The FIfo Control field to be set
- * @param out The value from the field in the register
+ * @param[out] out The value from the field in the register
  * @return True if successful, false otherwise
 */
 Boolean readDmaStreamFifoControl(const DMA_Stream_TypeDef* const streamPtr, 
