@@ -28,33 +28,20 @@ typedef enum GpioPortSelect
 }GpioPortSelect;
 
 /**
- * GPIO pin selection
+ * Max port number 
 */
-typedef enum GpioPinSelect
-{
-	GPIO_PINSELECT_0 = 0U,
-	GPIO_PINSELECT_1,
-	GPIO_PINSELECT_2,
-	GPIO_PINSELECT_3,
-	GPIO_PINSELECT_4,
-	GPIO_PINSELECT_5,
-	GPIO_PINSELECT_6,
-	GPIO_PINSELECT_7,
-	GPIO_PINSELECT_8,
-	GPIO_PINSELECT_9,
-	GPIO_PINSELECT_10,
-	GPIO_PINSELECT_11,
-	GPIO_PINSELECT_12,
-	GPIO_PINSELECT_13,
-	GPIO_PINSELECT_14,
-	GPIO_PINSELECT_15
-}GpioPinSelect;
+static const BYTE_TYPE GPIO_PORT_MAX = 10U;
+
+/**
+ * GPIO max pin value
+*/
+static const BYTE_TYPE GPIO_PIN_MAX = 15U;
 
 /**
  * Number of GPIO pins per port
 */
 #ifndef NUM_GPIO_PINS_PER_PORT
-	#define NUM_GPIO_PINS_PER_PORT 16
+	#define NUM_GPIO_PINS_PER_PORT 16U
 #endif //NUM_GPIO_PINS_PER_PORT
 
 /**
@@ -153,7 +140,7 @@ GPIO_TypeDef* getGpioPort(const GpioPortSelect portSelect);
  * @param configSelect The configuration type to be set
  * @param value The value to set for the given configuration
 */
-void setGpioConfig(GPIO_TypeDef* portPtr, const GpioPinSelect pin,
+void setGpioConfig(GPIO_TypeDef* portPtr, const BYTE_TYPE pin,
 				   const GpioConfigSelect configSelect, const BYTE_TYPE value);
 
 /**
@@ -164,7 +151,7 @@ void setGpioConfig(GPIO_TypeDef* portPtr, const GpioPinSelect pin,
  * @param[out] out The current pin configuration value
  * @return True if successful, false otherwise
 */
-Boolean readGpioConfig(const GPIO_TypeDef* portPtr, const GpioPinSelect pin,
+Boolean readGpioConfig(const GPIO_TypeDef* portPtr, const BYTE_TYPE pin,
 					   const GpioConfigSelect configSelect, BYTE_TYPE* const out);
 
 /**
@@ -173,7 +160,7 @@ Boolean readGpioConfig(const GPIO_TypeDef* portPtr, const GpioPinSelect pin,
  * @param pin The pin to set
  * @param value The boolean value to set
 */
-void setGpioPinValue(GPIO_TypeDef* const portPtr, const GpioPinSelect pin,
+void setGpioPinValue(GPIO_TypeDef* const portPtr, const BYTE_TYPE pin,
 				     const Boolean value);
 
 /**
@@ -183,8 +170,20 @@ void setGpioPinValue(GPIO_TypeDef* const portPtr, const GpioPinSelect pin,
  * @param[out] out The current pin input value
  * @return True if successful, false otherwise
 */
-Boolean readGpioPinValue(const GPIO_TypeDef* const portPtr, const GpioPinSelect pin,
+Boolean readGpioPinValue(const GPIO_TypeDef* const portPtr, const BYTE_TYPE pin,
 						 Boolean* const out);
+
+/**
+ * Enable RCC clock for GPIO port
+ * @param port The port to enable
+*/
+void gpioEnable(const GpioPortSelect port);
+
+/**
+ * Disable RCC clock for GPIO port
+ * @param port The port to disable
+*/
+void gpioDisable(const GpioPortSelect port);
 
 #ifdef __cplusplus
 }

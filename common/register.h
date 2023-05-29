@@ -28,16 +28,25 @@ typedef uint8_t BYTE_TYPE;
 
 //@{
 /**
- * Define max values
+ * Define mask values
 */
-static const BYTE_TYPE      ONE_BIT_MAX         = 0b1;
-static const BYTE_TYPE      TWO_BIT_MAX         = 0b11;
-static const BYTE_TYPE      THREE_BIT_MAX       = 0b111;
-static const BYTE_TYPE      FOUR_BIT_MAX        = 0xF;
+static const BYTE_TYPE      BIT_MASK       = 0b1;
+static const BYTE_TYPE      TWO_BIT_MASK   = 0b11;
+static const BYTE_TYPE      THREE_BIT_MASK = 0b111;
+static const BYTE_TYPE      FOUR_BIT_MASK  = 0b1111;
 
-static const HALF_WORD_TYPE HALF_WORD_MAX_VALUE = 0xFFFF;
-static const WORD_TYPE      WORD_MAX_VALUE      = 0xFFFFFFFF;
+static const HALF_WORD_TYPE HALF_WORD_MASK = 0xFFFF;
+static const WORD_TYPE      WORD_MASK      = 0xFFFFFFFF;
 //@}
+
+/**
+ * Store register bitfield details
+*/
+typedef struct BitFieldDetails{
+	BYTE_TYPE position;
+	BYTE_TYPE maxValidValue;
+	BYTE_TYPE mask;
+}BitFieldDetails;
 
 #ifdef __cplusplus
 }

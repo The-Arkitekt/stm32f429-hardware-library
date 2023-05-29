@@ -25,15 +25,13 @@ void setDmaStreamControl(DMA_Stream_TypeDef* const streamPtr, const DmaStreamCon
 {
     if (streamPtr != NULL)
     {
-        BYTE_TYPE fieldMax = DMA_STREAM_CONTROL_FIELD_MAX[(BYTE_TYPE)field];
+        BitFieldDetails fieldDetails = DMA_STREAM_CONTROL_FIELD_DETAILS[(BYTE_TYPE)field];
 
-        if (value <= fieldMax)
+        if (value <= fieldDetails.maxValidValue)
         {
-            BYTE_TYPE fieldPos = DMA_STREAM_CONTROL_FIELD_POS[(BYTE_TYPE)field];
-
             WORD_TYPE tmp = streamPtr->CR;
-            tmp &= ~(fieldMax << fieldPos);
-            tmp |= (value << fieldPos);
+            tmp &= ~(fieldDetails.max << fieldDetails.position);
+            tmp |= (value << fieldDetails.position);
 
             streamPtr->CR = tmp;
         }
@@ -46,8 +44,10 @@ Boolean readDmaStreamControl(const DMA_Stream_TypeDef* const streamPtr,
     Boolean success = FALSE;
     if ((streamPtr != NULL) && (out != NULL))
     {
-        WORD_TYPE tmp = streamPtr->CR >> DMA_STREAM_CONTROL_FIELD_POS[(BYTE_TYPE)field];
-        (*out) = (BYTE_TYPE)(tmp & DMA_STREAM_CONTROL_FIELD_MAX[(BYTE_TYPE)field]);
+        BitFieldDetails fieldDetails = DMA_STREAM_CONTROL_FIELD_DETAILS[(BYTE_TYPE)field];
+
+        WORD_TYPE tmp = streamPtr->CR >> fieldDetails.position;
+        (*out) = (BYTE_TYPE)(tmp & fieldDetails.mask);
 
         success = TRUE;  
     }  
@@ -107,7 +107,7 @@ void setDmaNumberItemsToTransfer(DMA_Stream_TypeDef* const streamPtr, const HALF
     {
         WORD_TYPE tmp = streamPtr->NDTR;
         
-        tmp &= ~(HALF_WORD_MAX_VALUE);
+        tmp &= ~(HALF_WORD_MASK);
         tmp |= (numDataItems);
 
         streamPtr->NDTR = tmp;
@@ -119,7 +119,7 @@ Boolean readDmaNumberItemsToTransfer(const DMA_Stream_TypeDef* const streamPtr, 
     Boolean success = FALSE;
     if ((streamPtr != NULL) && (out != NULL))
     {
-        (*out) = (HALF_WORD)(streamPtr->NDTR & HALF_WORD_MAX_VALUE);
+        (*out) = (HALF_WORD)(streamPtr->NDTR & HALF_WORD_MASK);
         success = TRUE;
     }
 
@@ -190,15 +190,13 @@ void setDmaStreamFifoControl(DMA_Stream_TypeDef* const streamPtr, const DmaStrea
 {
     if (streamPtr != NULL)
     {
-        BYTE_TYPE fieldMax = DMA_STREAM_FIFO_CONTROL_FIELD_MAX[(BYTE_TYPE)field];
+        BitFieldDetails fieldDetails = DMA_STREAM_FIFO_CONTROL_FIELD_DETAILS[(BYTE_TYPE)field];
 
-        if (value <= fieldMax)
+        if (value <= fieldDetails.maxValidValue)
         {
-            BYTE_TYPE fieldPos = DMA_STREAM_FIFO_CONTROL_FIELD_POS[(BYTE_TYPE)field];
-
             WORD_TYPE tmp = streamPtr->FCR;
-            tmp &= ~(fieldMax << fieldPos);
-            tmp |= (value << fieldPos);
+            tmp &= ~(fieldDetails.mask << fieldDetails.position);
+            tmp |= (value << fieldDetails.position);
 
             streamPtr->FCR = tmp;
         }
@@ -211,8 +209,10 @@ Boolean readDmaStreamFifoControl(const DMA_Stream_TypeDef* const streamPtr,
     Boolean success = FALSE;
     if ((streamPtr != NULL) && (out != NULL))
     {
-        WORD_TYPE tmp = streamPtr->FCR >> DMA_STREAM_FIFO_CONTROL_FIELD_POS[(BYTE_TYPE)field];
-        (*out) = (BYTE_TYPE)(tmp & DMA_STREAM_FIFO_CONTROL_FIELD_MAX[(BYTE_TYPE)field]);
+        BitFieldDetails fieldDetails = DMA_STREAM_FIFO_CONTROL_FIELD_DETAILS[(BYTE_TYPE)field];
+
+        WORD_TYPE tmp = (streamPtr->FCR >> fieldDetails.position);
+        (*out) = (BYTE_TYPE)(tmp & fieldDetails.mask);
 
         success = TRUE;  
     }  
@@ -220,25 +220,28 @@ Boolean readDmaStreamFifoControl(const DMA_Stream_TypeDef* const streamPtr,
     return success;
 }
 
-void dma1Enable()
+void dmaEnable(const DmaSelect dma)
 {
-    RCC->AHB1ENR |= RCC_AHB1ENR_DMA1EN;
+    if (dma == DMA1_SELECT)
+    {
+        RCC->AHB1ENR |= RCC_AHB1ENR_DMA1EN;
+    }
+    else
+    {
+        RCC->AHB1ENR |= RCC_AHB1ENR_DMA2EN;
+    }
 }
 
-void dma2Enable()
+void dma1Disable(const DmaSelect dma)
 {
-    RCC->AHB1ENR |= RCC_AHB1ENR_DMA2EN;
+    if (dma == DMA1_SELECT)
+    {
+        RCC->AHB1ENR &= ~(RCC_AHB1ENR_DMA1EN);
+    }
+    else
+    {
+        RCC->AHB1ENR &= ~(RCC_AHB1ENR_DMA2EN);
+    }
 }
-
-void dma1Disable()
-{
-    RCC->AHB1ENR &= ~(RCC_AHB1ENR_DMA1EN);
-}
-
-void dma2Disable()
-{
-    RCC->AHB1ENR &= ~(RCC_AHB1ENR_DMA2EN);
-}
-
 
 

@@ -1,78 +1,85 @@
 #include "systemConfig.h"
 
-void sysCfgEnable(){
+void setSystemConfigMemoryRemap(const SystemConfigMemoryRemapFieldSelect field, const BYTE_TYPE value)
+{
+	BitFieldDetails fieldDetails = SYSCFG_MEMRMP_FIELD_DETAILS[(BYTE_TYPE)field];
+
+	if (value <= fieldDetails.maxValidValue)
+	{
+		WORD_TYPE tmp = SYSCFG->MEMRMP;
+		tmp &= ~(fieldDetails.mask << fieldDetails.position);
+		tmp |= (value << fieldDetails.position);
+
+		SYSCFG->MEMRMP;
+	}
+}
+
+BYTE_TYPE readSystemConfigMemoryRemap(const SystemConfigMemoryRemapFieldSelect field)
+{
+	WORD_TYPE tmp = SYSCFG->MEMRMP >> SYSCFG_MEMRMP_FIELD_DETAILS[(BYTE_TYPE)field].position;
+	BYTE_TYPE out = tmp & SYSCFG_MEMRMP_FIELD_DETAILS[(BYTE_TYPE)field].mask;
+	return out;
+}
+
+void setSystemConfigPeripheralMode(const SystemConfigPeripheralModeFieldSelect field, 
+								   const Boolean value)
+{
+	if (value == TRUE)
+	{
+		SYSCFG->PMC &= ~(1U << SYSCFG_PMC_FIELD_POS[(BYTE_TYPE)field]);
+	}
+	else
+	{
+		SYSCFG->PMC |= (1U << SYSCFG_PMC_FIELD_POS[(BYTE_TYPE)field]);
+	}
+}
+
+Boolean readSystemConfigPeripheralMode(const SystemConfigPeripheralModeFieldSelect field)
+{
+	return (((SYSCFG->PMC >> SYSCFG_PMC_FIELD_POS[(BYTE_TYPE)field]) & 1U) == 1U) ? TRUE : FALSE;
+}
+
+void setSystemExternalInterruptSource(const GpioPortSelect port, const BYTE_TYPE pin)
+{
+	if (pin <= GPIO_PIN_MAX)
+	{
+		BYTE_TYPE extiRegisterIndex = pin / SYSCFG_EXTICRx_PINS_PER_REGISTER;
+		BYTE_TYPE pos = SYSCFG_EXTICRx_BITS_PER_PIN * (pin - (SYSCFG_EXTICRx_PINS_PER_REGISTER * extiRegisterIndex));
+
+		WORD_TYPE tmp = SYSCFG->EXTICR[extiRegisterIndex];
+		tmp &= ~(SYSCFG_EXTICRx_FIELD_MASK << pos);
+		tmp |= (pin << pos);
+
+		SYSCFG->EXTICR[extiRegisterIndex];
+	}
+}
+
+Boolean readSystemExternalInterruptSource(const BYTE_TYPE pin, GpioPortSelect* const out)
+{
+	Boolean success = FALSE;
+	if ((out != NULL) && (pin <= GPIO_PIN_MAX))
+	{
+		BYTE_TYPE extiRegisterIndex = pin / SYSCFG_EXTICRx_PINS_PER_REGISTER;
+		BYTE_TYPE pos = SYSCFG_EXTICRx_BITS_PER_PIN * (pin - (SYSCFG_EXTICRx_PINS_PER_REGISTER * extiRegisterIndex));
+
+		BYTE_TYPE extiPortValue = ((SYSCFG->EXTICR[extiRegisterIndex] >> pos) && SYSCFG_EXTICRx_FIELD_MASK);
+		if (extiPortValue <= GPIO_PORT_MAX)
+		{
+			(*out) = (GpioPortSelect)extiPortValue;
+			success = TRUE;
+		}
+		
+	}
+
+	return success;
+}
+
+void enableSystemConfig()
+{
 	RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
 }
 
-void sysCfgDisable(){
-	RCC->APB2ENR &= ~RCC_APB2ENR_SYSCFGEN;
-}
-
-void sysCfgMemRmpSetSwap(const Boolean value){
-	sysCfgEnable();
-	if (value == TRUE){
-		SYSCFG->MEMRMP |= SYSCFG_MEMRMP_SWP_FMC_0;
-	}
-	else{
-		SYSCFG->MEMRMP &= ~SYSCFG_MEMRMP_SWP_FMC;
-	}
-	sysCfgDisable();
-}
-
-void sysCfgMemRmpSetFbMode(const Boolean value){
-	sysCfgEnable();
-	if (value == TRUE){
-		SYSCFG->MEMRMP |= SYSCFG_MEMRMP_UFB_MODE;
-	}
-	else{
-		SYSCFG->MEMRMP &= ~SYSCFG_MEMRMP_UFB_MODE;
-	}
-	sysCfgDisable();
-}
-
-void sysCfgMemRmpSetMemMode(const SysCfgMemoryRemapModeSelect value){
-	sysCfgEnable();
-	WORD_TYPE tmp = SYSCFG->MEMRMP;
-	tmp &= ~SYSCFG_MEMRMP_MEM_MODE;
-	tmp |= ((BYTE_TYPE)value << SYSCFG_MEMRMP_MEM_MODE_Pos);
-	SYSCFG->MEMRMP = tmp;
-	sysCfgDisable();
-}
-
-
-void sysCfgPmcSetEthernet(const Boolean value){
-	sysCfgEnable();
-	if (value == TRUE){
-		SYSCFG->PMC |= SYSCFG_PMC_MII_RMII_SEL;
-	}
-	else{
-		SYSCFG->PMC &= ~SYSCFG_PMC_MII_RMII_SEL;
-	}
-	sysCfgDisable();
-}
-
-void sysCfgPmcSetAdcDc2(const SysCfgPmcAdcDc2Select position, const Boolean value){
-	sysCfgEnable();
-	if (value == TRUE){
-		SYSCFG->PMC |= (1U << (BYTE_TYPE)position);
-	}
-	else{
-		SYSCFG->PMC &= ~(1U << (BYTE_TYPE)position);
-	}
-}
-
-void sysCfgSetExti(const GpioPortSelect portSelect, const GpioPinSelect pinSelect, const Boolean value){
-	sysCfgEnable();
-	BYTE_TYPE extiCrIndex = ((BYTE_TYPE)pinSelect / NUM_PINS_PER_CR_REG);
-	BYTE_TYPE extiCrPosition = ((BYTE_TYPE)pinSelect - (extiCrIndex * NUM_PINS_PER_CR_REG)) << 2U;
-
-	WORD_TYPE tmp = SYSCFG->EXTICR[extiCrIndex];
-	// clear the bits
-	tmp &= ~(0xF << extiCrPosition);
-	if (value == TRUE){
-		// set bits for port
-		tmp |= ((BYTE_TYPE)portSelect << extiCrPosition);
-	}
-
-	SYSCFG->EXTICR[extiCrIndex] = tmp;
+void disableSystemConfig()
+{
+	RCC->APB2ENR &= ~(RCC_APB2ENR_SYSCFGEN);
 }

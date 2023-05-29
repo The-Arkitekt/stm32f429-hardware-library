@@ -81,9 +81,9 @@ void setExtiLineInterruptMask(const ExtiLineSelect extiLine, const Boolean value
 /**
  * Read interrupt mask for given EXTI line
  * @param extiLine The EXTI line to be modified
- * @param out The Boolean pointer to be set with register value
+ * @return True if interrupt is masked for line, false otherwise
 */
-void readExtiLineInterruptMask(const ExtiLineSelect extiLine, Boolean* const out);
+Boolean readExtiLineInterruptMask(const ExtiLineSelect extiLine);
 
 /**
  * Set event mask for given EXTI line
@@ -95,9 +95,9 @@ void setExtiLineEventMask(const ExtiLineSelect extiLine, const Boolean value);
 /**
  * Read event mask for given EXTI line
  * @param extiLine The EXTI line to read
- * @param out The Boolean pointer to be set with register value
+ * @return True if event is masked for line, false otherwise
 */ 
-void readExtiLineEventMask(const ExtiLineSelect extiLine, Boolean* const out);
+Boolean readExtiLineEventMask(const ExtiLineSelect extiLine);
 
 /**
  * Set rising trigger enable field for given EXTI line
@@ -109,9 +109,9 @@ void setExtiLineRisingTrigger(const ExtiLineSelect extiLine, const Boolean value
 /**
  * Read rising trigger enable field for given EXTI line
  * @param extiLine The EXTI line to read
- * @param out The Boolean pointer to be set with register value
+ * @return True if trigger is enabled, false otherwise
 */
-void readExtiLineRisingTrigger(const ExtiLineSelect extiLine, Boolean* const out);
+Boolean readExtiLineRisingTrigger(const ExtiLineSelect extiLine);
 
 /**
  * Set falling trigger enable field for given EXTI line
@@ -123,9 +123,9 @@ void setExtiLineFallingTrigger(const ExtiLineSelect extiLine, const Boolean valu
 /**
  * Read falling trigger enable field for given EXTI line
  * @param extiLine The EXTI line to be modified
- * @param out The Boolean pointer to be set with register value
+ * @return True if trigger is enabled, false otherwise
 */
-void readExtiLineFallingTrigger(const ExtiLineSelect extiLine, Boolean* const out);
+Boolean readExtiLineFallingTrigger(const ExtiLineSelect extiLine);
 
 /**
  * Trigger an Interrupt request on a given EXTI line

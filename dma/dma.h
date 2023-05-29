@@ -34,7 +34,7 @@ typedef enum DmaStreamSelect
 }DmaStreamSelect;
 
 /**
- * valid DMA_SxCR bitfield value options
+ * valid DMA_SxCR bitfield values
  * 
  *  CHSEL:  Values correspond to desired channel [0-7]
  * 	MBURST: 
@@ -94,6 +94,9 @@ typedef enum DmaStreamSelect
  * 	HTIE:
  * 		0: Half Transfer Interrupt disabled
  * 		1: Half Transfer Interrupt enabled
+ * 	TEIE:
+ * 		0: Transfer Error Interrupt disabled
+ * 		1: Transfer Error Interrupt enabled
  * 	DMEIE:
  * 		0: Direct Mode Error Interrupt disabled
  * 		1: Direct Mode Error Interrupt enabled
@@ -103,7 +106,7 @@ typedef enum DmaStreamSelect
  */
 
 /**
- *  DMA_SxCR bitfield selection enum 	
+ *  DMA Stream Control (DMA_SxCR) bitfield selection  	
  */
 typedef enum DmaStreamControlFieldSelect
 {
@@ -129,38 +132,40 @@ typedef enum DmaStreamControlFieldSelect
 }DmaStreamControlFieldSelect;
 
 /**
- * The number of bitfields in the DMA_SxCR register
+ * The number of bitfields in the DMA Stream Control (DMA_SxCR) register
 */
 #ifndef NUM_DMA_STREAM_CONTROL_FIELDS
 	#define NUM_DMA_STREAM_CONTROL_FIELDS 19
 #endif
 
 /**
- * Array of the bitfield positions in DMA_SxCR register
+ * Array of bitfield details in DMA Stream Control (DMA_SxCR) register
 */
-static const BYTE_TYPE DMA_STREAM_CONTROL_FIELD_POS[NUM_DMA_STREAM_CONTROL_FIELDS] = 
+static const BitFieldDetails DMA_STREAM_CONTROL_FIELD_DETAILS[NUM_DMA_STREAM_CONTROL_FIELDS] = 
 {
-	DMA_SxCR_CHSEL_Pos, DMA_SxCR_MBURST_Pos, DMA_SxCR_PBURST_Pos, DMA_SxCR_CT_Pos,
-	DMA_SxCR_DBM_Pos, DMA_SxCR_PL_Pos, DMA_SxCR_PINCOS_Pos, DMA_SxCR_MSIZE_Pos,
-	DMA_SxCR_PSIZE_Pos, DMA_SxCR_MINC_Pos, DMA_SxCR_PINC_Pos, DMA_SxCR_CIRC_Pos,
-	DMA_SxCR_DIR_Pos, DMA_SxCR_PFCTRL_Pos, DMA_SxCR_TCIE_Pos, DMA_SxCR_HTIE_Pos,
-	DMA_SxCR_TEIE_Pos, DMA_SxCR_DMEIE_Pos, DMA_SxCR_EN_Pos
-};
+	{DMA_SxCR_CHSEL_Pos, THREE_BIT_MASK, THREE_BIT_MASK},	//!< Channel selection field details
+	{DMA_SxCR_MBURST_Pos, TWO_BIT_MASK, TWO_BIT_MASK},		//!< Memory Burst field details
+	{DMA_SxCR_PBURST_Pos, TWO_BIT_MASK, TWO_BIT_MASK},		//!< Peripheral Burst field details
+	{DMA_SxCR_CT_Pos, ONE_BIT_MASK, ONE_BIT_MASK}, 			//!< Current Target field details
+	{DMA_SxCR_DBM_Pos, ONE_BIT_MASK, ONE_BIT_MSK},			//!< Double Buffer Mode field details
+	{DMA_SxCR_PL_Pos, TWO_BIT_MASK, TWO_BIT_MASK},			//!< Priority Level field details
+	{DMA_SxCR_PINCOS_Pos, ONE_BIT_MSK, ONE_BIT_MSK},		//!< Peripheral Offset Size field details
+	{DMA_SxCR_MSIZE_Pos, 2U, TWO_BIT_MASK}, 				//!< Memory Size field details
+	{DMA_SxCR_PSIZE_Pos, 2U, TWO_BIT_MASK},					//!< Peripheral Size field details
+	{DMA_SxCR_MINC_Pos, ONE_BIT_MASK, ONE_BIT_MASK},		//!< Memory Increment field details
+	{DMA_SxCR_PINC_Pos, ONE_BIT_MASK, ONE_BIT_MASK},		//!< Peripheral Increment field details
+	{DMA_SxCR_CIRC_Pos, ONE_BIT_MASK, ONE_BIT_MASK},		//!< Circular Buffer field details
+	{DMA_SxCR_DIR_Pos, 2U, TWO_BIT_MASK},					//!< Data Transfer Direction field details
+	{DMA_SxCR_PFCTRL_Pos, 2U, TWO_BIT_MASK},				//!< Flow Control field details
+	{DMA_SxCR_TCIE_Pos, ONE_BIT_MASK, ONE_BIT_MASK},		//!< Transfer Complete Interrupt field details
+	{DMA_SxCR_HTIE_Pos, ONE_BIT_MASK, ONE_BIT_MASK},		//!< Half Transfer Interrupt field details
+	{DMA_SxCR_TEIE_Pos, ONE_BIT_MASK, ONE_BIT_MASK},		//!< Transfer Error Interrupt field details
+	{DMA_SxCR_DMEIE_Pos, ONE_BIT_MASK, ONE_BIT_MASK},		//!< Direct Mode Error Interrupt field details
+	{DMA_SxCR_EN_Pos, ONE_BIT_MASK, ONE_BIT_MASK}			//!< Stream Enable field details
+}
 
 /**
- * Array of max values for each bit field
- * min is always zero
-*/
-static const DMA_STREAM_CONTROL_FIELD_MAX[NUM_DMA_STREAM_CONTROL_FIELDS] = 
-{
-	THREE_BIT_MAX, TWO_BIT_MAX, TWO_BIT_MAX, ONE_BIT_MAX, ONE_BIT_MAX, 
-	TWO_BIT_MAX, ONE_BIT_MAX, TWO_BIT_MAX, TWO_BIT_MAX, ONE_BIT_MAX,
-	ONE_BIT_MAX, ONE_BIT_MAX, TWO_BIT_MAX, ONE_BIT_MAX, ONE_BIT_MAX, 
-	ONE_BIT_MAX, ONE_BIT_MAX, ONE_BIT_MAX, ONE_BIT_MAX
-};
-
-/**
- * DMA Stream Interrupt Types Select enum
+ * DMA Stream Interrupt Types Select 
 */
 typedef enum DmaStreamInterruptTypeSelect
 {	
@@ -231,19 +236,14 @@ typedef enum DmaStreamFifoControlFieldSelect
 #endif //NUM_DMA_STREAM_FIFO_CONTROL_FIELDS
 
 /**
- * Array used to find position if bitfield in DMA_SxCR_FCTRL register
+ * Array of bitfield details for Stream Fifo Control (DMA_SxFCR) register
 */
-static const BYTE_TYPE DMA_STREAM_FIFO_CONTROL_FIELD_POS[NUM_DMA_STREAM_FIFO_CONTROL_FIELDS] = 
+static const BitFieldDetails DMA_STREAM_FIFO_CONTROL_FIELD_DETAILS[NUM_DMA_STREAM_FIFO_CONTROL_FIELDS] = 
 {
-	DMA_SxFCR_FEIE_Pos, DMA_SxFCR_FS_Pos, DMA_SxFCR_DMDIS_Pos, DMA_SxFCR_FTH_Pos
-}
-
-/**
- *  Array of max values for each FIFO COntrol field
-*/
-static const BYTE_TYPE DMA_STREAM_FIFO_CONTROL_FIELD_MAX[NUM_DMA_STREAM_FIFO_CONTROL_FIELDS] = 
-{
-	ONE_BIT_MAX, THREE_BIT_MAX, ONE_BIT_MAX, TWO_BIT_MAX
+	{DMA_SxFCR_FEIE_Pos, ONE_BIT_MASK, ONE_BIT_MASK},	//!< FIFO Error Interrupt Enable field details
+	{DMA_SxFCR_FS_Pos, 5U, THREE_BIT_MASK},				//!< FIFO Status field details
+	{DMA_SxFCR_DMDIS_Pos, ONE_BIT_MASK, ONE_BIT_MASK},	//!< Direct Mode Disable field details
+	{DMA_SxFCR_FTH_Pos, TWO_BIT_MASK, TWO_BIT_MASK},	//!< FIFO Threshold Selection field details
 }
 
 /**
@@ -385,21 +385,17 @@ void setDmaStreamFifoControl(DMA_Stream_TypeDef* const streamPtr, const DmaStrea
 Boolean readDmaStreamFifoControl(const DMA_Stream_TypeDef* const streamPtr, 
 								 const setDmaStreamFifoControlFieldSelect field, BYTE_TYPE* const out);
 
-//@{
 /**
- * Enable the DMA1 peripheral in the RCC register
+ * Enable the DMA peripheral in the RCC register
+ * @param dma The dma to enable (1 or 2)
 */
-void dma1Enable();
-void dma2Enable();
-//@}
+void dmaEnable(const DmaSelect dma);
 
-//@{
 /** 
- * Disable the DMA2 peripheral in the RCC register
+ * Disable the DMA peripheral in the RCC register
+ * @param dma The dma to disable (1 or 2)
 */
-void dma1Disable();
-void dma2Disable();
-//@}
+void dmaDisable(const DmaSelect dma);
 
 #ifdef __cplusplus
 }

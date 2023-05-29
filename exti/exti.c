@@ -9,12 +9,9 @@ void setExtiLineInterruptMask(const ExtiLineSelect extiLine, const Boolean value
 	EXTI->IMR = tmp;
 }
 
-void readExtiLineInterruptMask(const ExtiLineSelect extiLine, Boolean* const out)
+Boolean readExtiLineInterruptMask(const ExtiLineSelect extiLine)
 {
-	if (out != NULL)
-	{
-		(*out) = (((EXTI->IMR >> (BYTE_TYPE)extiLine) & 1U) == 1U) ? TRUE : FALSE;
-	}
+	return (((EXTI->IMR >> (BYTE_TYPE)extiLine) & 1U) == 1U) ? TRUE : FALSE;
 }
 
 void setExtiLineEventMask(const ExtiLineSelect extiLine, const Boolean value)
@@ -26,12 +23,9 @@ void setExtiLineEventMask(const ExtiLineSelect extiLine, const Boolean value)
 	EXTI->EMR = tmp;
 }
 
-void readExtiLineEventMask(const ExtiLineSelect extiLine, Boolean* const out)
+Boolean readExtiLineEventMask(const ExtiLineSelect extiLine)
 {
-	if (out != NULL)
-	{
-		(*out) = (((EXTI->EMR >> (BYTE_TYPE)extiLine) & 1U) == 1U) ? TRUE : FALSE;
-	}
+	return (((EXTI->EMR >> (BYTE_TYPE)extiLine) & 1U) == 1U) ? TRUE : FALSE;
 }
 
 void setExtiLineRisingTrigger(const ExtiLineSelect extiLine, const Boolean value)
@@ -39,12 +33,9 @@ void setExtiLineRisingTrigger(const ExtiLineSelect extiLine, const Boolean value
 	EXTI->RTSR |= (1U << (BYTE_TYPE)extiLine);
 }
 
-void readExtiLineRisingTrigger(const ExtiLineSelect extiLine, Boolean* const out)
+Boolean readExtiLineRisingTrigger(const ExtiLineSelect extiLine)
 {
-	if (out != NULL)
-	{
-		(*out) = (((EXTI->RTSR >> (BYTE_TYPE)extiLine) & 1U) == 1U) ? TRUE : FALSE;
-	}
+	return (((EXTI->RTSR >> (BYTE_TYPE)extiLine) & 1U) == 1U) ? TRUE : FALSE;
 }
 
 void setExtiLineFallingTrigger(const ExtiLineSelect extiLine, const Boolean value)
@@ -52,12 +43,9 @@ void setExtiLineFallingTrigger(const ExtiLineSelect extiLine, const Boolean valu
 	EXTI->FTSR |= (1U << (BYTE_TYPE)extiLine);
 }
 
-void readExtiLineFallingTrigger(const ExtiLineSelect extiLine, Boolean* const out)
+Boolean readExtiLineFallingTrigger(const ExtiLineSelect extiLine)
 {
-	if (out != NULL)
-	{
-		(*out) = (((EXTI->FTSR >> (BYTE_TYPE)extiLine) & 1U) == 1U) ? TRUE : FALSE;
-	}
+	return (((EXTI->FTSR >> (BYTE_TYPE)extiLine) & 1U) == 1U) ? TRUE : FALSE;
 }
 
 void requestExtiLineInterrupt(const ExtiLineSelect extiLine)
@@ -67,8 +55,7 @@ void requestExtiLineInterrupt(const ExtiLineSelect extiLine)
 
 Boolean isExtiLineInterruptRequestPending(const ExtiLineSelect extiLine)
 {
-	Boolean ret = (((EXTI->PR >> (BYTE_TYPE)extiLine) & 1U) == 1U) ? TRUE : FALSE;
-	return ret;
+	return (((EXTI->PR >> (BYTE_TYPE)extiLine) & 1U) == 1U) ? TRUE : FALSE;
 }
 
 void clearPendingExtiLineInterruptRequest(const ExtiLineSelect extiLine)
