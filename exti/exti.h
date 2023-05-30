@@ -40,111 +40,87 @@ static const IRQn_Type EXTI_IRQ_NUMS[NUM_EXTI_IRQS] =
 };
 
 /**
- * EXTI source line enum
- * 	The RTSR register masks are used here but the RTSR and FTSR are masks are the same
+ * EXTI line Maximum value
 */
-typedef enum ExtiLineSelect
+static const BYTE_TYPE EXTI_LINE_MAX = 22U;
+
+/**
+ * EXTI Trigger type selection
+*/
+typedef enum ExtiLineTriggerSelect
 {
-	EXTI_LINESELECT_NONE = 0U,
-	EXTI_LINESELECT_0,
-	EXTI_LINESELECT_1,
-	EXTI_LINESELECT_2,
-	EXTI_LINESELECT_3,
-	EXTI_LINESELECT_4,
-	EXTI_LINESELECT_5,
-	EXTI_LINESELECT_6,
-	EXTI_LINESELECT_7,
-	EXTI_LINESELECT_8,
-	EXTI_LINESELECT_9,
-	EXTI_LINESELECT_10,
-	EXTI_LINESELECT_11,
-	EXTI_LINESELECT_12,
-	EXTI_LINESELECT_13,
-	EXTI_LINESELECT_14,
-	EXTI_LINESELECT_15,
-	EXTI_LINESELECT_16,
-	EXTI_LINESELECT_17,
-	EXTI_LINESELECT_18,
-	EXTI_LINESELECT_19,
-	EXTI_LINESELECT_20,
-	EXTI_LINESELECT_21,
-	EXTI_LINESELECT_22
-}ExtiLineSelect;
+	EXTI_FALLING_TRIGGER = 0U,
+	EXTI_RISING_TRIGGER		
+}ExtiLineTriggerSelect;
 
 /**
  * Set interrupt mask for given EXTI line
  * @param extiLine The EXTI line to be modified
  * @param value The boolean value to set
 */
-void setExtiLineInterruptMask(const ExtiLineSelect extiLine, const Boolean value);
+void setExtiLineInterruptMask(const BYTE_TYPE extiLine, const Boolean value);
 
 /**
  * Read interrupt mask for given EXTI line
  * @param extiLine The EXTI line to be modified
- * @return True if interrupt is masked for line, false otherwise
+ * @param[out] out The interrupt mask value
+ * @return True if successful, false otherwise
 */
-Boolean readExtiLineInterruptMask(const ExtiLineSelect extiLine);
+Boolean readExtiLineInterruptMask(const BYTE_TYPE extiLine, Boolean* const out);
 
 /**
  * Set event mask for given EXTI line
  * @param extiLine The EXTI line to be modified
  * @param value The boolean value to set
 */
-void setExtiLineEventMask(const ExtiLineSelect extiLine, const Boolean value);
+void setExtiLineEventMask(const BYTE_TYPE extiLine, const Boolean value);
 
 /**
  * Read event mask for given EXTI line
  * @param extiLine The EXTI line to read
- * @return True if event is masked for line, false otherwise
+ * @param trigger The trigger type to set
+ * @param [out] out The event mask value
+ * @return True if successful, false otherwise
 */ 
-Boolean readExtiLineEventMask(const ExtiLineSelect extiLine);
+Boolean readExtiLineEventMask(const BYTE_TYPE extiLine, const ExtiLineTriggerSelect trigger, Boolean* const out);
 
 /**
- * Set rising trigger enable field for given EXTI line
+ * Set trigger enable field for given EXTI line
  * @param extiLine The Exti Line to be modified
+ * @param trigger Either Falling edge or Rising edge
  * @param value The boolean value to set
 */
-void setExtiLineRisingTrigger(const ExtiLineSelect extiLine, const Boolean value);
+void setExtiLineTrigger(const BYTE_TYPE extiLine, const ExtiLineTriggerSelect trigger, 
+					    const Boolean value);
 
 /**
- * Read rising trigger enable field for given EXTI line
+ * Read trigger enable field for given EXTI line
  * @param extiLine The EXTI line to read
- * @return True if trigger is enabled, false otherwise
+ * @param trigger Either Falling edge or Rising edge
+ * @param[out] out The enable field value
+ * @return True if successful, false otherwise
 */
-Boolean readExtiLineRisingTrigger(const ExtiLineSelect extiLine);
-
-/**
- * Set falling trigger enable field for given EXTI line
- * @param extiLine The EXTI line to be modified
- * @param value The boolean value to set
-*/
-void setExtiLineFallingTrigger(const ExtiLineSelect extiLine, const Boolean value);
-
-/**
- * Read falling trigger enable field for given EXTI line
- * @param extiLine The EXTI line to be modified
- * @return True if trigger is enabled, false otherwise
-*/
-Boolean readExtiLineFallingTrigger(const ExtiLineSelect extiLine);
+Boolean readExtiLineTrigger(const BYTE_TYPE extiLine, Boolean* const out);
 
 /**
  * Trigger an Interrupt request on a given EXTI line
  * @param extiLine The EXTI line to check
 */
-void requestExtiLineInterrupt(const ExtiLineSelect extiLine);
+void requestExtiLineInterrupt(const BYTE_TYPE extiLine);
 
 /**
  * Check if an interrupt request is pending on a given EXTI line
  * @param extiLine The EXTI line to check
- * @return True if request is pending, false otherwise
+ * @param[out] out The value of the interrupt request bit
+ * @return True if successful, false otherwise
 */
-Boolean isExtiLineInterruptRequestPending(const ExtiLineSelect extiLine);
+Boolean isExtiLineInterruptRequestPending(const BYTE_TYPE extiLine, Boolean* const out);
 
 /**
  * Clear the pending interrupt request on a given EXTI line
  * @param extiLine The EXTI line to clear
 */
-void clearPendingExtiLineInterruptRequest(const ExtiLineSelect extiLine);
+void clearPendingExtiLineInterruptRequest(const BYTE_TYPE extiLine);
 
 /**
  * Enable the given EXTI interrupt request

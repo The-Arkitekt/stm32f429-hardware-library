@@ -28,7 +28,7 @@ typedef enum GpioPortSelect
 }GpioPortSelect;
 
 /**
- * Max port number 
+ * Max port number
 */
 static const BYTE_TYPE GPIO_PORT_MAX = 10U;
 
@@ -123,7 +123,7 @@ static const BYTE_TYPE GPIO_CONFIG_BITS_PER_PIN[NUM_CONFIG_SELECTS] =
 */
 static const BYTE_TYPE GPIO_CONFIG_MAX[NUM_CONFIG_SELECTS] =
 {
-	3U, 1U , 3U, 2U, 15U
+	3U, 1U, 3U, 2U, 15U
 };
 
 /**
@@ -131,7 +131,7 @@ static const BYTE_TYPE GPIO_CONFIG_MAX[NUM_CONFIG_SELECTS] =
  * @param portSelect The GPIO port selection
  * @return A GPIO Port Typedef pointer
 */
-GPIO_TypeDef* getGpioPort(const GpioPortSelect portSelect);
+GPIO_TypeDef* const getGpioPort(const GpioPortSelect portSelect);
 
 /**
  * Set a configuration for a GPIO pin

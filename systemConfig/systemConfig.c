@@ -74,12 +74,12 @@ Boolean readSystemExternalInterruptSource(const BYTE_TYPE pin, GpioPortSelect* c
 	return success;
 }
 
-void enableSystemConfig()
+void systemConfigEnable()
 {
 	RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
 }
 
-void disableSystemConfig()
+void systemConfigDisable()
 {
 	RCC->APB2ENR &= ~(RCC_APB2ENR_SYSCFGEN);
 }

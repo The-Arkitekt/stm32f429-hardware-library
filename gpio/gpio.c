@@ -1,6 +1,6 @@
 #include "gpio.h"
 
-GPIO_TypeDef* getGpioPort(const GpioPortSelect portSelect)
+GPIO_TypeDef* const getGpioPort(const GpioPortSelect portSelect)
 {
 	return (GPIO_TypeDef*)(GPIOA_BASE + ((BYTE_TYPE)portSelect * (GPIOB_BASE - GPIOA_BASE)));
 }

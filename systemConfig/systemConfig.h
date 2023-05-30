@@ -125,6 +125,11 @@ static const BYTE_TYPE SYSCFG_PMC_FIELD_POS[NUM_SYSCFG_PMC_FIELDS] =
 static const BYTE_TYPE SYSCFG_EXTICRx_BITS_PER_PIN = 4U;
 
 /**
+ * Mask for (SYSCFG_EXTICRx) register at each pin
+*/
+static const BYTE_TYPE SYSCFG_EXTICRx_FIELD_MASK = FOUR_BIT_MASK;
+
+/**
  * Number of pins per SYSCFG_EXTICRx register
 */
 static const BYTE_TYPE SYSCFG_EXTICRx_PINS_PER_REGISTER = 4U;
@@ -174,12 +179,12 @@ GpioPortSelect readSystemExternalInterruptSource(const BYTE_TYPE pin);
 /**
  * Enable the System Config RCC clock
 */
-void enableSystemConfig();
+void systemConfigEnable();
 
 /**
  * Disable the system config RCC clock
 */
-void disableSystemConfig();
+void systemConfigDisable();
 
 
 #ifdef __cplusplus
