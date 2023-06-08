@@ -1,6 +1,8 @@
 #include "exti.h"
 #include "null.h"
 
+//TODO: refactor without stm32fwhatever.h file and using masks for enum values
+
 void setExtiLineInterruptMask(const BYTE_TYPE extiLine, const Boolean value)
 {
 	if (extiLine <= EXTI_LINE_MAX)

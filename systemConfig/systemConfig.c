@@ -1,6 +1,8 @@
 #include "systemConfig.h"
 #include "null.h"
 
+//TODO: refactor without stm32fwhatever.h file and using masks for enum values
+
 void setSystemConfigMemoryRemap(const SystemConfigMemoryRemapFieldSelect field, const BYTE_TYPE value)
 {
 	BitFieldDetails fieldDetails = SYSCFG_MEMRMP_FIELD_DETAILS[(BYTE_TYPE)field];

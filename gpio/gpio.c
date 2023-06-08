@@ -1,5 +1,7 @@
 #include "gpio.h"
 
+//TODO: refactor without stm32fwhatever.h file and using masks for enum values
+
 void GPIO_enable(const GpioPort port)
 {
 	BYTE_TYPE pos = (port - GPIO_PORT_A) / (GPIO_PORT_B - GPIO_PORT_A);

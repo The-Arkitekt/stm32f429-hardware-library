@@ -5,6 +5,8 @@
 	extern "C" {
 #endif
 
+	//TODO: refactor without stm32fwhatever.h file and using masks for enum values
+
 #include "stm32f429xx.h"
 #include "register.h"
 #include "boolean.h"
