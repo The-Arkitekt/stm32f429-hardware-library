@@ -1,4 +1,5 @@
 #include "exti.h"
+#include "null.h"
 
 void setExtiLineInterruptMask(const BYTE_TYPE extiLine, const Boolean value)
 {
@@ -39,7 +40,7 @@ void setExtiLineEventMask(const BYTE_TYPE extiLine, const Boolean value)
 Boolean readExtiLineEventMask(const BYTE_TYPE extiLine, Boolean* const out)
 {
 	Boolean success = FALSE;
-	if ((extiLine <= EXTI_LINE_MAX) && (put != NULL))
+	if ((extiLine <= EXTI_LINE_MAX) && (out != NULL))
 	{
 		(*out) = (((EXTI->EMR >> (BYTE_TYPE)extiLine) & 1U) == 1U) ? TRUE : FALSE;
 		success = TRUE;
@@ -53,17 +54,14 @@ void setExtiLineTrigger(const BYTE_TYPE extiLine, const ExtiLineTriggerSelect tr
 {
 	if (extiLine <= EXTI_LINE_MAX)
 	{
-		WORD_TYPE* triggerRegisterPointer = NULL;
 		if (trigger == EXTI_FALLING_TRIGGER)
 		{
-			triggerRegisterPointer = &(EXTI->FTSR);
+			(EXTI->FTSR)  |= (1U << (BYTE_TYPE)extiLine);
 		}
 		else
 		{
-			triggerRegisterPointer = &(EXTI->RTSR);
+			(EXTI->RTSR) |= (1U << (BYTE_TYPE)extiLine);
 		}
-
-		(*triggerRegisterPointer) |= (1U << (BYTE_TYPE)extiLine);
 	}
 }
 

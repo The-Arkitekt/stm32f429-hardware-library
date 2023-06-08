@@ -30,7 +30,7 @@ typedef uint8_t BYTE_TYPE;
 /**
  * Define mask values
 */
-static const BYTE_TYPE      BIT_MASK       = 0b1;
+static const BYTE_TYPE      ONE_BIT_MASK   = 0b1;
 static const BYTE_TYPE      TWO_BIT_MASK   = 0b11;
 static const BYTE_TYPE      THREE_BIT_MASK = 0b111;
 static const BYTE_TYPE      FOUR_BIT_MASK  = 0b1111;

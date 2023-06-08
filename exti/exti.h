@@ -78,11 +78,10 @@ void setExtiLineEventMask(const BYTE_TYPE extiLine, const Boolean value);
 /**
  * Read event mask for given EXTI line
  * @param extiLine The EXTI line to read
- * @param trigger The trigger type to set
  * @param [out] out The event mask value
  * @return True if successful, false otherwise
 */ 
-Boolean readExtiLineEventMask(const BYTE_TYPE extiLine, const ExtiLineTriggerSelect trigger, Boolean* const out);
+Boolean readExtiLineEventMask(const BYTE_TYPE extiLine, Boolean* const out);
 
 /**
  * Set trigger enable field for given EXTI line
@@ -100,7 +99,8 @@ void setExtiLineTrigger(const BYTE_TYPE extiLine, const ExtiLineTriggerSelect tr
  * @param[out] out The enable field value
  * @return True if successful, false otherwise
 */
-Boolean readExtiLineTrigger(const BYTE_TYPE extiLine, Boolean* const out);
+Boolean readExtiLineTrigger(const BYTE_TYPE extiLine, const ExtiLineTriggerSelect trigger, 
+							Boolean* const out);
 
 /**
  * Trigger an Interrupt request on a given EXTI line

@@ -79,10 +79,10 @@ static const BitFieldDetails SYSCFG_MEMRMP_FIELD_DETAILS[NUM_SYSCFG_MEMRMP_FIELD
 */
 typedef enum SystemConfigPeripheralModeFieldSelect
 {
-	SYSCFG_PMC_MII_RMII_SEL = 0U,	//!< Ethernet PHY interface selection
-	SYSCFG_PMC_ADC3DC2,				//!< Refer to AN4073 
-	SYSCFG_PMC_ADC2DC2,				//!< Refer to AN4073 
-	SYSCFG_PMC_ADC3DC2				//!< Refer to AN4073 
+	SYSCFG_PMC_MII_RMII_SEL_SELECT = 0U,	//!< Ethernet PHY interface selection
+	SYSCFG_PMC_ADC3DC2_SELECT,				//!< Refer to AN4073 
+	SYSCFG_PMC_ADC2DC2_SELECT,				//!< Refer to AN4073 
+	SYSCFG_PMC_ADC1DC2_SELECT				//!< Refer to AN4073 
 }SystemConfigPeripheralModeFieldSelect;
 
 /**
@@ -172,9 +172,10 @@ void setSystemExternalInterruptSource(const GpioPortSelect port, const BYTE_TYPE
 /**
  * Read which port is set for given pin EXTI line
  * @param pin The pin to check
- * @return The port set as source for that pin
+ * @param[out] out The Port 
+ * @return True if successful, false otherwise
 */
-GpioPortSelect readSystemExternalInterruptSource(const BYTE_TYPE pin);
+Boolean readSystemExternalInterruptSource(const BYTE_TYPE pin, GpioPortSelect* const out);
 
 /**
  * Enable the System Config RCC clock

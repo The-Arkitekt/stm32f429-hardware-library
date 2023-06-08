@@ -6,184 +6,138 @@
 #endif
 
 #include "stm32f429xx.h"
-#include "boolean.h"
 #include "register.h"
+#include "Boolean.h"
 
-/**
- * GPIO port selection
-*/
-typedef enum GpioPortSelect
+typedef enum GpioPort
 {
-	GPIO_PORTSELECT_A = 0U,
-	GPIO_PORTSELECT_B,
-	GPIO_PORTSELECT_C,
-	GPIO_PORTSELECT_D,
-	GPIO_PORTSELECT_E,
-	GPIO_PORTSELECT_F,
-	GPIO_PORTSELECT_G,
-	GPIO_PORTSELECT_H,
-	GPIO_PORTSELECT_I,
-	GPIO_PORTSELECT_J,
-	GPIO_PORTSELECT_K
-}GpioPortSelect;
+	GPIO_PORT_A = GPIOA_BASE,
+	GPIO_PORT_B = GPIOB_BASE,
+	GPIO_PORT_C = GPIOC_BASE,
+	GPIO_PORT_D = GPIOD_BASE,
+	GPIO_PORT_E = GPIOE_BASE,
+	GPIO_PORT_F = GPIOF_BASE,
+	GPIO_PORT_G = GPIOG_BASE,
+	GPIO_PORT_H = GPIOH_BASE,
+	GPIO_PORT_I = GPIOI_BASE,
+	GPIO_PORT_J = GPIOJ_BASE,
+	GPIO_PORT_K = GPIOK_BASE,
+	GPIO_PORT_INVALID = 0U
+}GpioPort;
 
-/**
- * Max port number
-*/
-static const BYTE_TYPE GPIO_PORT_MAX = 10U;
-
-/**
- * GPIO max pin value
-*/
-static const BYTE_TYPE GPIO_PIN_MAX = 15U;
-
-/**
- * Number of GPIO pins per port
-*/
-#ifndef NUM_GPIO_PINS_PER_PORT
-	#define NUM_GPIO_PINS_PER_PORT 16U
-#endif //NUM_GPIO_PINS_PER_PORT
-
-/**
- * Valid GPIOx_MODER bitfield values
- * 
- * 	MODERy:
- * 		0: Input (reset)
- * 		1: General purpose output mode
- * 		2: Alternate function mode
- * 		3: Analog mode
-*/
-
-/**
- * Valid GPIOx_OTYPER bitfield values
- * 
- * 	OTy: 
- * 		0: Output push-pull
- * 		1: Output open-drain
-*/
-
-/**
- * Valid GPIOx_OSPEEDR bitfield values
- * 	
- * 	OSPEEDRy:
- * 		0: Low speed
- * 		1: Medium speed
- * 		2: High speed
- * 		3: Very high speed
-*/
-
-/**
- * Valid GPIOx_PUPDR bitfield values
- * 
- * 	PUPDRy:
- * 		0: No pull-up, pull-down
- * 		1: Pull-up
- * 		2: Pull-down
- * 		3: reserved (no effect)
-*/
-
-/**
- * Valid GPIOx_AFRL / GPIOx_AFRH bitfield values
- * 
- * 	AFRL/AFRH:
- * 		value based on pin value [0-15]
-*/
-static const BYTE_TYPE NUM_PINS_PER_AFR_REG = 8U;
-
-/**
- * GPIO configuration selection
-*/
-typedef enum GpioConfigSelect
+typedef enum GpioPin
 {
-	GPIO_MODE = 0U,				//!< (GPIOx_MODER) The mode of a gpio pin
-	GPIO_OUTPUT_TYPE,			//!< (GPIOx_OTYPER) The output type of a gpio pin
-	GPIO_OUTPUT_SPEED,			//!< (GPIOx_OSPEEDR) The output speed of a gpio pin
-	GPIO_PULL_UP_DOWN,			//!< (GPIOx_PUPDR) The pull up/down resistor setting of a gpio pin
-	GPIO_ALTERNATE_FUNCTION		//!< (GPIOx_AFRL / GPIOx_AFRH) The alternate function setting of a gpio pin
-}GpioConfigSelect;
+	GPIO_PIN_0 = 0U,
+	GPIO_PIN_1,
+	GPIO_PIN_2,
+	GPIO_PIN_3,
+	GPIO_PIN_4,
+	GPIO_PIN_5,
+	GPIO_PIN_6,
+	GPIO_PIN_7,
+	GPIO_PIN_8,
+	GPIO_PIN_9,
+	GPIO_PIN_10,
+	GPIO_PIN_11,
+	GPIO_PIN_12,
+	GPIO_PIN_13,
+	GPIO_PIN_14,
+	GPIO_PIN_15,
+	GPIO_PIN_INVALID
+}GpioPin;
 
-/**
- * The number of configuration selections
-*/
-#ifndef NUM_CONFIG_SELECTS
-	#define NUM_CONFIG_SELECTS 5U
-#endif //NUM_CONFIG_SELECTS
-
-/**
- * Map GPIO configuration type to bits per pin in it's 
- * respective register
-*/
-static const BYTE_TYPE GPIO_CONFIG_BITS_PER_PIN[NUM_CONFIG_SELECTS] = 
+typedef enum GpioPinState
 {
-	2U, 1U, 2U, 2U, 4U
-};
+	GPIO_PINSTATE_RESET = 0U,
+	GPIO_PINSTATE_SET,
+	GPIO_PINSTATE_INVALID
+}GpioPinState;
 
-/**
- * Map GPIO configuration type to max valid value
-*/
-static const BYTE_TYPE GPIO_CONFIG_MAX[NUM_CONFIG_SELECTS] =
+typedef enum GpioMode
 {
-	3U, 1U, 3U, 2U, 15U
-};
+	GPIO_MODE_INPUT = 0U,
+	GPIO_MODE_OUTPUT,
+	GPIO_MODE_ALT,
+	GPIO_MODE_ANALOG,
+	GPIO_MODE_INVALID
+}GpioMode;
 
-/**
- * Get GPIO Port type from GPIO port type selection
- * @param portSelect The GPIO port selection
- * @return A GPIO Port Typedef pointer
-*/
-GPIO_TypeDef* const getGpioPort(const GpioPortSelect portSelect);
+typedef enum GpioAltFunc
+{
+	GPIO_ALT_0 = 0U,
+	GPIO_ALT_1,
+	GPIO_ALT_2,
+	GPIO_ALT_3,
+	GPIO_ALT_4,
+	GPIO_ALT_5,
+	GPIO_ALT_6,
+	GPIO_ALT_7,
+	GPIO_ALT_8,
+	GPIO_ALT_9,
+	GPIO_ALT_10,
+	GPIO_ALT_11,
+	GPIO_ALT_12,
+	GPIO_ALT_13,
+	GPIO_ALT_14,
+	GPIO_ALT_15,
+	GPIO_ALT_INVALID
+}GpioAltFunc;
 
-/**
- * Set a configuration for a GPIO pin
- * @param portPtr The port to write to
- * @param pin The pin to configure
- * @param configSelect The configuration type to be set
- * @param value The value to set for the given configuration
-*/
-void setGpioConfig(GPIO_TypeDef* portPtr, const BYTE_TYPE pin,
-				   const GpioConfigSelect configSelect, const BYTE_TYPE value);
+typedef enum GpioOutputType
+{
+	GPIO_OUTPUT_PP = 0U,
+	GPIO_OUTPUT_OD,
+	GPIO_OUTPUT_INVALID
+}GpioOutputType;
 
-/**
- * Read a configuration for GPIO pin
- * @param portPtr The port to read from
- * @param pin The pin to read from
- * @param configSelect The configuration type to read
- * @param[out] out The current pin configuration value
- * @return True if successful, false otherwise
-*/
-Boolean readGpioConfig(const GPIO_TypeDef* portPtr, const BYTE_TYPE pin,
-					   const GpioConfigSelect configSelect, BYTE_TYPE* const out);
+typedef enum GpioOutputSpeed
+{
+	GPIO_SPEED_LOW = 0U,
+	GPIO_SPEED_MED,
+	GPIO_SPEED_HIGH,
+	GPIO_SPEED_VERY_HIGH,
+	GPIO_SPEED_INVALID
+}GpioOutputSpeed;
 
-/**
- * Set GPIO pin output value
- * @param portPtr The port to write to
- * @param pin The pin to set
- * @param value The boolean value to set
-*/
-void setGpioPinValue(GPIO_TypeDef* const portPtr, const BYTE_TYPE pin,
-				     const Boolean value);
+typedef enum GpioPull
+{
+	GPIO_NO_PULL = 0U,
+	GPIO_PULL_UP,
+	GPIO_PULL_DOWN,
+	GPIO_PULL_INVALID
+}GpioPull;
 
-/**
- * Get GPIO pin input value
- * @param portPtr The port to read from
- * @param pin The pin to be read
- * @param[out] out The current pin input value
- * @return True if successful, false otherwise
-*/
-Boolean readGpioPinValue(const GPIO_TypeDef* const portPtr, const BYTE_TYPE pin,
-						 Boolean* const out);
+typedef struct GpioConfigStruct
+{	
+	GpioPort        port;
+	GpioPin         pin;
+	GpioMode        mode;
+	GpioAltFunc     altFunc;
+	GpioOutputType  oType;
+	GpioOutputSpeed oSpeed;
+	GpioPull        pull;
+}GpioConfigStruct;
 
-/**
- * Enable RCC clock for GPIO port
- * @param port The port to enable
-*/
-void gpioEnable(const GpioPortSelect port);
+static const GpioConfigStruct_default = 
+{
+	.port    = GPIO_PORT_INVALID,
+	.PIN     = GPIO_PIN_INVALID,
+	.mode    = GPIO_MODE_INVALID,
+	.altFunc = GPIO_ALT_INVALID,
+	.oType   = GPIO_OUTPUT_INVALID,
+	.oSpeed  = GPIO_SPEED_INVALID,
+	.pull    = GPIO_PULL_INVALID
+}; 
 
-/**
- * Disable RCC clock for GPIO port
- * @param port The port to disable
-*/
-void gpioDisable(const GpioPortSelect port);
+void GPIO_enable(const GpioPort port);
+
+void GPIO_disable(const GpioPort port);
+
+void GPIO_set_config(const GpioConfigStruct gpio);
+
+void GPIO_set_pin_state(const GpioPort port, const GpioPin pin, const GpioPinState state);
+
+GpioPinState GPIO_get_pin_state(const GpioPort port, const GpioPin pin);
 
 #ifdef __cplusplus
 }

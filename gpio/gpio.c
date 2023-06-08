@@ -1,136 +1,92 @@
 #include "gpio.h"
 
-GPIO_TypeDef* const getGpioPort(const GpioPortSelect portSelect)
+void GPIO_enable(const GpioPort port)
 {
-	return (GPIO_TypeDef*)(GPIOA_BASE + ((BYTE_TYPE)portSelect * (GPIOB_BASE - GPIOA_BASE)));
+	BYTE_TYPE pos = (port - GPIO_PORT_A) / (GPIO_PORT_B - GPIO_PORT_A);
+	RCC->AHB1ENR |= (1U << pos);
 }
 
-void setGpioConfig(GPIO_TypeDef* portPtr, const BYTE_TYPE pin,
-				   const GpioConfigSelect configSelect, const BYTE_TYPE value)
+void GPIO_disable(const GpioPort port)
 {
-	if ((portPtr != NULL) && (value <= GPIO_CONFIG_MAX[(BYTE_TYPE)configSelect]) &&
-		(pin <= GPIO_PIN_MAX))
-	{
-		WORD_TYPE* configPtr = NULL;
-		BYTE_TYPE pos = pin * GPIO_CONFIG_BITS_PER_PIN[(BYTE_TYPE)configSelect];
-
-		switch(configSelect)
-		{
-			case GPIO_MODE:
-				configPtr = &(portPtr->MODER);
-				break;
-			case GPIO_OUTPUT_TYPE:
-				configPtr = &(portPtr->OTYPER);
-				break;
-			case GPIO_OUTPUT_SPEED:
-				configPtr = &(portPtr->OSPEEDR);
-				break;
-			case GPIO_PULL_UP_DOWN:
-				configPtr = &(portPtr->PUPDR);
-				break;
-			case GPIO_ALTERNATE_FUNCTION:
-				if (pin < NUM_PINS_PER_AFR_REG)
-				{
-					configPtr = &(portPtr->AFR[0U]);
-				}
-				else
-				{
-					configPtr = &(portPtr->AFR[1U]);
-					pos = (pin - NUM_PINS_PER_AFR_REG) * GPIO_CONFIG_BITS_PER_PIN[(BYTE_TYPE)configSelect];
-				}
-				break;
-		}
-
-		WORD_TYPE tmp = (*configPtr);
-		tmp &= ~(GPIO_CONFIG_MAX[(BYTE_TYPE)configSelect] << pos);
-		tmp |= (value << pos);
-
-		(*configPtr) = tmp;			
-	}
+	BYTE_TYPE pos = (port - GPIO_PORT_A) / (GPIO_PORT_B - GPIO_PORT_A);
+	RCC->AHB1ENR &= ~(1U << pos);
 }
 
-Boolean readGpioConfig(const GPIO_TypeDef* portPtr, const BYTE_TYPE pin,
-					   const GpioConfigSelect configSelect, BYTE_TYPE* const out)
+void GPIO_set_config(const GpioConfigStruct gpioConfig)
 {
-	Boolean success = FALSE;
-	if ((portPtr != NULL) && (out != NULL) && (pin <= GPIO_PIN_MAX))
+	GPIO_TypeDef* gpio       = (GPIO_TypeDef*)(gpioConfig.port);
+	BYTE_TYPE twoBitPosition = 2 * gpioConfig.pin;
+	WORD_TYPE tmp            = 0U;
+
+	if (gpioConfig.mode != GPIO_MODE_INVALID)
 	{
-		WORD_TYPE configRegister;
-		BYTE_TYPE pos = pin * GPIO_CONFIG_BITS_PER_PIN[(BYTE_TYPE)configSelect];
-
-
-		switch(configSelect)
-		{
-			case GPIO_MODE:
-				configRegister = portPtr->MODER;
-				break;
-			case GPIO_OUTPUT_TYPE:
-				configRegister = portPtr->OTYPER;
-				break;
-			case GPIO_OUTPUT_SPEED:
-				configRegister = portPtr->OSPEEDR;
-				break;
-			case GPIO_PULL_UP_DOWN:
-				configRegister = portPtr->PUPDR;
-				break;
-			case GPIO_ALTERNATE_FUNCTION:
-				if (pin < NUM_PINS_PER_AFR_REG)
-				{
-					configRegister = portPtr->AFR[0U];
-				}
-				else
-				{
-					configRegister = portPtr->AFR[1U];
-					pos = (pin - NUM_PINS_PER_AFR_REG) * GPIO_CONFIG_BITS_PER_PIN[(BYTE_TYPE)configSelect];
-
-				}
-				break;			
-		}
-
-		configRegister >>= pos;
-		(*out) = (BYTE_TYPE)(configRegister & GPIO_CONFIG_MAX[(BYTE_TYPE)configSelect]);
-
-		success = TRUE;
+		tmp = gpio->MODER;
+		tmp &= ~(3U << twoBitPosition);
+		tmp |= (gpioConfig.mode << twoBitPosition);
+		gpio->MODER = tmp;
 	}
 
-	return success;
-}
-
-void setGpioPinValue(GPIO_TypeDef* const portPtr, const BYTE_TYPE pin,
-				     const Boolean value)
-{
-	if ((portPtr != NULL) && (pin <= GPIO_PIN_MAX))
-	{
-		if (value == TRUE)
+	if (gpioConfig.altFunc != GPIO_ALT_INVALID)
+	{		
+		if (gpioConfig.altFunc < GPIO_ALT_8)
 		{
-			portPtr->BSRR |= (1U << pin);
+			tmp = gpio->AFR[0U];
+			tmp &= ~(15U << (4U * gpioConfig.pin));
+			tmp |= (gpioConfig.altFunc << (4U * gpioConfig.pin));
+			gpio->AFR[0U] = tmp;
 		}
 		else
 		{
-			portPtr->BSRR |= (1U << pin + NUM_GPIO_PINS_PER_PORT);	
+			tmp = gpio->AFR[1U];
+			tmp &= ~(15U << gpioConfig.pin);
+			tmp |= (gpioConfig.altFunc << gpioConfig.pin);
+			gpio->AFR[1U] = tmp;
 		}
 	}
-}
 
-Boolean readGpioPinValue(const GPIO_TypeDef* const portPtr, const BYTE_TYPE pin,
-						 Boolean* const out)
-{
-	Boolean success = FALSE;
-	if ((portPtr != NULL) && (out != NULL) && (pin <= GPIO_PIN_MAX))
+	if (gpioConfig.oType != GPIO_OUTPUT_INVALID)
 	{
-		(*out) = (((portPtr->IDR >> pin) && 1U) == 1U) ? TRUE : FALSE;
-		success = TRUE;
+		tmp = gpio->OTYPER;
+		tmp &= ~(1U << gpioConfig.pin);
+		tmp |= (gpioConfig.oType << gpioConfig.pin);
+		gpio->OTYPER = tmp;
 	}
 
-	return success;
+	if (gpioConfig.oSpeed != GPIO_SPEED_INVALID)
+	{
+		tmp = gpio->OSPEEDR;
+		tmp &= ~(3U << twoBitPosition);
+		tmp |= (gpioConfig.oSpeed << twoBitPosition);
+		gpio->OSPEEDR = tmp;
+	}
+
+	if (gpioConfig.pull != GPIO_PULL_INVALID)
+	{
+		tmp = gpio->PUPDR;
+		tmp &= ~(3U << twoBitPosition);
+		tmp |= (gpioConfig.pull << twoBitPosition);
+		gpio->PUPDR = tmp;
+	}
 }
 
-void gpioEnable(const GpioPortSelect port)
+void GPIO_set_pin_state(const GpioPort port, const GpioPin pin, const GpioPinState state)
 {
-	RCC->AHB1ENR |= (1U << (BYTE_TYPE)port);
+	if ((port != GPIO_PORT_INVALID) && (pin != GPIO_PIN_INVALID) && (state != GPIO_PINSTATE_INVALID))
+	{
+		BYTE_TYPE pos = (state == GPIO_PINSTATE_SET) ? pin : (pin + 16U);
+		GPIO_TypeDef* gpio = (GPIO_TypeDef*)port;
+
+		gpio->BSRR |= (1U << pos);
+	}
 }
 
-void gpioDisable(const GpioPortSelect port)
+GpioPinState GPIO_get_pin_state(const GpioPort port, const GpioPin pin)
 {
-	RCC->AHB1ENR &= ~(1U << (BYTE_TYPE)port);
+	GpioPinState out = GPIO_PINSTATE_INVALID;
+	if ((port != GPIO_PORT_INVALID) && (pin != GPIO_PIN_INVALID))
+	{
+		GPIO_TypeDef* gpio = (GPIO_TypeDef*)port;
+		out = ((gpio->IDR & (1U << pin)) != 0U) ? GPIO_PINSTATE_SET : GPIO_PINSTATE_RESET;
+	}
+	return out;
 }

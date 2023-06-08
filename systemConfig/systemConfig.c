@@ -1,4 +1,5 @@
 #include "systemConfig.h"
+#include "null.h"
 
 void setSystemConfigMemoryRemap(const SystemConfigMemoryRemapFieldSelect field, const BYTE_TYPE value)
 {
