@@ -18,7 +18,25 @@ Boolean DMA_get_interrupt_status(const DMA_ENUM dma,
 	WORD_TYPE* register_ptr = (WORD_TYPE*)(dma + offset);
 
 	// check bit value
-	BYTE_TYPE stream_pos = __DMA_get_stream_interrupt_pos(stream);
+	BYTE_TYPE stream_pos = 0U;
+	switch(stream)
+	{
+	case(DMA_STREAM_0):
+	case(DMA_STREAM_4):
+		break;	// Leave out = 0U
+	case(DMA_STREAM_1):
+	case(DMA_STREAM_5):
+		stream_pos = 6U;
+		break;
+	case(DMA_STREAM_2):
+	case(DMA_STREAM_6):
+		stream_pos = 16U;
+		break;
+	case(DMA_STREAM_3):
+	case(DMA_STREAM_7):
+		stream_pos = 22U;
+	}
+
 	return ((((*register_ptr) >> stream_pos) & interrupt) != 0U) ? TRUE : FALSE;
 }
 
@@ -40,7 +58,25 @@ void DMA_clear_interrupt_flag(const DMA_ENUM dma,
 	WORD_TYPE* register_ptr = (WORD_TYPE*)(dma + offset);
 
 	// set bit value (set to 1 clears the flag in the interrupt status register)
-	BYTE_TYPE stream_pos = __DMA_get_stream_interrupt_pos(stream);
+	BYTE_TYPE stream_pos = 0U;
+	switch(stream)
+	{
+	case(DMA_STREAM_0):
+	case(DMA_STREAM_4):
+		break;	// Leave out = 0U
+	case(DMA_STREAM_1):
+	case(DMA_STREAM_5):
+		stream_pos = 6U;
+		break;
+	case(DMA_STREAM_2):
+	case(DMA_STREAM_6):
+		stream_pos = 16U;
+		break;
+	case(DMA_STREAM_3):
+	case(DMA_STREAM_7):
+		stream_pos = 22U;
+	}
+
 	(*register_ptr) |= (interrupt << stream_pos);
 }
 
@@ -171,34 +207,6 @@ DMA_STREAM_FCR_VALUE_ENUM DMA_get_stream_fifo_status(const DMA_ENUM dma,
 	// If bitfield value is zero, the return value will be equal to multiple enums
 	// Be smart about which enum you compare the return value to.
 	return (*register_ptr) & fcr_field;
-}
-
-
-/**
- * Helper functions
- */
-BYTE_TYPE __DMA_get_stream_interrupt_pos(const DMA_STREAM_ENUM stream)
-{
-	BYTE_TYPE out = 0U;
-	switch(stream)
-	{
-	case(DMA_STREAM_0):
-	case(DMA_STREAM_4):
-		break;	// Leave out = 0U
-	case(DMA_STREAM_1):
-	case(DMA_STREAM_5):
-		out = 6U;
-		break;
-	case(DMA_STREAM_2):
-	case(DMA_STREAM_6):
-		out = 16U;
-		break;
-	case(DMA_STREAM_3):
-	case(DMA_STREAM_7):
-		out = 22U;
-	}
-
-	return out;
 }
 
 

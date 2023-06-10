@@ -13,7 +13,7 @@
 */
 typedef enum DMA_ENUM
 {
-	DMA_1 = 0x40026000U,	//!< Address of DMA1
+	DMA_1 = 0x40026000U, //!< Address of DMA1
 	DMA_2 = 0x40026400U  //!< Address of DMA2
 }DMA_ENUM;
 
@@ -305,18 +305,6 @@ void DMA_set_stream_fifo_control(const DMA_ENUM dma,
 DMA_STREAM_FCR_VALUE_ENUM DMA_get_stream_fifo_status(const DMA_ENUM dma,
 												     const DMA_STREAM_ENUM stream,
 													 const DMA_STREAM_FCR_FIELDS_ENUM fcr_field);
-
-/**
- * Enable the DMA peripheral in the RCC register
- * @param dma The dma to enable (1 or 2)
-*/
-void DMA_enable(const DMA_ENUM dma);
-
-/** 
- * Disable the DMA peripheral in the RCC register
- * @param dma The dma to disable (1 or 2)
-*/
-void DMA_disable(const DMA_ENUM dma);
 
 #ifdef __cplusplus
 }
