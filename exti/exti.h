@@ -9,130 +9,89 @@
 #include "register.h"
 #include "boolean.h"
 
+
 /**
- * EXTI interrupt request selection
+ * EXTI REGISTERS
+ *
+ * 	- Pointers to specific EXTI registers
  */
-typedef enum ExtiIrqSelect
+static const WORD_TYPE* __EXTI_IMR   = 0x40013C00UL;	//!< EXTI interrupt mask register
+static const WORD_TYPE* __EXTI_EMR   = 0x40013C04UL; //!< EXTI event mask register
+static const WORD_TYPE* __EXTI_RTSR  = 0x40013C08UL; //!< EXTI rising trigger event/interrupt configuration register
+static const WORD_TYPE* __EXTI_FTSR  = 0x40013C0CUL; //!< EXTI falling trigger event/interrupt configuration register
+static const WORD_TYPE* __EXTI_SWIER = 0x40013C10UL; //!< EXTI software interrupt trigger register
+static const WORD_TYPE* __EXTI_PR    = 0x40013C14UL; //!< EXTI pending request register
+
+
+/**
+ * EXTI LINE
+ *
+ * 	- Masks used to set or clear bits for exti line
+ */
+typedef enum EXTI_LINE_ENUM
 {
-	EXTI_IRQSELECT_0 = 0U,	
-	EXTI_IRQSELECT_1,
-	EXTI_IRQSELECT_2,
-	EXTI_IRQSELECT_3,
-	EXTI_IRQSELECT_4,
-	EXTI_IRQSELECT_9_5,
-	EXTI_IRQSELECT_15_10
-}ExtiIrqSelect;
+	EXTI_LINE_0  = 0x1UL,
+	EXTI_LINE_1  = 0x2UL,
+	EXTI_LINE_2  = 0x4UL,
+	EXTI_LINE_3	 = 0x8UL,
+	EXTI_LINE_4  = 0x10UL,
+	EXTI_LINE_5  = 0x20UL,
+	EXTI_LINE_6  = 0x40UL,
+	EXTI_LINE_7  = 0x80UL,
+	EXTI_LINE_8  = 0x100UL,
+	EXTI_LINE_9  = 0x200UL,
+	EXTI_LINE_10 = 0x400UL,
+	EXTI_LINE_11 = 0x800UL,
+	EXTI_LINE_12 = 0x1000UL,
+	EXTI_LINE_13 = 0x2000UL,
+	EXTI_LINE_14 = 0x4000UL,
+	EXTI_LINE_15 = 0x8000UL,
+	EXTI_LINE_16 = 0x10000UL,
+	EXTI_LINE_17 = 0x20000UL,
+	EXTI_LINE_18 = 0x40000UL,
+	EXTI_LINE_19 = 0x80000UL,
+	EXTI_LINE_20 = 0x100000UL,
+	EXTI_LINE_21 = 0x200000UL,
+	EXTI_LINE_22 = 0x400000UL
+}EXTI_LINE_ENUM;
+
+
 
 /**
- * Number of EXTI IRQs
-*/
-#ifndef NUM_EXTI_IRQS
-	#define NUM_EXTI_IRQS 7U
-#endif //NUM_EXTI_IRQS
+ * Set/Remove the given EXTI line as interrupt source
+ */
+void EXTI_set_interrupt_source(const EXTI_LINE_ENUM exti_line, const Boolean set);
 
 /**
- * Array of IRQ numbers in vector table
-*/
-static const IRQn_Type EXTI_IRQ_NUMS[NUM_EXTI_IRQS] = 
-{
-	EXTI0_IRQn, EXTI1_IRQn, EXTI2_IRQn, EXTI3_IRQn,
-	EXTI4_IRQn, EXTI9_5_IRQn, EXTI15_10_IRQn
-};
+ * Set/Remove the given EXTI line as event source
+ */
+void EXTI_set_event_source(const EXTI_LINE_ENUM exti_line, const Boolean set);
 
 /**
- * EXTI line Maximum value
-*/
-static const BYTE_TYPE EXTI_LINE_MAX = 22U;
+ * Enable/Disable the given EXTI line rising trigger
+ */
+void EXTI_set_rising_trigger(const EXTI_LINE_ENUM exti_line, const Boolean enable);
 
 /**
- * EXTI Trigger type selection
-*/
-typedef enum ExtiLineTriggerSelect
-{
-	EXTI_FALLING_TRIGGER = 0U,
-	EXTI_RISING_TRIGGER		
-}ExtiLineTriggerSelect;
+ * Enable/Disable the given EXTI line falling trigger
+ */
+void EXTI_set_falling_trigger(const EXTI_LINE_ENUM exti_line, const Boolean enable);
 
 /**
- * Set interrupt mask for given EXTI line
- * @param extiLine The EXTI line to be modified
- * @param value The boolean value to set
-*/
-void setExtiLineInterruptMask(const BYTE_TYPE extiLine, const Boolean value);
+ * Trigger a software interrupt/event at the given EXTI line
+ */
+void EXTI_trigger_interrupt_event(const EXTI_LINE_ENUM exti_line);
 
 /**
- * Read interrupt mask for given EXTI line
- * @param extiLine The EXTI line to be modified
- * @param[out] out The interrupt mask value
- * @return True if successful, false otherwise
-*/
-Boolean readExtiLineInterruptMask(const BYTE_TYPE extiLine, Boolean* const out);
+ * Check if pending request exists for given EXTI line
+ */
+Boolean EXTI_pending_request_exists(const EXTI_LINE_ENUM exti_line);
 
 /**
- * Set event mask for given EXTI line
- * @param extiLine The EXTI line to be modified
- * @param value The boolean value to set
-*/
-void setExtiLineEventMask(const BYTE_TYPE extiLine, const Boolean value);
+ * Clear pending request for given EXTI line
+ */
+void EXTI_clear_pending_request(const EXTI_LINE_ENUM exti_line);
 
-/**
- * Read event mask for given EXTI line
- * @param extiLine The EXTI line to read
- * @param [out] out The event mask value
- * @return True if successful, false otherwise
-*/ 
-Boolean readExtiLineEventMask(const BYTE_TYPE extiLine, Boolean* const out);
-
-/**
- * Set trigger enable field for given EXTI line
- * @param extiLine The Exti Line to be modified
- * @param trigger Either Falling edge or Rising edge
- * @param value The boolean value to set
-*/
-void setExtiLineTrigger(const BYTE_TYPE extiLine, const ExtiLineTriggerSelect trigger, 
-					    const Boolean value);
-
-/**
- * Read trigger enable field for given EXTI line
- * @param extiLine The EXTI line to read
- * @param trigger Either Falling edge or Rising edge
- * @param[out] out The enable field value
- * @return True if successful, false otherwise
-*/
-Boolean readExtiLineTrigger(const BYTE_TYPE extiLine, const ExtiLineTriggerSelect trigger, 
-							Boolean* const out);
-
-/**
- * Trigger an Interrupt request on a given EXTI line
- * @param extiLine The EXTI line to check
-*/
-void requestExtiLineInterrupt(const BYTE_TYPE extiLine);
-
-/**
- * Check if an interrupt request is pending on a given EXTI line
- * @param extiLine The EXTI line to check
- * @param[out] out The value of the interrupt request bit
- * @return True if successful, false otherwise
-*/
-Boolean isExtiLineInterruptRequestPending(const BYTE_TYPE extiLine, Boolean* const out);
-
-/**
- * Clear the pending interrupt request on a given EXTI line
- * @param extiLine The EXTI line to clear
-*/
-void clearPendingExtiLineInterruptRequest(const BYTE_TYPE extiLine);
-
-/**
- * Enable the given EXTI interrupt request
- * @param irqSelect The IRQ to enable 
-*/
-void enableExtiIrq(const ExtiIrqSelect irqSelect);
-
-/**
- * Disable the given EXTI interrupt request
- * @param irqSelect THe IRQ to disable
-*/
-void disableExtiIrq(const ExtiIrqSelect irqSelect);
 
 #ifdef __cplusplus
 }

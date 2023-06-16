@@ -1,33 +1,56 @@
-#ifndef GPIO_H
-#define GPIO_H
+#ifndef GPIO_HH
+#define GPIO_HH
 
 #ifdef __cplusplus
 	extern "C" {
 #endif
 
-	//TODO: refactor without stm32fwhatever.h file and using masks for enum values
-
-#include "stm32f429xx.h"
 #include "register.h"
 #include "Boolean.h"
 
-typedef enum GpioPort
+/**
+ * GPIO PORT REGISTERS
+ *
+ * 	- Base address of the GPIO port registers
+ */
+typedef enum GPIO_PORT_ENUM
 {
-	GPIO_PORT_A = GPIOA_BASE,
-	GPIO_PORT_B = GPIOB_BASE,
-	GPIO_PORT_C = GPIOC_BASE,
-	GPIO_PORT_D = GPIOD_BASE,
-	GPIO_PORT_E = GPIOE_BASE,
-	GPIO_PORT_F = GPIOF_BASE,
-	GPIO_PORT_G = GPIOG_BASE,
-	GPIO_PORT_H = GPIOH_BASE,
-	GPIO_PORT_I = GPIOI_BASE,
-	GPIO_PORT_J = GPIOJ_BASE,
-	GPIO_PORT_K = GPIOK_BASE,
-	GPIO_PORT_INVALID = 0U
-}GpioPort;
+	GPIO_A = 0UL,
+	GPIO_B = 0x40020400UL,
+	GPIO_C = 0x40020800UL,
+	GPIO_D = 0x40020C00UL,
+	GPIO_E = 0x40021000UL,
+	GPIO_F = 0x40021400UL,
+	GPIO_G = 0x40021800UL,
+	GPIO_H = 0x40021C00UL,
+	GPIO_I = 0x40022000UL,
+	GPIO_J = 0x40022400UL,
+	GPIO_K = 0x40022800UL
+}GPIO_PORT_ENUM;
 
-typedef enum GpioPin
+/**
+ * GPIO PORT REGISTER OFFSETS
+ *
+ * 	- Add to GPIO_x address to get specific register address
+ */
+static const BYTE_TYPE __GPIO_x_MODER_OFFSET   = 0UL;	 //!< Gpio pin mode register
+static const BYTE_TYPE __GPIO_x_OTYPER_OFFSET  = 0x04UL; //!< Gpio pin output type register
+static const BYTE_TYPE __GPIO_x_OSPEEDR_OFFSET = 0x08UL; //!< Gpio pin output speed register
+static const BYTE_TYPE __GPIO_x_PUPDR_OFFSET   = 0x0CUL; //!< Gpio pin pull up/dwn register
+static const BYTE_TYPE __GPIO_x_IDR_OFFSET     = 0x10UL; //!< Gpio pin input data register
+static const BYTE_TYPE __GPIO_x_BSRR_OFFSET    = 0x18UL; //!< Gpio set/reset register
+static const BYTE_TYPE __GPIO_x_AFR_OFFSET[2U] =
+{
+	0x20UL, //!< Gpio alternate function low register  (ports 0-7)
+	0x24UL  //!< Gpio alternate function high register (ports 8-15)
+};
+
+/**
+ * GPIO PINS
+ *
+ * 	- Masks used to set or clear register bits
+ */
+typedef enum GPIO_PIN_ENUM
 {
 	GPIO_PIN_0 = 0U,
 	GPIO_PIN_1,
@@ -44,27 +67,70 @@ typedef enum GpioPin
 	GPIO_PIN_12,
 	GPIO_PIN_13,
 	GPIO_PIN_14,
-	GPIO_PIN_15,
-	GPIO_PIN_INVALID
-}GpioPin;
+	GPIO_PIN_15
+}GPIO_PIN_ENUM;
 
-typedef enum GpioPinState
+/**
+ * GPIO MODES
+ *
+ * 	- Masks used to set mode of Gpio pin
+ */
+static const BYTE_TYPE __GPIO_MODE_MSK = 0x3UL;
+typedef enum GPIO_MODE_ENUM
 {
-	GPIO_PINSTATE_RESET = 0U,
-	GPIO_PINSTATE_SET,
-	GPIO_PINSTATE_INVALID
-}GpioPinState;
+	GPIO_MODE_INPUT  = 0U,
+	GPIO_MODE_OUTPUT = 0x1U,
+	GPIO_MODE_ALT    = 0x2U,
+	GPIO_MODE_ANALOG = __GPIO_MODE_MSK
+}GPIO_MODE_ENUM;
 
-typedef enum GpioMode
+/**
+ * GPIO OUTPUT TYPES
+ *
+ * 	- Masks used to set output type of Gpio pin
+ */
+static const BYTE_TYPE __GPIO_OTYPE_MSK = 0x1UL;
+typedef enum GPIO_OUTPUT_TYPE_ENUM
 {
-	GPIO_MODE_INPUT = 0U,
-	GPIO_MODE_OUTPUT,
-	GPIO_MODE_ALT,
-	GPIO_MODE_ANALOG,
-	GPIO_MODE_INVALID
-}GpioMode;
+	GPIO_OUTPUT_PP = 0U,			   //!< Push-Pull
+	GPIO_OUTPUT_OD = __GPIO_OTYPE_MSK  //!< Open-Drain
+}GPIO_OUTPUT_TYPE_ENUM;
 
-typedef enum GpioAltFunc
+/**
+ * GPIO OUTPUT SPEED
+ *
+ * 	- Masks used to set output speed of Gpio pin
+ */
+static const BYTE_TYPE __GPIO_OSPEED_MSK = 0x3UL;
+typedef enum GPIO_OUTPUT_SPEED_ENUM
+{
+	GPIO_SPEED_LOW       = 0U,
+	GPIO_SPEED_MED       = 0x1U,
+	GPIO_SPEED_HIGH 	 = 0x2U,
+	GPIO_SPEED_VERY_HIGH = __GPIO_OSPEED_MSK
+}GPIO_OUTPUT_SPEED_ENUM;
+
+/**
+ * GPIO PULL UP/DOWN
+ *
+ * 	- Masks used to set pull up/dwn on a pin
+ */
+static const BYTE_TYPE __GPIO_PUPDR_MSK = 0x3UL;
+typedef enum GPIO_PULL_ENUM
+{
+	GPIO_NO_PULL   = 0U,
+	GPIO_PULL_UP   = 0x1U,
+	GPIO_PULL_DOWN = 0x2U
+}GPIO_PULL_ENUM;
+
+/**
+ * GPIO ALTERNATE FUNCTIONS
+ *
+ * 	- Masks used to set Alternate function
+ * 	- Only has effect if Alt mode is selected
+ */
+static const BYTE_TYPE __GPIO_ALT_FUNK_MSK = 0x7UL;
+typedef enum GPIO_ALT_FUNC_ENUM
 {
 	GPIO_ALT_0 = 0U,
 	GPIO_ALT_1,
@@ -81,69 +147,48 @@ typedef enum GpioAltFunc
 	GPIO_ALT_12,
 	GPIO_ALT_13,
 	GPIO_ALT_14,
-	GPIO_ALT_15,
-	GPIO_ALT_INVALID
-}GpioAltFunc;
+	GPIO_ALT_15
+}GPIO_ALT_FUNC_ENUM;
 
-typedef enum GpioOutputType
-{
-	GPIO_OUTPUT_PP = 0U,
-	GPIO_OUTPUT_OD,
-	GPIO_OUTPUT_INVALID
-}GpioOutputType;
 
-typedef enum GpioOutputSpeed
-{
-	GPIO_SPEED_LOW = 0U,
-	GPIO_SPEED_MED,
-	GPIO_SPEED_HIGH,
-	GPIO_SPEED_VERY_HIGH,
-	GPIO_SPEED_INVALID
-}GpioOutputSpeed;
+/**
+ * Set mode of given GPIO
+ */
+void GPIO_set_mode(const GPIO_PORT_ENUM port, const GPIO_PIN_ENUM pin, const GPIO_MODE_ENUM mode);
 
-typedef enum GpioPull
-{
-	GPIO_NO_PULL = 0U,
-	GPIO_PULL_UP,
-	GPIO_PULL_DOWN,
-	GPIO_PULL_INVALID
-}GpioPull;
+/**
+ * Set output type of given GPIO
+ */
+void GPIO_set_output_type(const GPIO_PORT_ENUM port, const GPIO_PIN_ENUM pin, const GPIO_OUTPUT_TYPE_ENUM o_type);
 
-typedef struct GpioConfigStruct
-{	
-	GpioPort        port;
-	GpioPin         pin;
-	GpioMode        mode;
-	GpioAltFunc     altFunc;
-	GpioOutputType  oType;
-	GpioOutputSpeed oSpeed;
-	GpioPull        pull;
-}GpioConfigStruct;
+/**
+ * Set output speed of given GPIO
+ */
+void GPIO_set_output_speed(const GPIO_PORT_ENUM port, const GPIO_PIN_ENUM pin, const GPIO_OUTPUT_SPEED_ENUM o_dpeed);
 
-static const GpioConfigStruct_default = 
-{
-	.port    = GPIO_PORT_INVALID,
-	.PIN     = GPIO_PIN_INVALID,
-	.mode    = GPIO_MODE_INVALID,
-	.altFunc = GPIO_ALT_INVALID,
-	.oType   = GPIO_OUTPUT_INVALID,
-	.oSpeed  = GPIO_SPEED_INVALID,
-	.pull    = GPIO_PULL_INVALID
-}; 
+/**
+ * Set GPIO pull-up/pull-down
+ */
+void GPIO_set_pull(const GPIO_PORT_ENUM port, const GPIO_PIN_ENUM pin, const GPIO_PULL_ENUM pull);
 
-void GPIO_enable(const GpioPort port);
+/**
+ * Get GPIO pin input data
+ */
+Boolean GPIO_get_pin_data(const GPIO_PORT_ENUM port, const GPIO_PIN_ENUM pin);
 
-void GPIO_disable(const GpioPort port);
+/**
+ * Set GPIO pin data
+ */
+void GPIO_set_pin_data(const GPIO_PORT_ENUM port, const GPIO_PIN_ENUM pin, const Boolean data);
 
-void GPIO_set_config(const GpioConfigStruct gpio);
-
-void GPIO_set_pin_state(const GpioPort port, const GpioPin pin, const GpioPinState state);
-
-GpioPinState GPIO_get_pin_state(const GpioPort port, const GpioPin pin);
+/**
+ * Set GPIO Alternat Function
+ */
+void GPIO_set_alt_function(const GPIO_PORT_ENUM port, const GPIO_PIN_ENUM pin, const GPIO_ALT_FUNC_ENUM alt_func);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif //GPIO_H
+#endif //GPIO_HH
  

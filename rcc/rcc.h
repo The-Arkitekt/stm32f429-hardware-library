@@ -8,16 +8,11 @@
 #include "register.h"
 
 /**
- * RCC
- */
-static const WORD_TYPE RCC = 0x40023800U;	//!< Address of RCC
-
-/**
- * RCC REGISTER OFFSETS
+ * RCC REGISTERS
  *
- * 	- Only care about registers related to peripherals used in this library
+ * 	- Pointers to specific RCC registers
  */
-static const BYTE_TYPE __RCC_AHB1ENR_OFFSET = 0x30U;	//!< Enable the clock for AHB1 peripherals
+static const WORD_TYPE* __RCC_AHB1ENR = 0x40023830UL;	//!< Enable the clock for AHB1 peripherals
 
 /**
  * AHB1 REGISTERS
@@ -27,23 +22,31 @@ static const BYTE_TYPE __RCC_AHB1ENR_OFFSET = 0x30U;	//!< Enable the clock for A
  */
 typedef enum RCC_AHB1_FIELDS_ENUM
 {
-	RCC_AHB1_DMA1 = 0x200000U,	//!< mask of DMA1 bitfield
-	RCC_AHB1_DMA2 = 0x400000U,	//!< mask of DMA2 bitfield
+	RCC_AHB1_GPIOA = 0x1U,		//!< mask of GPIOA bitfield
+	RCC_AHB1_GPIOB = 0x2U,		//!< mask of GPIOB bitfield
+	RCC_AHB1_GPIOC = 0x4U, 		//!< mask of GPIOC bitfield
+	RCC_AHB1_GPIOD = 0x8U,		//!< mask of GPIOD bitfield
+	RCC_AHB1_GPIOE = 0x10U,		//!< mask of GPIOE bitfield
+	RCC_AHB1_GPIOF = 0x20U,		//!< mask of GPIOF bitfield
+	RCC_AHB1_GPIOG = 0x40U,		//!< mask of GPIOG bitfield
+	RCC_AHB1_GPIOH = 0x80U,		//!< mask of GPIOH bitfield
+	RCC_AHB1_GPIOI = 0x100U,	//!< mask of GPIOI bitfield
+	RCC_AHB1_GPIOJ = 0x200U,	//!< mask of GPIOJ bitfield
+	RCC_AHB1_GPIOK = 0x400U,	//!< mask of GPIOK bitfield
+
+	RCC_AHB1_DMA1  = 0x200000U,	//!< mask of DMA1 bitfield
+	RCC_AHB1_DMA2  = 0x400000U,	//!< mask of DMA2 bitfield
 }RCC_AHB1_FIELDS_ENUM;
 
-typedef enum RCC_AHB1ENR_VALUE_ENUM
-{
-	// DMA 1 clock enable
-	RCC_AHB1ENR_DMA1_DISABLE = 0U,				//!< Disable the clock for the DMA1 peripheral
-	RCC_AHB1ENR_DMA1_ENABLE = RCC_AHB1_DMA1,	//!< Enable the clock for the DMA1 peripheral
+/**
+ * Enable the clock for the given AHB1 peripheral
+ */
+void RCC_enable_AHB1(const RCC_AHB1_FIELDS_ENUM peripheral);
 
-	// DMA 2 clock enable
-	RCC_AHB1ENR_DMA2_DISABLE = 0U,				//!< Disable the clock for the DMA2 peripheral
-	RCC_AHB1ENR_DMA2_ENABLE  = RCC_AHB1_DMA2,	//!< Enable the clock for the DMA2 peripheral
-}RCC_AHB1ENR_VALUE_ENUM;
-
-void RCC_set_AHB1_clock_enable(const RCC_AHB1_FIELDS_ENUM peripheral,
-							   const RCC_AHB1ENR_VALUE_ENUM value);
+/**
+ * Disable the clock for the given AHB1 peripheral
+ */
+void RCC_disable_AHB1(const RCC_AHB1_FIELDS_ENUM peripheral);
 
 #ifdef __cplusplus
 }

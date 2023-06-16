@@ -1,14 +1,11 @@
 #include "rcc.h"
 
-void RCC_set_AHB1_clock_enable(const RCC_AHB1_FIELDS_ENUM peripheral,
-							   const RCC_AHB1ENR_VALUE_ENUM value)
+void RCC_enable_AHB1(const RCC_AHB1_FIELDS_ENUM peripheral)
 {
-	// Get the pointer to the register
-	WORD_TYPE* register_ptr = (WORD_TYPE*)(RCC + __RCC_AHB1ENR_OFFSET);
+	(*__RCC_AHB1ENR) |= (WORD_TYPE)peripheral;
+}
 
-	// Clear and set the desired field
-	WORD_TYPE tmp = (*register_ptr);
-	tmp &= ~(peripheral);
-	tmp |= (peripheral & value);
-	(*register_ptr) = tmp;
+void RCC_disable_AHB1(const RCC_AHB1_FIELDS_ENUM peripheral)
+{
+	(*__RCC_AHB1ENR) &= ~((WORD_TYPE)peripheral);
 }

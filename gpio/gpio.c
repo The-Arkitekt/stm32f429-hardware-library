@@ -1,94 +1,87 @@
 #include "gpio.h"
 
-//TODO: refactor without stm32fwhatever.h file and using masks for enum values
-
-void GPIO_enable(const GpioPort port)
+void GPIO_set_mode(const GPIO_PORT_ENUM port, const GPIO_PIN_ENUM pin, const GPIO_MODE_ENUM mode)
 {
-	BYTE_TYPE pos = (port - GPIO_PORT_A) / (GPIO_PORT_B - GPIO_PORT_A);
-	RCC->AHB1ENR |= (1U << pos);
+	// Get pointer to register
+	WORD_TYPE* register_ptr = (WORD_TYPE*)((WORD_TYPE)port | __GPIO_x_MODER_OFFSET);
+
+	// clear and set the bits
+	WORD_TYPE tmp = (*register_ptr);
+	tmp &= ~(__GPIO_MODE_MSK << ((BYTE_TYPE)pin << 1U));
+	tmp |= ((WORD_TYPE)mode << ((BYTE_TYPE)pin << 1U));
+	(*register_ptr) = tmp;
 }
 
-void GPIO_disable(const GpioPort port)
+void GPIO_set_output_type(const GPIO_PORT_ENUM port, const GPIO_PIN_ENUM pin, const GPIO_OUTPUT_TYPE_ENUM o_type)
 {
-	BYTE_TYPE pos = (port - GPIO_PORT_A) / (GPIO_PORT_B - GPIO_PORT_A);
-	RCC->AHB1ENR &= ~(1U << pos);
+	// Get pointer to register
+	WORD_TYPE* register_ptr = (WORD_TYPE*)((WORD_TYPE)port + __GPIO_x_OTYPER_OFFSET);
+
+	// clear and set the bits
+	WORD_TYPE tmp = (*register_ptr);
+	tmp &= ~(__GPIO_OTYPE_MSK << (BYTE_TYPE)pin);
+	tmp |= ((WORD_TYPE)o_type << (BYTE_TYPE)pin);
+	(*register_ptr) = tmp;
 }
 
-void GPIO_set_config(const GpioConfigStruct gpioConfig)
+void GPIO_set_output_speed(const GPIO_PORT_ENUM port, const GPIO_PIN_ENUM pin, const GPIO_OUTPUT_SPEED_ENUM o_speed)
 {
-	GPIO_TypeDef* gpio       = (GPIO_TypeDef*)(gpioConfig.port);
-	BYTE_TYPE twoBitPosition = 2 * gpioConfig.pin;
-	WORD_TYPE tmp            = 0U;
+	// Get pointer to register
+	WORD_TYPE* register_ptr = (WORD_TYPE*)((WORD_TYPE)port + __GPIO_x_OSPEEDR_OFFSET);
 
-	if (gpioConfig.mode != GPIO_MODE_INVALID)
-	{
-		tmp = gpio->MODER;
-		tmp &= ~(3U << twoBitPosition);
-		tmp |= (gpioConfig.mode << twoBitPosition);
-		gpio->MODER = tmp;
-	}
-
-	if (gpioConfig.altFunc != GPIO_ALT_INVALID)
-	{		
-		if (gpioConfig.altFunc < GPIO_ALT_8)
-		{
-			tmp = gpio->AFR[0U];
-			tmp &= ~(15U << (4U * gpioConfig.pin));
-			tmp |= (gpioConfig.altFunc << (4U * gpioConfig.pin));
-			gpio->AFR[0U] = tmp;
-		}
-		else
-		{
-			tmp = gpio->AFR[1U];
-			tmp &= ~(15U << gpioConfig.pin);
-			tmp |= (gpioConfig.altFunc << gpioConfig.pin);
-			gpio->AFR[1U] = tmp;
-		}
-	}
-
-	if (gpioConfig.oType != GPIO_OUTPUT_INVALID)
-	{
-		tmp = gpio->OTYPER;
-		tmp &= ~(1U << gpioConfig.pin);
-		tmp |= (gpioConfig.oType << gpioConfig.pin);
-		gpio->OTYPER = tmp;
-	}
-
-	if (gpioConfig.oSpeed != GPIO_SPEED_INVALID)
-	{
-		tmp = gpio->OSPEEDR;
-		tmp &= ~(3U << twoBitPosition);
-		tmp |= (gpioConfig.oSpeed << twoBitPosition);
-		gpio->OSPEEDR = tmp;
-	}
-
-	if (gpioConfig.pull != GPIO_PULL_INVALID)
-	{
-		tmp = gpio->PUPDR;
-		tmp &= ~(3U << twoBitPosition);
-		tmp |= (gpioConfig.pull << twoBitPosition);
-		gpio->PUPDR = tmp;
-	}
+	// clear and set the bits
+	WORD_TYPE tmp = (*register_ptr);
+	tmp &= ~(__GPIO_OSPEED_MSK << ((BYTE_TYPE)pin << 1U));
+	tmp |= ((WORD_TYPE)o_speed << ((BYTE_TYPE)pin << 1U));
+	(*register_ptr) = tmp;
 }
 
-void GPIO_set_pin_state(const GpioPort port, const GpioPin pin, const GpioPinState state)
+void GPIO_set_pull(const GPIO_PORT_ENUM port, const GPIO_PIN_ENUM pin, const GPIO_PULL_ENUM pull)
 {
-	if ((port != GPIO_PORT_INVALID) && (pin != GPIO_PIN_INVALID) && (state != GPIO_PINSTATE_INVALID))
-	{
-		BYTE_TYPE pos = (state == GPIO_PINSTATE_SET) ? pin : (pin + 16U);
-		GPIO_TypeDef* gpio = (GPIO_TypeDef*)port;
+	// Get pointer to register
+	WORD_TYPE* register_ptr = (WORD_TYPE*)((WORD_TYPE)port + __GPIO_x_PUPDR_OFFSET);
 
-		gpio->BSRR |= (1U << pos);
+	// clear and set the bits
+	WORD_TYPE tmp = (*register_ptr);
+	tmp &= ~(__GPIO_PUPDR_MSK << ((BYTE_TYPE)pin << 1U));
+	tmp |= ((WORD_TYPE)pull << ((BYTE_TYPE)pin << 1U));
+	(*register_ptr) = tmp;
+}
+
+Boolean GPIO_get_pin_data(const GPIO_PORT_ENUM port, const GPIO_PIN_ENUM pin)
+{
+	// Get pointer to register
+	WORD_TYPE* register_ptr = (WORD_TYPE*)((WORD_TYPE)port + __GPIO_x_IDR_OFFSET);
+
+	// Get bit value for given pin
+	return (((*register_ptr) & (1U << (BYTE_TYPE)pin) != 0U) ? TRUE : FALSE);
+}
+
+void GPIO_set_pin_data(const GPIO_PORT_ENUM port, const GPIO_PIN_ENUM pin, const Boolean data)
+{
+	// Get pointer to register
+	WORD_TYPE* register_ptr = (WORD_TYPE*)((WORD_TYPE)port + __GPIO_x_BSRR_OFFSET);
+
+	// Set bit
+	if (data == TRUE)
+	{
+		(*register_ptr) |= (1U << (BYTE_TYPE)pin);
+	}
+	else
+	{
+		(*register_ptr) |= (0x10000 << (BYTE_TYPE)pin);
 	}
 }
 
-GpioPinState GPIO_get_pin_state(const GpioPort port, const GpioPin pin)
+void GPIO_set_alt_function(const GPIO_PORT_ENUM port, const GPIO_PIN_ENUM pin, const GPIO_ALT_FUNC_ENUM alt_func)
 {
-	GpioPinState out = GPIO_PINSTATE_INVALID;
-	if ((port != GPIO_PORT_INVALID) && (pin != GPIO_PIN_INVALID))
-	{
-		GPIO_TypeDef* gpio = (GPIO_TypeDef*)port;
-		out = ((gpio->IDR & (1U << pin)) != 0U) ? GPIO_PINSTATE_SET : GPIO_PINSTATE_RESET;
-	}
-	return out;
+	// Get pointer to register
+	WORD_TYPE* register_ptr = (WORD_TYPE*)((WORD_TYPE)port + __GPIO_x_AFR_OFFSET[(((BYTE_TYPE)pin >> 3U) & 1U)]);
+
+	// Clear and set the bits
+	WORD_TYPE tmp = (*register_ptr);
+	tmp &= ~(__GPIO_ALT_FUNK_MSK << (((BYTE_TYPE)pin & 0x7U) << 2U));
+	tmp |= ((WORD_TYPE)alt_func << (((BYTE_TYPE)pin & 0x7U) << 2U));
+	(*register_ptr) = tmp;
 }
+

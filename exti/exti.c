@@ -1,126 +1,71 @@
 #include "exti.h"
-#include "null.h"
 
-//TODO: refactor without stm32fwhatever.h file and using masks for enum values
-
-void setExtiLineInterruptMask(const BYTE_TYPE extiLine, const Boolean value)
+void EXTI_set_interrupt_source(const EXTI_LINE_ENUM exti_line, const Boolean set)
 {
-	if (extiLine <= EXTI_LINE_MAX)
+	if (set == TRUE)
 	{
-		WORD_TYPE tmp = EXTI->IMR;
-		tmp &= ~(1U << (BYTE_TYPE)extiLine);
-		tmp |= ((BYTE_TYPE)value << (BYTE_TYPE)extiLine);
-
-		EXTI->IMR = tmp;
+		(*__EXTI_IMR) |= (WORD_TYPE)exti_line;
+	}
+	else
+	{
+		(*__EXTI_IMR) &= ~((WORD_TYPE)exti_line);
 	}
 }
 
-Boolean readExtiLineInterruptMask(const BYTE_TYPE extiLine, Boolean* const out)
-{	
-	Boolean success = FALSE;
-	if ((extiLine <= EXTI_LINE_MAX) && (out != NULL))
-	{
-		(*out) = (((EXTI->IMR >> (BYTE_TYPE)extiLine) & 1U) == 1U) ? TRUE : FALSE;
-		success = TRUE;
-	}
-
-	return success;
-}
-
-void setExtiLineEventMask(const BYTE_TYPE extiLine, const Boolean value)
+void EXTI_set_event_source(const EXTI_LINE_ENUM exti_line, const Boolean set)
 {
-	if (extiLine <= EXTI_LINE_MAX)
+	if (set == TRUE)
 	{
-		WORD_TYPE tmp = EXTI->EMR;
-		tmp &= ~(1U << (BYTE_TYPE)extiLine);
-		tmp |= ((BYTE_TYPE)value << (BYTE_TYPE)extiLine);
-		
-		EXTI->EMR = tmp;
+		(*__EXTI_EMR) |= (WORD_TYPE)exti_line;
+	}
+	else
+	{
+		(*__EXTI_EMR) &= ~((WORD_TYPE)exti_line);
 	}
 }
 
-Boolean readExtiLineEventMask(const BYTE_TYPE extiLine, Boolean* const out)
+void EXTI_set_rising_trigger(const EXTI_LINE_ENUM exti_line, const Boolean enable)
 {
-	Boolean success = FALSE;
-	if ((extiLine <= EXTI_LINE_MAX) && (out != NULL))
+	if (enable == TRUE)
 	{
-		(*out) = (((EXTI->EMR >> (BYTE_TYPE)extiLine) & 1U) == 1U) ? TRUE : FALSE;
-		success = TRUE;
+		(*__EXTI_RTSR) |= (WORD_TYPE)exti_line;
 	}
-
-	return success;
+	else
+	{
+		(*__EXTI_RTSR) &= ~((WORD_TYPE)exti_line);
+	}
 }
 
-void setExtiLineTrigger(const BYTE_TYPE extiLine, const ExtiLineTriggerSelect trigger,
-					    const Boolean value)
+void EXTI_set_falling_trigger(const EXTI_LINE_ENUM exti_line, const Boolean enable)
 {
-	if (extiLine <= EXTI_LINE_MAX)
+	if (enable == TRUE)
 	{
-		if (trigger == EXTI_FALLING_TRIGGER)
-		{
-			(EXTI->FTSR)  |= (1U << (BYTE_TYPE)extiLine);
-		}
-		else
-		{
-			(EXTI->RTSR) |= (1U << (BYTE_TYPE)extiLine);
-		}
+		(*__EXTI_FTSR) |= (WORD_TYPE)exti_line;
+	}
+	else
+	{
+		(*__EXTI_FTSR) &= ~((WORD_TYPE)exti_line);
 	}
 }
 
-Boolean readExtiLineTrigger(const BYTE_TYPE extiLine, const ExtiLineTriggerSelect trigger, Boolean* const out)
+void EXTI_trigger_interrupt_event(const EXTI_LINE_ENUM exti_line)
 {
-	Boolean success = FALSE;
-	if ((extiLine <= EXTI_LINE_MAX) && (out != NULL))
-	{
-		if (trigger == EXTI_FALLING_TRIGGER)
-		{
-			(*out) = (((EXTI->FTSR >> (BYTE_TYPE)extiLine) & 1U) == 1U) ? TRUE : FALSE;
-
-		}
-		else
-		{
-			(*out) = (((EXTI->RTSR >> (BYTE_TYPE)extiLine) & 1U) == 1U) ? TRUE : FALSE;
-		}
-
-		success = TRUE;
-	}
-
-	return success;
+	(*__EXTI_SWIER) |= (WORD_TYPE)exti_line;
 }
 
-void requestExtiLineInterrupt(const BYTE_TYPE extiLine)
+Boolean EXTI_pending_request_exists(const EXTI_LINE_ENUM exti_line)
 {
-	if (extiLine <= EXTI_LINE_MAX)
+	Boolean request_pending = FALSE;
+	if (((*__EXTI_PR) & (WORD_TYPE)exti_line) != 0UL)
 	{
-		EXTI->SWIER |= (1U << (BYTE_TYPE)extiLine);
+		request_pending = TRUE;
 	}
+
+	return request_pending;
 }
 
-Boolean isExtiLineInterruptRequestPending(const BYTE_TYPE extiLine, Boolean* const out)
+void EXTI_clear_pending_request(const EXTI_LINE_ENUM exti_line)
 {
-	Boolean success = FALSE;
-	if ((extiLine <= EXTI_LINE_MAX) && (out != NULL))
-	{
-		(*out) = (((EXTI->PR >> (BYTE_TYPE)extiLine) & 1U) == 1U) ? TRUE : FALSE;
-		success = TRUE;
-	}
-
-	return success;
-}
-
-void clearPendingExtiLineInterruptRequest(const BYTE_TYPE extiLine)
-{
-	if (extiLine <= EXTI_LINE_MAX)
-	{
-		// The pending request bit is cleared by setting it to 1
-		EXTI->PR |= (1U << (BYTE_TYPE)extiLine);
-	}
-}
-
-void enableExtiIrq(const ExtiIrqSelect irqSelect){
-	NVIC_EnableIRQ(EXTI_IRQ_NUMS[(BYTE_TYPE)irqSelect]);
-}
-
-void disableExtiIrq(const ExtiIrqSelect irqSelect){
-	NVIC_DisableIRQ(EXTI_IRQ_NUMS[(BYTE_TYPE)irqSelect]);
+	// request is cleared by setting bit to 1
+	(*__EXTI_PR) |= (WORD_TYPE)exti_line;
 }
