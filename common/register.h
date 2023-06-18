@@ -5,6 +5,8 @@
 	extern "C" {
 #endif
 
+#include <stdint.h>
+
 /**
  * Abstract the C style fixed size data types
 */

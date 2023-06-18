@@ -47,8 +47,8 @@ target_include_directories(RCC PUBLIC
 )
 
 # SYSCFG
-add_library(SYSCFG ${SYSTEM_CONFIG_DIR}/syscfg.c)
+add_library(SYSCFG ${SYSCFG_DIR}/syscfg.c)
 target_include_directories(SYSCFG PUBLIC
   ${COMMON_DIR}
-  ${SYSTEM_CONFIG_DIR}
+  ${SYSCFG_DIR}
 )

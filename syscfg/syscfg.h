@@ -16,11 +16,11 @@
 */
 WORD_TYPE* const __SYSCFG_EXTICR_REGISTERS[4U] = 
 {
-	0x40013808UL,	//!< SYSCFG_EXTICR1 register address
-	0x4001380CUL,	//!< SYSCFG_EXTICR2 register address
-	0x40013810UL,	//!< SYSCFG_EXTICR3 register address
-	0x40023814UL	//!< SYSCFG_EXTICR4 register address
-}
+	(WORD_TYPE*)0x40013808UL,	//!< SYSCFG_EXTICR1 register address
+	(WORD_TYPE*)0x4001380CUL,	//!< SYSCFG_EXTICR2 register address
+	(WORD_TYPE*)0x40013810UL,	//!< SYSCFG_EXTICR3 register address
+	(WORD_TYPE*)0x40023814UL	//!< SYSCFG_EXTICR4 register address
+};
 
 /**
  * EXTI LINE 

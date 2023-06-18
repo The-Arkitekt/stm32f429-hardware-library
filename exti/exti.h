@@ -15,12 +15,12 @@
  *
  * 	- Pointers to specific EXTI registers
  */
-static const WORD_TYPE* __EXTI_IMR   = 0x40013C00UL;	//!< EXTI interrupt mask register
-static const WORD_TYPE* __EXTI_EMR   = 0x40013C04UL; //!< EXTI event mask register
-static const WORD_TYPE* __EXTI_RTSR  = 0x40013C08UL; //!< EXTI rising trigger event/interrupt configuration register
-static const WORD_TYPE* __EXTI_FTSR  = 0x40013C0CUL; //!< EXTI falling trigger event/interrupt configuration register
-static const WORD_TYPE* __EXTI_SWIER = 0x40013C10UL; //!< EXTI software interrupt trigger register
-static const WORD_TYPE* __EXTI_PR    = 0x40013C14UL; //!< EXTI pending request register
+static WORD_TYPE* const __EXTI_IMR   = (WORD_TYPE*)0x40013C00UL;	//!< EXTI interrupt mask register
+static WORD_TYPE* const __EXTI_EMR   = (WORD_TYPE*)0x40013C04UL; //!< EXTI event mask register
+static WORD_TYPE* const __EXTI_RTSR  = (WORD_TYPE*)0x40013C08UL; //!< EXTI rising trigger event/interrupt configuration register
+static WORD_TYPE* const __EXTI_FTSR  = (WORD_TYPE*)0x40013C0CUL; //!< EXTI falling trigger event/interrupt configuration register
+static WORD_TYPE* const __EXTI_SWIER = (WORD_TYPE*)0x40013C10UL; //!< EXTI software interrupt trigger register
+static WORD_TYPE* const __EXTI_PR    = (WORD_TYPE*)0x40013C14UL; //!< EXTI pending request register
 
 
 /**

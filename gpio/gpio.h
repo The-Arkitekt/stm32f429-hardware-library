@@ -75,53 +75,57 @@ typedef enum GPIO_PIN_ENUM
  *
  * 	- Masks used to set mode of Gpio pin
  */
-static const BYTE_TYPE __GPIO_MODE_MSK = 0x3UL;
 typedef enum GPIO_MODE_ENUM
 {
 	GPIO_MODE_INPUT  = 0U,
 	GPIO_MODE_OUTPUT = 0x1U,
 	GPIO_MODE_ALT    = 0x2U,
-	GPIO_MODE_ANALOG = __GPIO_MODE_MSK
+	GPIO_MODE_ANALOG = 0x3UL
 }GPIO_MODE_ENUM;
+static const BYTE_TYPE __GPIO_MODE_MSK = (BYTE_TYPE)GPIO_MODE_ANALOG;
+
 
 /**
  * GPIO OUTPUT TYPES
  *
  * 	- Masks used to set output type of Gpio pin
  */
-static const BYTE_TYPE __GPIO_OTYPE_MSK = 0x1UL;
 typedef enum GPIO_OUTPUT_TYPE_ENUM
 {
 	GPIO_OUTPUT_PP = 0U,			   //!< Push-Pull
-	GPIO_OUTPUT_OD = __GPIO_OTYPE_MSK  //!< Open-Drain
+	GPIO_OUTPUT_OD = 0x1UL  //!< Open-Drain
 }GPIO_OUTPUT_TYPE_ENUM;
+static const BYTE_TYPE __GPIO_OTYPE_MSK = (BYTE_TYPE)GPIO_OUTPUT_OD;
+
 
 /**
  * GPIO OUTPUT SPEED
  *
  * 	- Masks used to set output speed of Gpio pin
  */
-static const BYTE_TYPE __GPIO_OSPEED_MSK = 0x3UL;
 typedef enum GPIO_OUTPUT_SPEED_ENUM
 {
 	GPIO_SPEED_LOW       = 0U,
 	GPIO_SPEED_MED       = 0x1U,
 	GPIO_SPEED_HIGH 	 = 0x2U,
-	GPIO_SPEED_VERY_HIGH = __GPIO_OSPEED_MSK
+	GPIO_SPEED_VERY_HIGH = 0x3UL
 }GPIO_OUTPUT_SPEED_ENUM;
+static const BYTE_TYPE __GPIO_OSPEED_MSK = (BYTE_TYPE)GPIO_SPEED_VERY_HIGH;
+
 
 /**
  * GPIO PULL UP/DOWN
  *
  * 	- Masks used to set pull up/dwn on a pin
  */
-static const BYTE_TYPE __GPIO_PUPDR_MSK = 0x3UL;
 typedef enum GPIO_PULL_ENUM
 {
 	GPIO_NO_PULL   = 0U,
 	GPIO_PULL_UP   = 0x1U,
 	GPIO_PULL_DOWN = 0x2U
 }GPIO_PULL_ENUM;
+static const BYTE_TYPE __GPIO_PUPDR_MSK = 0x3UL;
+
 
 /**
  * GPIO ALTERNATE FUNCTIONS
@@ -129,7 +133,6 @@ typedef enum GPIO_PULL_ENUM
  * 	- Masks used to set Alternate function
  * 	- Only has effect if Alt mode is selected
  */
-static const BYTE_TYPE __GPIO_ALT_FUNK_MSK = 0x7UL;
 typedef enum GPIO_ALT_FUNC_ENUM
 {
 	GPIO_ALT_0 = 0U,
@@ -149,6 +152,8 @@ typedef enum GPIO_ALT_FUNC_ENUM
 	GPIO_ALT_14,
 	GPIO_ALT_15
 }GPIO_ALT_FUNC_ENUM;
+static const BYTE_TYPE __GPIO_ALT_FUNK_MSK = (BYTE_TYPE)GPIO_ALT_15;
+
 
 
 /**
