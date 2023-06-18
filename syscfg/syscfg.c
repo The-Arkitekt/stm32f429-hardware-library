@@ -1,4 +1,4 @@
-#include "systemConfig.h"
+#include "syscfg.h"
 
 void SYSCFG_set_EXTI_source(const SYSCFG_EXTI_LINE_ENUM exti, const SYSCFG_GPIO_PORT_ENUM gpio)
 {
