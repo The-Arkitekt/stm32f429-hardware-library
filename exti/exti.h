@@ -5,100 +5,93 @@
 	extern "C" {
 #endif
 
-#include "stm32f429xx.h"
+
+#include "register.h"
 #include "boolean.h"
 
+
 /**
- * Interrupt positions Enum
+ * EXTI REGISTERS
+ *
+ * 	- Pointers to specific EXTI registers
  */
-typedef enum ExtiIrqSelect{
-	EXTI_IRQSELECT_0     = EXTI0_IRQn,	
-	EXTI_IRQSELECT_1     = EXTI1_IRQn,
-	EXTI_IRQSELECT_2     = EXTI2_IRQn,
-	EXTI_IRQSELECT_3     = EXTI3_IRQn,
-	EXTI_IRQSELECT_4     = EXTI4_IRQn,
-	EXTI_IRQSELECT_9_5   = EXTI9_5_IRQn,
-	EXTI_IRQSELECT_15_10 = EXTI15_10_IRQn
-}ExtiIrqSelect;
+static WORD_TYPE* const __EXTI_IMR   = (WORD_TYPE*)0x40013C00UL;	//!< EXTI interrupt mask register
+static WORD_TYPE* const __EXTI_EMR   = (WORD_TYPE*)0x40013C04UL; //!< EXTI event mask register
+static WORD_TYPE* const __EXTI_RTSR  = (WORD_TYPE*)0x40013C08UL; //!< EXTI rising trigger event/interrupt configuration register
+static WORD_TYPE* const __EXTI_FTSR  = (WORD_TYPE*)0x40013C0CUL; //!< EXTI falling trigger event/interrupt configuration register
+static WORD_TYPE* const __EXTI_SWIER = (WORD_TYPE*)0x40013C10UL; //!< EXTI software interrupt trigger register
+static WORD_TYPE* const __EXTI_PR    = (WORD_TYPE*)0x40013C14UL; //!< EXTI pending request register
+
 
 /**
- * EXTI source line enum
- * 	The RTSR register masks are used here but the RTSR and FTSR are masks are the same
-*/
-typedef enum ExtiLineSelect{
-	EXTI_LINESELECT_0  = EXTI_RTSR_TR0,
-	EXTI_LINESELECT_1  = EXTI_RTSR_TR1,
-	EXTI_LINESELECT_2  = EXTI_RTSR_TR2,
-	EXTI_LINESELECT_3  = EXTI_RTSR_TR3,
-	EXTI_LINESELECT_4  = EXTI_RTSR_TR4,
-	EXTI_LINESELECT_5  = EXTI_RTSR_TR5,
-	EXTI_LINESELECT_6  = EXTI_RTSR_TR6,
-	EXTI_LINESELECT_7  = EXTI_RTSR_TR7,
-	EXTI_LINESELECT_8  = EXTI_RTSR_TR8,
-	EXTI_LINESELECT_9  = EXTI_RTSR_TR9,
-	EXTI_LINESELECT_10 = EXTI_RTSR_TR10,
-	EXTI_LINESELECT_11 = EXTI_RTSR_TR11,
-	EXTI_LINESELECT_12 = EXTI_RTSR_TR12,
-	EXTI_LINESELECT_13 = EXTI_RTSR_TR13,
-	EXTI_LINESELECT_14 = EXTI_RTSR_TR14,
-	EXTI_LINESELECT_15 = EXTI_RTSR_TR15,
-	EXTI_LINESELECT_16 = EXTI_RTSR_TR16,
-	EXTI_LINESELECT_17 = EXTI_RTSR_TR17,
-	EXTI_LINESELECT_18 = EXTI_RTSR_TR18,
-	EXTI_LINESELECT_19 = EXTI_RTSR_TR19,
-	EXTI_LINESELECT_20 = EXTI_RTSR_TR20,
-	EXTI_LINESELECT_21 = EXTI_RTSR_TR21,
-	EXTI_LINESELECT_22 = EXTI_RTSR_TR22
-}ExtiLineSelect;
-
-/**
- * Struct used to configure EXTI line
-*/
-typedef struct ExtiConfigStruct{
-	ExtiLineSelect line;
-	Boolean risingTrigger;
-	Boolean fallingTrigger;
-}ExtiConfigStruct;
-
-//@{
-/**
- * Initialize functions
- * @param exti The configuration struct used to set triggers
+ * EXTI LINE
+ *
+ * 	- Masks used to set or clear bits for exti line
  */
-void extiInterruptInit(const ExtiConfigStruct exti);
-void extiEventInit(const ExtiConfigStruct exti);
-//@}
+typedef enum EXTI_LINE_ENUM
+{
+	EXTI_LINE_0  = 0x1UL,
+	EXTI_LINE_1  = 0x2UL,
+	EXTI_LINE_2  = 0x4UL,
+	EXTI_LINE_3	 = 0x8UL,
+	EXTI_LINE_4  = 0x10UL,
+	EXTI_LINE_5  = 0x20UL,
+	EXTI_LINE_6  = 0x40UL,
+	EXTI_LINE_7  = 0x80UL,
+	EXTI_LINE_8  = 0x100UL,
+	EXTI_LINE_9  = 0x200UL,
+	EXTI_LINE_10 = 0x400UL,
+	EXTI_LINE_11 = 0x800UL,
+	EXTI_LINE_12 = 0x1000UL,
+	EXTI_LINE_13 = 0x2000UL,
+	EXTI_LINE_14 = 0x4000UL,
+	EXTI_LINE_15 = 0x8000UL,
+	EXTI_LINE_16 = 0x10000UL,
+	EXTI_LINE_17 = 0x20000UL,
+	EXTI_LINE_18 = 0x40000UL,
+	EXTI_LINE_19 = 0x80000UL,
+	EXTI_LINE_20 = 0x100000UL,
+	EXTI_LINE_21 = 0x200000UL,
+	EXTI_LINE_22 = 0x400000UL
+}EXTI_LINE_ENUM;
 
-//@{
-/**
- * De Initialize functions
- * @param line The exti line to de initialize
-*/
-void extiInterruptDeinit(const ExtiLineSelect line);
-void extiEventDeinit(const ExtiLineSelect line);
-//@}
+
 
 /**
- * Resets the interrupt flag
- * @param line The exti line to be reset
-*/
-void extiResetInterrupt(const ExtiLineSelect line);
+ * Set/Remove the given EXTI line as interrupt source
+ */
+void EXTI_set_interrupt_source(const EXTI_LINE_ENUM exti_line, const Boolean set);
 
 /**
- * Trigger the specified exti line
- * 	works for interrupt and event
- * @param line The exti line to be triggered
-*/
-void extiTrigger(const ExtiLineSelect line);
+ * Set/Remove the given EXTI line as event source
+ */
+void EXTI_set_event_source(const EXTI_LINE_ENUM exti_line, const Boolean set);
 
-//@{
 /**
- * Control whether the Exti interrupt is enabled/disabled
- * @param irq The IRQ to be enabled/disabled
-*/
-void enableExtiIrq(const ExtiIrqSelect irq);
-void disableExtiIrq(const ExtiIrqSelect irq);
-//@}
+ * Enable/Disable the given EXTI line rising trigger
+ */
+void EXTI_set_rising_trigger(const EXTI_LINE_ENUM exti_line, const Boolean enable);
+
+/**
+ * Enable/Disable the given EXTI line falling trigger
+ */
+void EXTI_set_falling_trigger(const EXTI_LINE_ENUM exti_line, const Boolean enable);
+
+/**
+ * Trigger a software interrupt/event at the given EXTI line
+ */
+void EXTI_trigger_interrupt_event(const EXTI_LINE_ENUM exti_line);
+
+/**
+ * Check if pending request exists for given EXTI line
+ */
+Boolean EXTI_pending_request_exists(const EXTI_LINE_ENUM exti_line);
+
+/**
+ * Clear pending request for given EXTI line
+ */
+void EXTI_clear_pending_request(const EXTI_LINE_ENUM exti_line);
+
 
 #ifdef __cplusplus
 }

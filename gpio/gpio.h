@@ -1,207 +1,199 @@
-#ifndef GPIO_H
-#define GPIO_H
+#ifndef GPIO_HH
+#define GPIO_HH
 
 #ifdef __cplusplus
 	extern "C" {
 #endif
 
-#include "stm32f429xx.h"
-#include "boolean.h"
 #include "register.h"
+#include "Boolean.h"
 
 /**
- * Define the number of GPIO ports
- *  #define used here because this value is used in array initializer
-*/
-#ifndef NUM_GPIO_PORTS
-	#define NUM_GPIO_PORTS 11U
-#endif //NUM_GPIO_PORTS
+ * GPIO PORT REGISTERS
+ *
+ * 	- Base address of the GPIO port registers
+ */
+typedef enum GPIO_PORT_ENUM
+{
+	GPIO_A = 0UL,
+	GPIO_B = 0x40020400UL,
+	GPIO_C = 0x40020800UL,
+	GPIO_D = 0x40020C00UL,
+	GPIO_E = 0x40021000UL,
+	GPIO_F = 0x40021400UL,
+	GPIO_G = 0x40021800UL,
+	GPIO_H = 0x40021C00UL,
+	GPIO_I = 0x40022000UL,
+	GPIO_J = 0x40022400UL,
+	GPIO_K = 0x40022800UL
+}GPIO_PORT_ENUM;
 
 /**
- * Define the number of GPIO pins
- * 	#define used here because this value is used in array initializer
-*/
-#ifndef NUM_GPIO_PINS
-	#define NUM_GPIO_PINS 16U
-#endif //NUM_GPIO_PINS
-
-/**
- * GPIO port selection enum
-*/
-typedef enum GpioPortSelect{
-	GPIO_PORTSELECT_A = 0U,
-	GPIO_PORTSELECT_B,
-	GPIO_PORTSELECT_C,
-	GPIO_PORTSELECT_D,
-	GPIO_PORTSELECT_E,
-	GPIO_PORTSELECT_F,
-	GPIO_PORTSELECT_G,
-	GPIO_PORTSELECT_H,
-	GPIO_PORTSELECT_I,
-	GPIO_PORTSELECT_J,
-	GPIO_PORTSELECT_K
-}GpioPortSelect;
-
-/**
- * GPIO pin selection enum
-*/
-typedef enum GpioPinSelect{
-	GPIO_PINSELECT_0 = 0U,
-	GPIO_PINSELECT_1,
-	GPIO_PINSELECT_2,
-	GPIO_PINSELECT_3,
-	GPIO_PINSELECT_4,
-	GPIO_PINSELECT_5,
-	GPIO_PINSELECT_6,
-	GPIO_PINSELECT_7,
-	GPIO_PINSELECT_8,
-	GPIO_PINSELECT_9,
-	GPIO_PINSELECT_10,
-	GPIO_PINSELECT_11,
-	GPIO_PINSELECT_12,
-	GPIO_PINSELECT_13,
-	GPIO_PINSELECT_14,
-	GPIO_PINSELECT_15
-}GpioPinSelect;
-
-/**
- * Array used to map GpioPortSelect enum to actual port address
-*/
-static GPIO_TypeDef* const GPIO_PORTS[NUM_GPIO_PORTS] = {
-	GPIOA,
-	GPIOB,
-	GPIOC,
-	GPIOD,
-	GPIOE,
-	GPIOF,
-	GPIOG,
-	GPIOH,
-	GPIOI,
-	GPIOJ,
-	GPIOK
+ * GPIO PORT REGISTER OFFSETS
+ *
+ * 	- Add to GPIO_x address to get specific register address
+ */
+static const BYTE_TYPE __GPIO_x_MODER_OFFSET   = 0UL;	 //!< Gpio pin mode register
+static const BYTE_TYPE __GPIO_x_OTYPER_OFFSET  = 0x04UL; //!< Gpio pin output type register
+static const BYTE_TYPE __GPIO_x_OSPEEDR_OFFSET = 0x08UL; //!< Gpio pin output speed register
+static const BYTE_TYPE __GPIO_x_PUPDR_OFFSET   = 0x0CUL; //!< Gpio pin pull up/dwn register
+static const BYTE_TYPE __GPIO_x_IDR_OFFSET     = 0x10UL; //!< Gpio pin input data register
+static const BYTE_TYPE __GPIO_x_BSRR_OFFSET    = 0x18UL; //!< Gpio set/reset register
+static const BYTE_TYPE __GPIO_x_AFR_OFFSET[2U] =
+{
+	0x20UL, //!< Gpio alternate function low register  (ports 0-7)
+	0x24UL  //!< Gpio alternate function high register (ports 8-15)
 };
 
 /**
- * GPIO mode selection enum
-*/
-typedef enum GpioModeSelect{
-	GPIO_MODESELECT_INPUT = 0U,  /* !< Input Floating Mode     */
-	GPIO_MODESELECT_OUTPUT,      /* !< Output General Purpose  */
-	GPIO_MODESELECT_ALT,		 /* !< Alternate Mode          */
-	GPIO_MODESELECT_ANALOG       /* !< Analog Mode             */
-}GpioModeSelect;
-
-/**
- * GPIO alternate mode selection enum
- * 	These modes will be different for each port-pin combo
- * 	Some will not be valid for port-pin and will have no
- * 	effect if set
+ * GPIO PINS
+ *
+ * 	- Masks used to set or clear register bits
  */
-typedef enum GpioAltModeSelect{
-	GPIO_MODESELECT_AF_0 = 0U,
-	GPIO_MODESELECT_AF_1,
-	GPIO_MODESELECT_AF_2,
-	GPIO_MODESELECT_AF_3,
-	GPIO_MODESELECT_AF_4,
-	GPIO_MODESELECT_AF_5,
-	GPIO_MODESELECT_AF_6,
-	GPIO_MODESELECT_AF_7,
-	GPIO_MODESELECT_AF_8,
-	GPIO_MODESELECT_AF_9,
-	GPIO_MODESELECT_AF_10,
-	GPIO_MODESELECT_AF_11,
-	GPIO_MODESELECT_AF_12,
-	GPIO_MODESELECT_AF_13,
-	GPIO_MODESELECT_AF_14,
-	GPIO_MODESELECT_AF_15
-}GpioAltModeSelect;
+typedef enum GPIO_PIN_ENUM
+{
+	GPIO_PIN_0 = 0U,
+	GPIO_PIN_1,
+	GPIO_PIN_2,
+	GPIO_PIN_3,
+	GPIO_PIN_4,
+	GPIO_PIN_5,
+	GPIO_PIN_6,
+	GPIO_PIN_7,
+	GPIO_PIN_8,
+	GPIO_PIN_9,
+	GPIO_PIN_10,
+	GPIO_PIN_11,
+	GPIO_PIN_12,
+	GPIO_PIN_13,
+	GPIO_PIN_14,
+	GPIO_PIN_15
+}GPIO_PIN_ENUM;
 
 /**
- * This constant is calculated using the following formula:
- * 	num_gpio_pins / ((log_2(num_AF_modes) * num_gpio_pins) / bits_per_register)
-*/
-static const BYTE_TYPE NUM_PINS_PER_AFR_REG = 8U;	/* !< The number of pins that are represented in each AFR register*/
+ * GPIO MODES
+ *
+ * 	- Masks used to set mode of Gpio pin
+ */
+typedef enum GPIO_MODE_ENUM
+{
+	GPIO_MODE_INPUT  = 0U,
+	GPIO_MODE_OUTPUT = 0x1U,
+	GPIO_MODE_ALT    = 0x2U,
+	GPIO_MODE_ANALOG = 0x3UL
+}GPIO_MODE_ENUM;
+static const BYTE_TYPE __GPIO_MODE_MSK = (BYTE_TYPE)GPIO_MODE_ANALOG;
+
 
 /**
- * GPIO output type selection enum
-*/
-typedef enum GpioOTypeSelect{
-	GPIO_OTYPESELECT_PP = 0U,	/* !< Output Push-Pull  */
-	GPIO_OTYPESELECT_OD   		/* !< Output Open-Drain */
-}GpioOTypeSelect;
+ * GPIO OUTPUT TYPES
+ *
+ * 	- Masks used to set output type of Gpio pin
+ */
+typedef enum GPIO_OUTPUT_TYPE_ENUM
+{
+	GPIO_OUTPUT_PP = 0U,			   //!< Push-Pull
+	GPIO_OUTPUT_OD = 0x1UL  //!< Open-Drain
+}GPIO_OUTPUT_TYPE_ENUM;
+static const BYTE_TYPE __GPIO_OTYPE_MSK = (BYTE_TYPE)GPIO_OUTPUT_OD;
+
 
 /**
- * GPIO speed selection enum
-*/
-typedef enum GpioSpeedSelect{
-	GPIO_SPEEDSELECT_FREQ_LOW = 0U,
-	GPIO_SPEEDSELECT_FREG_MED,
-	GPIO_SPEEDSELECT_HIGH,
-	GPIO_SPEEDSELECT_FREQ_VERY_HIGH,
-}GpioSpeedSelect;
+ * GPIO OUTPUT SPEED
+ *
+ * 	- Masks used to set output speed of Gpio pin
+ */
+typedef enum GPIO_OUTPUT_SPEED_ENUM
+{
+	GPIO_SPEED_LOW       = 0U,
+	GPIO_SPEED_MED       = 0x1U,
+	GPIO_SPEED_HIGH 	 = 0x2U,
+	GPIO_SPEED_VERY_HIGH = 0x3UL
+}GPIO_OUTPUT_SPEED_ENUM;
+static const BYTE_TYPE __GPIO_OSPEED_MSK = (BYTE_TYPE)GPIO_SPEED_VERY_HIGH;
+
 
 /**
- * GPIO pull-up/pull-down resistor selection enum
-*/
-typedef enum GpioPullSelect{
-	GPIO_PULLSELECT_NO_PULL = 0U,	/* !< output is floating */
-	GPIO_PULLSELECT_PULL_UP,		/* !< output is pulled up to high */
-	GPIO_PULLSELECT_PULL_DOWN,		/* !< output is pulled down to grd */
-}GpioPullSelect;
+ * GPIO PULL UP/DOWN
+ *
+ * 	- Masks used to set pull up/dwn on a pin
+ */
+typedef enum GPIO_PULL_ENUM
+{
+	GPIO_NO_PULL   = 0U,
+	GPIO_PULL_UP   = 0x1U,
+	GPIO_PULL_DOWN = 0x2U
+}GPIO_PULL_ENUM;
+static const BYTE_TYPE __GPIO_PUPDR_MSK = 0x3UL;
+
 
 /**
- * GPIO configuration struct
-*/
-typedef struct GpioConfigStruct{
-	GpioPortSelect    port;			/* !< The target port name */
-	GpioPinSelect     pin;			/* !< The target pin number */
-	GpioModeSelect    mode;			/* !< The desired mode */
-	GpioAltModeSelect altMode;		/* !< Only used if mode is set to alternate */
-	GpioOTypeSelect   oType;		/* !< The desired output type */
-	GpioSpeedSelect   speed;		/* !< The desired speed */
-	GpioPullSelect    pull;			/* !< The desired output pull resistor */
-}GpioConfigStruct;
+ * GPIO ALTERNATE FUNCTIONS
+ *
+ * 	- Masks used to set Alternate function
+ * 	- Only has effect if Alt mode is selected
+ */
+typedef enum GPIO_ALT_FUNC_ENUM
+{
+	GPIO_ALT_0 = 0U,
+	GPIO_ALT_1,
+	GPIO_ALT_2,
+	GPIO_ALT_3,
+	GPIO_ALT_4,
+	GPIO_ALT_5,
+	GPIO_ALT_6,
+	GPIO_ALT_7,
+	GPIO_ALT_8,
+	GPIO_ALT_9,
+	GPIO_ALT_10,
+	GPIO_ALT_11,
+	GPIO_ALT_12,
+	GPIO_ALT_13,
+	GPIO_ALT_14,
+	GPIO_ALT_15
+}GPIO_ALT_FUNC_ENUM;
+static const BYTE_TYPE __GPIO_ALT_FUNK_MSK = (BYTE_TYPE)GPIO_ALT_15;
 
-//@{
-/**
- * Gpio port disable/enable
- * @param portSelect The port to be disabled/enabled
-*/
-void gpioEnable(const GpioPortSelect portSelect);
-void gpioDisable(const GpioPortSelect portSelect);
-//@}
 
-/**
- * Set digital output of given port-pin combination
- * @param portSelect The port name where the target pin is located
- * @param pinSelect The target pin number
- * @param value If True, set pin high, else set pin low
-*/
-void gpioWrite(const GpioPortSelect portSelect, const GpioPinSelect pinSelect, const Boolean value);
-
-/**
- * Read current digital value of given port-pin combination
- * @param portSelect The port name where the target pin is located
- * @param pinSelect The target pin name
- * @return True if pin is high, False otherwise
-*/
-Boolean gpioRead(const GpioPortSelect portSelect, const GpioPinSelect pinSelect);
 
 /**
- * Intialize a given GPIO port
- * @param gpioConfig The GpioConfig struct used to configure the gpio
-*/
-void gpioInit(const GpioConfigStruct gpioConfig);
+ * Set mode of given GPIO
+ */
+void GPIO_set_mode(const GPIO_PORT_ENUM port, const GPIO_PIN_ENUM pin, const GPIO_MODE_ENUM mode);
 
 /**
- * De-Initialize a given port-pin combination, clear register values
- * @param portSelect The port name where the target pin is located
- * @param pinSelect The target pin number 
-*/
-void gpioDeInit(const GpioPortSelect portSelect, const GpioPinSelect pinSelect);
+ * Set output type of given GPIO
+ */
+void GPIO_set_output_type(const GPIO_PORT_ENUM port, const GPIO_PIN_ENUM pin, const GPIO_OUTPUT_TYPE_ENUM o_type);
+
+/**
+ * Set output speed of given GPIO
+ */
+void GPIO_set_output_speed(const GPIO_PORT_ENUM port, const GPIO_PIN_ENUM pin, const GPIO_OUTPUT_SPEED_ENUM o_dpeed);
+
+/**
+ * Set GPIO pull-up/pull-down
+ */
+void GPIO_set_pull(const GPIO_PORT_ENUM port, const GPIO_PIN_ENUM pin, const GPIO_PULL_ENUM pull);
+
+/**
+ * Get GPIO pin input data
+ */
+Boolean GPIO_get_pin_data(const GPIO_PORT_ENUM port, const GPIO_PIN_ENUM pin);
+
+/**
+ * Set GPIO pin data
+ */
+void GPIO_set_pin_data(const GPIO_PORT_ENUM port, const GPIO_PIN_ENUM pin, const Boolean data);
+
+/**
+ * Set GPIO Alternat Function
+ */
+void GPIO_set_alt_function(const GPIO_PORT_ENUM port, const GPIO_PIN_ENUM pin, const GPIO_ALT_FUNC_ENUM alt_func);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif //GPIO_H
+#endif //GPIO_HH
+ 
