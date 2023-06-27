@@ -54,7 +54,7 @@ Boolean GPIO_get_pin_data(const GPIO_PORT_ENUM port, const GPIO_PIN_ENUM pin)
 	WORD_TYPE* register_ptr = (WORD_TYPE*)((WORD_TYPE)port + __GPIO_x_IDR_OFFSET);
 
 	// Get bit value for given pin
-	return (((*register_ptr) & (1U << (BYTE_TYPE)pin) != 0U) ? TRUE : FALSE);
+	return ((((*register_ptr) & (1U << (BYTE_TYPE)pin)) != 0U) ? TRUE : FALSE);
 }
 
 void GPIO_set_pin_data(const GPIO_PORT_ENUM port, const GPIO_PIN_ENUM pin, const Boolean data)

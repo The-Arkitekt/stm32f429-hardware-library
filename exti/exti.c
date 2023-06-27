@@ -56,7 +56,8 @@ void EXTI_trigger_interrupt_event(const EXTI_LINE_ENUM exti_line)
 Boolean EXTI_pending_request_exists(const EXTI_LINE_ENUM exti_line)
 {
 	Boolean request_pending = FALSE;
-	if (((*__EXTI_PR) & (WORD_TYPE)exti_line) != 0UL)
+
+	if ((exti_line & (*__EXTI_PR)) != 0U)
 	{
 		request_pending = TRUE;
 	}

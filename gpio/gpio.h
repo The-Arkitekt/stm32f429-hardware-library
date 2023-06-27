@@ -6,7 +6,7 @@
 #endif
 
 #include "register.h"
-#include "Boolean.h"
+#include "boolean.h"
 
 /**
  * GPIO PORT REGISTERS

@@ -5,317 +5,467 @@
 	extern "C" {
 #endif
 
-#include "boolean.h"
-#include "register.h"
+#include <stdint.h>
 
 /**
- * DMA 
-*/
-typedef enum DMA_ENUM
-{
-	DMA_1 = 0x40026000UL, //!< Start address of DMA1 registers
-	DMA_2 = 0x40026400UL  //!< Start ddress of DMA2 registers
-}DMA_ENUM;
+ * Address Constants
+ */
+static const uint32_t DMA1_BASE_ADDR = 0x40026000U;
+static const uint32_t DMA2_BASE_ADDR = 0x40026400U;
 
+static const uint32_t DMA_STREAM_START  = 0x10U;
+static const uint32_t DMA_STREAM_OFFSET = 0x18U;
+
+static const uint32_t DMA1_STREAM_0_ADDR = DMA1_BASE_ADDR + DMA_STREAM_START;
+static const uint32_t DMA1_STREAM_1_ADDR = DMA1_STREAM_0_ADDR + DMA_STREAM_OFFSET;
+static const uint32_t DMA1_STREAM_2_ADDR = DMA1_STREAM_1_ADDR + DMA_STREAM_OFFSET;
+static const uint32_t DMA1_STREAM_3_ADDR = DMA1_STREAM_2_ADDR + DMA_STREAM_OFFSET;
+static const uint32_t DMA1_STREAM_4_ADDR = DMA1_STREAM_3_ADDR + DMA_STREAM_OFFSET;
+static const uint32_t DMA1_STREAM_5_ADDR = DMA1_STREAM_4_ADDR + DMA_STREAM_OFFSET;
+static const uint32_t DMA1_STREAM_6_ADDR = DMA1_STREAM_5_ADDR + DMA_STREAM_OFFSET;
+static const uint32_t DMA1_STREAM_7_ADDR = DMA1_STREAM_6_ADDR + DMA_STREAM_OFFSET;
+
+static const uint32_t DMA2_STREAM_0_ADDR = DMA2_BASE_ADDR + DMA_STREAM_START;
+static const uint32_t DMA2_STREAM_1_ADDR = DMA2_STREAM_0_ADDR + DMA_STREAM_OFFSET;
+static const uint32_t DMA2_STREAM_2_ADDR = DMA2_STREAM_1_ADDR + DMA_STREAM_OFFSET;
+static const uint32_t DMA2_STREAM_3_ADDR = DMA2_STREAM_2_ADDR + DMA_STREAM_OFFSET;
+static const uint32_t DMA2_STREAM_4_ADDR = DMA2_STREAM_3_ADDR + DMA_STREAM_OFFSET;
+static const uint32_t DMA2_STREAM_5_ADDR = DMA2_STREAM_4_ADDR + DMA_STREAM_OFFSET;
+static const uint32_t DMA2_STREAM_6_ADDR = DMA2_STREAM_5_ADDR + DMA_STREAM_OFFSET;
+static const uint32_t DMA2_STREAM_7_ADDR = DMA2_STREAM_6_ADDR + DMA_STREAM_OFFSET;
 
 /**
- * DMA REGISTER OFFSETS
- *
- * 	- Used as 'private' values to get specific registers
- * 	- Add to DMA_X address to get specific register address
-*/
-static const BYTE_TYPE __DMA_INTERRUPT_STATUS_OFFSETS[2UL] =
+ * Value Constants
+ */
+static const uint8_t NUM_DMA                          = 2U;
+static const uint8_t NUM_DMA_STREAMS                  = 8U;
+static const uint8_t NUM_DMA_INTERRUPT_REGS           = 2U;
+static const uint8_t NUM_DMA_STREAM_CR_CHSEL_OPTIONS  = 8U;
+static const uint8_t NUM_DMA_STREAM_CR_PFCTRL_OPTIONS = 2U;
+static const uint8_t NUM_DMA_STREAM_CR_PL_OPTIONS     = 2U;
+static const uint8_t NUM_DMA_STREAM_CR_DIR_OPTIONS    = 3U;
+static const uint8_t NUM_DMA_STREAM_CR_PINC_OPTIONS   = 2U;
+static const uint8_t NUM_DMA_STREAM_CR_PBURST_OPTIONS = 4U;
+static const uint8_t NUM_DMA_STREAM_CR_PSIZE_OPTIONS  = 3U;
+static const uint8_t NUM_DMA_STREAM_CR_MINC_OPTIONS   = 2U;
+static const uint8_t NUM_DMA_STREAM_CR_MBURST_OPTIONS = 4U;
+static const uint8_t NUM_DMA_STREAM_CR_MSIZE_OPTIONS  = 3U;
+static const uint8_t NUM_DMA_STREAM_CR_DBM_OPTIONS    = 2U;
+static const uint8_t NUM_DMA_STREAM_CR_CIRC_OPTIONS   = 2U;
+static const uint8_t NUM_DMA_STREAM_CR_TCIE_OPTIONS   = 2U;
+static const uint8_t NUM_DMA_STREAM_CR_HTIE_OPTIONS   = 2U;
+static const uint8_t NUM_DMA_STREAM_CR_TEIE_OPTIONS   = 2U;
+static const uint8_t NUM_DMA_STREAM_CR_DMEIE_OPTIONS  = 2U;
+
+static const uint8_t NUM_DMA_STREAM_FCR_DMDIS_OPTIONS = 2U;
+static const uint8_t NUM_DMA_STREAM_FCR_FTH_OPTIONS   = 4U;
+static const uint8_t NUM_DMA_STREAM_FCR_FEIE_OPTIONS  = 2U;
+
+/**
+ * Bit Mask Constants
+ */
+static const uint32_t DMA_STREAM_CR_EN_MSK     = 0x00000001U;
+static const uint32_t DMA_STREAM_CR_CHSEL_MSK  = 0x0E000000U;
+static const uint32_t DMA_STREAM_CR_PFCTRL_MSK = 0x00000020U;
+static const uint32_t DMA_STREAM_CR_PL_MSK     = 0x00030000U;
+static const uint32_t DMA_STREAM_CR_DIR_MSK    = 0x000000C0U;
+static const uint32_t DMA_STREAM_CR_PINC_MSK   = 0x00000200U;
+static const uint32_t DMA_STREAM_CR_PBURST_MSK = 0x00600000U;
+static const uint32_t DMA_STREAM_CR_PSIZE_MSK  = 0x00001800U;
+static const uint32_t DMA_STREAM_CR_MINC_MSK   = 0x00000400U;
+static const uint32_t DMA_STREAM_CR_MBURST_MSK = 0x01800000U;
+static const uint32_t DMA_STREAM_CR_MSIZE_MSK  = 0x00006000U;
+static const uint32_t DMA_STREAM_CR_DBM_MSK    = 0x00040000U;
+static const uint32_t DMA_STREAM_CR_CIRC_MSK   = 0x00000100U;
+static const uint32_t DMA_STREAM_CR_TCIE_MSK   = 0x00000010U;
+static const uint32_t DMA_STREAM_CR_HTIE_MSK   = 0x00000008U;
+static const uint32_t DMA_STREAM_CR_TEIE_MSK   = 0x00000004U;
+static const uint32_t DMA_STREAM_CR_DMEIE_MSK  = 0x00000002U;
+
+static const uint32_t DMA_STREAM_FCR_DMDIS_MSK = 0x00000004U;
+static const uint32_t DMA_STREAM_FCR_FTH_MSK   = 0x00000003U;
+static const uint32_t DMA_STREAM_FCR_FEIE_MSK  = 0x00000080U;
+
+/**
+ * Bit Mask Array Constants
+ */
+static const uint32_t DMA_STREAM_CR_CHSEL[NUM_DMA_STREAM_CR_CHSEL_OPTIONS] =
 {
-	0UL,	//!< Low register  (Streams 0-3)
-	0x4UL	//!< High register (Streams 4-7)
+	0x0U,
+	0x02000000U,
+	0x04000000U,
+	0x06000000U,
+	0x08000000U,
+	0x0A000000U,
+	0x0C000000U,
+	DMA_STREAM_CR_CHSEL_MSK
 };
-static const BYTE_TYPE __DMA_INTERRUPT_CLEAR_OFFSETS[2UL] =
+
+static const uint32_t DMA_STREAM_CR_PFCTRL[NUM_DMA_STREAM_CR_PFCTRL_OPTIONS] =
 {
-	0x8UL,	//!< Low register
-	0xCUL	//!< high register
+	0x0U,
+	DMA_STREAM_CR_PFCTRL_MSK
+};
+
+static const uint32_t DMA_STREAM_CR_PL[NUM_DMA_STREAM_CR_PL_OPTIONS] =
+{
+	0x0U,
+	DMA_STREAM_CR_PL_MSK
+};
+
+static const uint32_t DMA_STREAM_CR_DIR[NUM_DMA_STREAM_CR_DIR_OPTIONS] =
+{
+	0x0U,
+	0x00000040U,
+	0x00000080U
+};
+
+static const uint32_t DMA_STREAM_CR_PINC[NUM_DMA_STREAM_CR_PINC_OPTIONS] =
+{
+	0x0U,
+	DMA_STREAM_CR_PINC_MSK
+};
+
+static const uint32_t DMA_STREAM_CR_PBURST[NUM_DMA_STREAM_CR_PBURST_OPTIONS] =
+{
+	0x0U,
+	0x00200000U,
+	0x00400000U,
+	DMA_STREAM_CR_PBURST_MSK
+};
+
+static const uint32_t DMA_STREAM_CR_PSIZE[NUM_DMA_STREAM_CR_PSIZE_OPTIONS] =
+{
+	0x0U,
+	0x00000800U,
+	0x00001000U
+};
+
+static const uint32_t DMA_STREAM_CR_MINC[NUM_DMA_STREAM_CR_MINC_OPTIONS] =
+{
+	0x0U,
+	DMA_STREAM_CR_MINC_MSK,
+};
+
+static const uint32_t DMA_STREAM_CR_MBURST[NUM_DMA_STREAM_CR_MBURST_OPTIONS] =
+{
+	0x0U,
+	0x00800000U,
+	0x01000000U,
+	DMA_STREAM_CR_MBURST_MSK
+};
+
+static const uint32_t DMA_STREAM_CR_MSIZE[NUM_DMA_STREAM_CR_MSIZE_OPTIONS] =
+{
+	0x0U,
+	0x00002000U,
+	0x00004000U
+};
+
+static const uint32_t DMA_STREAM_CR_DBM[NUM_DMA_STREAM_CR_DBM_OPTIONS] =
+{
+	0x0U,
+	DMA_STREAM_CR_DBM_MSK
+};
+
+static const uint32_t DMA_STREAM_CR_CIRC[NUM_DMA_STREAM_CR_CIRC_OPTIONS] =
+{
+	0x0U,
+	DMA_STREAM_CR_CIRC_MSK
+};
+
+static const uint32_t DMA_STREAM_CR_TCIE[NUM_DMA_STREAM_CR_TCIE_OPTIONS] =
+{
+	0x0U,
+	DMA_STREAM_CR_TCIE_MSK
+};
+
+static const uint32_t DMA_STREAM_CR_HTIE[NUM_DMA_STREAM_CR_HTIE_OPTIONS] =
+{
+	0x0U,
+	DMA_STREAM_CR_HTIE_MSK
+};
+
+static const uint32_t DMA_STREAM_CR_TEIE[NUM_DMA_STREAM_CR_TEIE_OPTIONS] =
+{
+	0x0U,
+	DMA_STREAM_CR_TEIE_MSK
+};
+
+static const uint32_t DMA_STREAM_CR_DMEIE[NUM_DMA_STREAM_CR_DMEIE_OPTIONS] =
+{
+	0x0U,
+	DMA_STREAM_CR_DMEIE_MSK
+};
+
+static const uint32_t DMA_STREAM_FCR_DMDIS[NUM_DMA_STREAM_FCR_DMDIS_OPTIONS] =
+{
+	0x0U,
+	DMA_STREAM_FCR_DMDIS_MSK
+
+};
+
+static const uint32_t DMA_STREAM_FCR_FTH[NUM_DMA_STREAM_FCR_FTH_OPTIONS] =
+{
+	0x0U,
+	0x00000001U,
+	0x00000002U,
+	DMA_STREAM_FCR_FTH_MSK
+};
+
+static const uint32_t DMA_STREAM_FCR_FEIE[NUM_DMA_STREAM_FCR_FEIE_OPTIONS] =
+{
+	0x0U,
+	DMA_STREAM_FCR_FEIE_MSK
 };
 
 /**
- * DMA INTERRUPTS
- *
- * 	- Masks used to set or clear Interrupt related bits
-*/
-typedef enum DMA_STREAM_INTERRUPT_ENUM
+ * Enum Definitions
+ */
+typedef enum
 {
-	DMA_STREAM_FIFO_ERROR 		 = 0x1UL,
-	DMA_STREAM_DIRECT_MODE_ERROR = 0x4UL,
-	DMA_STREAM_TRANSFER_ERROR    = 0x8UL,
-	DMA_STREAM_HALF_TRANSFER     = 0x10UL,
-	DMA_STREAM_TRANSFER_COMPLETE = 0x20UL
-}DMA_STREAM_INTERRUPT_ENUM;
+	DMA_RETURN_SUCCESS,
+	DMA_RETURN_FAIL
+}dma_return_value_enum;
+
+typedef enum
+{
+	DMA_1 = 0U,
+	DMA_2
+}dma_enum;
+
+typedef enum
+{
+	DMA_STREAM_0 = 0U,
+	DMA_STREAM_1,
+	DMA_STREAM_2,
+	DMA_STREAM_3,
+	DMA_STREAM_4,
+	DMA_STREAM_5,
+	DMA_STREAM_6,
+	DMA_STREAM_7
+}dma_stream_enum;
+
+typedef enum
+{
+	DMA_STREAM_CHANNEL_0 = 0U,
+	DMA_STREAM_CHANNEL_1,
+	DMA_STREAM_CHANNEL_2,
+	DMA_STREAM_CHANNEL_3,
+	DMA_STREAM_CHANNEL_4,
+	DMA_STREAM_CHANNEL_5,
+	DMA_STREAM_CHANNEL_6,
+	DMA_STREAM_CHANNEL_7
+}dma_stream_channel_enum;
+
+typedef enum
+{
+	DMA_STREAM_FLOW_CONTROL_DMA = 0U,
+	DMA_STREAM_FLOW_CONTROL_PERIPHERAL,
+}dma_stream_flow_control_enum;
+
+typedef enum
+{
+	DMA_STREAM_PRIORITY_LOW = 0U,
+	DMA_STREAM_PRIORITY_MED,
+	DMA_STREAM_PRIORITY_HIGH,
+	DMA_STREAM_PRIORITY_VERYHIGH
+}dma_stream_priority_enum;
+
+typedef enum
+{
+	DMA_STREAM_FIFO_DIRECT_MODE_ENABLE = 0U,
+	DMA_STREAM_FIFO_DIRECT_MODE_DISABLE,
+}dma_stream_fifo_direct_mode_enum;
+
+typedef enum
+{
+	DMA_STREAM_FIFO_THRESHOLD_QUARTER = 0U,
+	DMA_STREAM_FIFO_THRESHOLD_HALF,
+	DMA_STREAM_FIFO_THRESHOLD_THREEQUARTER,
+	DMA_STREAM_FIFO_THRESHOLD_FULL
+}dma_stream_fifo_threshold_enum;
+
+typedef enum
+{
+	DMA_STREAM_FIFO_ERROR_INTERRUPT_DISABLE = 0U,
+	DMA_STREAM_FIFO_ERROR_INTERRUPT_ENABLE
+}dma_stream_fifo_error_interrupt_enum;
+
+typedef enum
+{
+	DMA_STREAM_DATA_TRANSFER_PERIPHERAL_TO_MEM = 0U,
+	DMA_STREAM_DATA_TRANSFER_MEM_TO_PERIPHERAL,
+	DMA_STREAM_DATA_TRANSFER_MEM_TO_MEM,
+}dma_stream_data_transfer_direction_enum;
+
+typedef enum
+{
+	DMA_STREAM_PERIPHERAL_FIXED_MODE = 0U,
+	DMA_STREAM_PERIPHERAL_INCREMENT_MODE
+}dma_stream_peripheral_increment_enum;
+
+typedef enum
+{
+	DMA_STREAM_PERIPHERAL_BURST_SINGLE = 0U,
+	DMA_STREAM_PERIPHERAL_BURST_INCR4,
+	DMA_STREAM_PERIPHERAL_BURST_INCR8,
+	DMA_STREAM_PERIPHERAL_BURST_INCR16
+}dma_stream_peripheral_burst_enum;
+
+typedef enum
+{
+	DMA_STREAM_PERIPHERAL_DATASIZE_BYTE = 0U,
+	DMA_STREAM_PERIPHERAL_DATASIZE_HALFWORD,
+	DMA_STREAM_PERIPHERAL_DATASIZE_WORD
+}dma_stream_peripheral_data_size_enum;
+
+typedef enum
+{
+	DMA_STREAM_MEM_FIXED_MODE = 0U,
+	DMA_STREAM_MEM_INCREMENT_MODE
+}dma_stream_mem_increment_enum;
+
+typedef enum
+{
+	DMA_STREAM_MEM_BURST_SINGLE = 0U,
+	DMA_STREAM_MEM_BURST_INCR4,
+	DMA_STREAM_MEM_BURST_INCR8,
+	DMA_STREAM_MEM_BURST_INCR16
+}dma_stream_mem_burst_enum;
+
+typedef enum
+{
+	DMA_STREAM_MEM_DATASIZE_BYTE = 0U,
+	DMA_STREAM_MEM_DATASIZE_HALFWORD,
+	DMA_STREAM_MEM_DATASIZE_WORD
+}dma_stream_mem_data_size_enum;
+
+typedef enum
+{
+	DMA_STREAM_SINGLE_BUFFER_MODE = 0U,
+	DMA_STREAM_DOUBLE_BUFFER_MODE
+}dma_stream_buffer_mode_enum;
+
+typedef enum
+{
+	DMA_STREAM_CIRCULAR_MODE_DISABLE = 0U,
+	DMA_STREAM_CIRCULAR_MODE_ENABLE,
+}dma_stream_circular_mode_enum;
+
+typedef enum
+{
+	DMA_STREAM_TRANSFER_COMPLETE_INTERRUPT_DISABLE = 0U,
+	DMA_STREAM_TRANSFER_COMPLETE_INTERRUPT_ENABLE,
+}dma_stream_transfer_complete_interrupt_enum;
+
+typedef enum
+{
+	DMA_STREAM_HALF_TRANSFER_INTERRUPT_DISABLE = 0U,
+	DMA_STREAM_HALF_TRANSFER_INTERRUPT_ENABLE,
+}dma_stream_half_transfer_interrupt_enum;
+
+typedef enum
+{
+	DMA_STREAM_TRANSFER_ERROR_INTERRUPT_DISABLE = 0U,
+	DMA_STREAM_TRANSFER_ERROR_INTERRUPT_ENABLE
+}dma_stream_transfer_error_interrupt_enum;
+
+typedef enum
+{
+	DMA_STREAM_DIRECT_MODE_ERROR_INTERRUPT_DISABLE = 0U,
+	DMA_STREAM_DIRECT_MODE_ERROR_INTERRUPT_ENABLE
+}dma_stream_direct_mode_error_interrupt_enum;
 
 /**
- * DMA STREAMS
- *
- *	- Enum-array combination used in order to utilize same stream
- *	  enumeration in multiple functions
-*/
-typedef enum DMA_STREAM_ENUM
+ * Interface Struct Definitions
+ */
+typedef struct
 {
-	DMA_STREAM_0 = 0U,	//!< Stream 0
-	DMA_STREAM_1,		//!< Stream 1
-	DMA_STREAM_2,  		//!< Stream 2
-	DMA_STREAM_3,		//!< Stream 3
-	DMA_STREAM_4,		//!< Stream 4
-	DMA_STREAM_5,		//!< Stream 5
-	DMA_STREAM_6,		//!< Stream 6
-	DMA_STREAM_7   		//!< Stream 7
-}DMA_STREAM_ENUM;
-static const BYTE_TYPE __DMA_STREAM_OFFSETS[8U] =
+	uint32_t                                    peripheral_addr;
+	uint32_t                                    mem0_addr;
+	uint32_t                                    mem1_addr;
+	uint32_t                                    num_data_items;
+	dma_stream_channel_enum                     channel;
+	dma_stream_flow_control_enum                flow_control;
+	dma_stream_priority_enum                    priority_level;
+	dma_stream_fifo_direct_mode_enum            fifo_direct_mode;
+	dma_stream_fifo_threshold_enum              fifo_threshold;
+	dma_stream_fifo_error_interrupt_enum	    fifo_error_interrupt;
+	dma_stream_data_transfer_direction_enum     data_transfer_direction;
+	dma_stream_peripheral_increment_enum        peripheral_increment_mode;
+	dma_stream_peripheral_burst_enum            peripheral_burst;
+	dma_stream_peripheral_data_size_enum        peripheral_data_size;
+	dma_stream_mem_increment_enum               memory_increment;
+	dma_stream_mem_burst_enum                   memory_burst;
+	dma_stream_mem_data_size_enum               memory_data_size;
+	dma_stream_mem_data_size_enum               buffer_mode;
+	dma_stream_circular_mode_enum               circular_mode;
+	dma_stream_transfer_complete_interrupt_enum transfer_complete_interrupt;
+	dma_stream_half_transfer_interrupt_enum     half_transfer_interrupt;
+	dma_stream_transfer_error_interrupt_enum    transfer_error_interrupt;
+	dma_stream_direct_mode_error_interrupt_enum direct_mode_error_interrupt;
+}dma_stream_interface_t;
+
+/**
+ * Register Struct Definitions
+ */
+typedef struct
 {
-	0x10U,	//!< Stream 0
-	0x28U,	//!< Stream 1
-	0x40U,  //!< Stream 2
-	0x58U,	//!< Stream 3
-	0x70U,	//!< Stream 4
-	0x88U,	//!< Stream 5
-	0xA0U,	//!< Stream 6
-	0xB8U   //!< Stream 7
+	uint32_t status[NUM_DMA_INTERRUPT_REGS];
+	uint32_t clear[NUM_DMA_INTERRUPT_REGS];
+}dma_interrupt_reg_t;
+
+typedef struct
+{
+	uint32_t config;
+	uint32_t num_data;
+	uint32_t peripheral_addr;
+	uint32_t mem0_addr;
+	uint32_t mem1_addr;
+	uint32_t fifo_control;
+}dma_stream_reg_t;
+
+/**
+ * Register Pointer Constants
+ */
+static dma_interrupt_reg_t volatile * const p_dma_interrupt[NUM_DMA] =
+{
+		(dma_interrupt_reg_t*)DMA1_BASE_ADDR,
+		(dma_interrupt_reg_t*)DMA2_BASE_ADDR
 };
-static const BYTE_TYPE __DMA_STREAM_POSITIONS[4U] =
+
+static dma_stream_reg_t volatile * const p_dma_stream[NUM_DMA][NUM_DMA_STREAMS] =
 {
-	0U,  //!< Stream 0 and 4
-	6U,  //!< Stream 1 and 5
-	16U, //!< Stream 2 and 6
-	22U, //!< Stream 3 and 7
+	(
+		(dma_stream_reg_t*)DMA1_STREAM_0_ADDR,
+		(dma_stream_reg_t*)DMA1_STREAM_1_ADDR,
+		(dma_stream_reg_t*)DMA1_STREAM_2_ADDR,
+		(dma_stream_reg_t*)DMA1_STREAM_3_ADDR,
+		(dma_stream_reg_t*)DMA1_STREAM_4_ADDR,
+		(dma_stream_reg_t*)DMA1_STREAM_5_ADDR,
+		(dma_stream_reg_t*)DMA1_STREAM_6_ADDR,
+		(dma_stream_reg_t*)DMA1_STREAM_7_ADDR
+	),
+	(
+		(dma_stream_reg_t*)DMA2_STREAM_0_ADDR,
+		(dma_stream_reg_t*)DMA2_STREAM_1_ADDR,
+		(dma_stream_reg_t*)DMA2_STREAM_2_ADDR,
+		(dma_stream_reg_t*)DMA2_STREAM_3_ADDR,
+		(dma_stream_reg_t*)DMA2_STREAM_4_ADDR,
+		(dma_stream_reg_t*)DMA2_STREAM_5_ADDR,
+		(dma_stream_reg_t*)DMA2_STREAM_6_ADDR,
+		(dma_stream_reg_t*)DMA2_STREAM_7_ADDR
+	)
 };
 
-/**
- * DMA STREAM REGISTER OFFSETS
- *
- * 	- Used as 'private' variables to get specific registers
- * 	- Add to DMA_STREAM_X address to get specific register address
-*/
-static const BYTE_TYPE __DMA_STREAM_CR_OFFSET   = 0UL;		//!< Stream Configuration Register
-static const BYTE_TYPE __DMA_STREAM_NDTR_OFFSET = 0x4UL;		//!< Stream Number of Data Register
-static const BYTE_TYPE __DMA_STREAM_PAR_OFFSET  = 0x8UL;		//!< Stream Peripheral Address Register
-static const BYTE_TYPE __DMA_STREAM_M0AR_OFFSET = 0xCUL;		//!< Stream Memory 0 Address Register
-static const BYTE_TYPE __DMA_STREAM_M1AR_OFFSET = 0x10UL;	//!< Stream Memory 1 Address Register
-static const BYTE_TYPE __DMA_STREAM_FCR_OFFSET  = 0x14UL;	//!< Stream FIFO Configuration Register
 
 /**
- * DMA STREAM CONFIGURATION REGISTER
+ * Function Prototypes
  */
-typedef enum DMA_STREAM_CR_FIELDS_ENUM
-{
-	DMA_STREAM_CR_EN     = 0x1UL,	//!< mask of stream enable bitfield
-	DMA_STREAM_CR_DMEIE  = 0x2UL,	//!< mask of direct mode error interrupt bitfield
-	DMA_STREAM_CR_TEIE	 = 0x4UL, 	//!< mask of transfer error interrrupt bitfield
-	DMA_STREAM_CR_HTIE   = 0x8UL, 	//!< mask of half transfer interrupt bitfield
-	DMA_STREAM_CR_TCIE   = 0x10UL,	//!< mask of transfer complere interrupt bitfield
-	DMA_STREAM_CR_PFCTRL = 0x20UL,	//!< mask of peripheral flow controller bitfield
-	DMA_STREAM_CR_DIR    = 0xC0UL,	//!< mask of data transfer direction bitfield
-	DMA_STREAM_CR_CIRC   = 0x100UL,	//!< mask of circular mode bitfield
-	DMA_STREAM_CR_PINC   = 0x200UL,	//!< mask of peripheral incrememnt bitfield
-	DMA_STREAM_CR_MINC   = 0x400UL,	//!< mask of memory increment bitfield
-	DMA_STREAM_CR_PSIZE  = 0x1800UL,	//!< mask of peripheral data size bitfield
-	DMA_STREAM_CR_MSIZE  = 0x6000UL, //!< mask of memory data size bitfield
-	DMA_STREAM_CR_PINCOS = 0x8000UL, //!< mask of peripheral increment offset size bitfield
-	DMA_STREAM_CR_PL     = 0x30000UL, //!< mask of priority level bitfield
-	DMA_STREAM_CR_DBM    = 0x40000UL, //!< mask of double buffer mode bitfield
-	DMA_STREAM_CR_CT     = 0x80000UL, //!< mask of current target bitfield
-	DMA_STREAM_CR_PBURST = 0x600000UL, //!< mask of peripheral burst transfer configuration bitfield
-	DMA_STREAM_CR_MBURST = 0x1800000UL, //!< mask of memory burst transfer configuration bitfield
-	DMA_STREAM_CR_CHSEL  = 0xE000000UL,	//!< Channel selection bitfield
-}DMA_STREAM_CR_FIELDS_ENUM;
-
-typedef enum DMA_STREAM_CR_VALUE_ENUM
-{
-	// Configuration enable
-	DMA_STREAM_CR_DISABLE = 0UL,					//!< Stream is ready when configuration is disabled
-	DMA_STREAM_CR_ENABLE  = DMA_STREAM_CR_EN,	//!< Enable the configuration of the stream
-
-	// Direct mode error interrupt
-	DMA_STREAM_CR_DMEIE_DISABLE = 0UL,					//!< Direct mode error interrupt disabled
-	DMA_STREAM_CR_DMEIE_ENABLE  = DMA_STREAM_CR_DMEIE,	//!< Direct mode error interrupt enabled
-
-	// Transfer error interrrupt
-	DMA_STREAM_CR_TEIE_DISABLE = 0UL,					//!< Transfer error interrupt disabled
-	DMA_STREAM_CR_TEIE_ENABLE  = DMA_STREAM_CR_TEIE,	//!< Transfer error interrupt enabled
-
-	// Half transfer error interrrupt
-	DMA_STREAM_CR_HTIE_DISABLE = 0UL,					//!< Half transfer interrupt disabked
-	DMA_STREAM_CR_HTIE_ENABLE  = DMA_STREAM_CR_HTIE,	//!< Hald transfer interrupt enabled
-
-	// Transfer complete interrupt
-	DMA_STREAM_CR_TCIE_DISABLE = 0UL,					//!< Transfer complete interrupt disabled
-	DMA_STREAM_CR_TCIE_ENABLE  = DMA_STREAM_CR_TCIE,	//!< Transfer complete interrupt enabled
-
-	// Peripheral flow controller
-	DMA_STREAM_CR_PFCTRL_DMA = 0UL,						//!< The DMA is the flow controller
-	DMA_STREAM_CR_PFCTRL_PER = DMA_STREAM_CR_PFCTRL,	//!< The peripheral is the flow controller
-
-	// Data transfer direction
-	DMA_STREAM_CR_DIR_PER_TO_MEM = 0UL, 	  //!< Peripheral-to-memory
-	DMA_STREAM_CR_DIR_MEM_TO_PER = 0x40UL, //!< Memory-to-peripheral
-	DMA_STREAM_CR_DIR_MEM_TO_MEM = 0x80UL, //!< Memory-to-memory
-
-	// Circular mode
-	DMA_STREAM_CR_CIRC_DISABLE = 0UL,				 //!< Circular mode disabled
-	DMA_STREAM_CR_CIRC_ENABLE  = DMA_STREAM_CR_CIRC, //!< Circular mode enabled
-
-	// Peripheral increment mode
-	DMA_STREAM_CR_PINC_FIXED = 0UL,					//!< Peripheral address pointer is fixed
-	DMA_STREAM_CR_PINC_INCR  = DMA_STREAM_CR_PINC,	//!< Peripheral address pointer is incremented
-
-	// Memory increment mode
-	DMA_STREAM_CR_MINC_FIXED = 0UL,				   //!< Memory address pointer is fixed
-	DMA_STREAM_CR_MINC_INCR  = DMA_STREAM_CR_MINC, //!< Memory address pointer is incremented
-
-	// Peripheral data size
-	DMA_STREAM_CR_PSIZE_BYTE 	  = 0UL,		 //!< Byte
-	DMA_STREAM_CR_PSIZE_HALF_WORD = 0x800UL,	 //!< Half-Word
-	DMA_STREAM_CR_PSIZE_WORD      = 0x1000UL, //!< Word
-
-	// Memory data size
-	DMA_STREAM_CR_MSIZE_BYTE      = 0UL,		 //!< Byte
-	DMA_STREAM_CR_MSIZE_HALF_WORD = 0x2000UL, //!< Half-Word
-	DMA_STREAM_CR_MSIZE_WORD      = 0x4000UL, //!< Word
-
-	// Peripheral increment offset size
-	DMA_STREAM_CR_PINCOS_PSIZE = 0UL,				   //!< PSIZE value is used as increment offset size
-	DMA_STREAM_CR_PINCOS_FOUR  = DMA_STREAM_CR_PINCOS, //!< Increment offset size is fixed at 4
-
-	// Priority Level
-	DMA_STREAM_CR_PL_LOW = 0UL,			           //!< Low priority
-	DMA_STREAM_CR_PL_MED = 0x10000UL,	           //!< Medium priority
-	DMA_STREAM_CR_PL_HIGH = 0x20000UL, 			   //!< High priority
-	DMA_STREAM_CR_PL_VERY_HIGH = DMA_STREAM_CR_PL, //!< Very high priority
-
-	// Double buffer mode
-	DMA_STREAM_CR_DBM_NO_SWITCH = 0UL,				 //!< No buffer switching at the end of transfer
-	DMA_STREAM_CR_DBM_SWITCH    = DMA_STREAM_CR_DBM, //!< Memory target switched at the end of the DMA transfer
-
-	// Current Target
-	DMA_STREAM_CR_CT_MEM0 = 0UL,		//!< The current target memory is Memory 0 (SxM0AR)
-	DMA_STREAM_CR_CT_MEM1 = DMA_STREAM_CR_CT, //!< The current target memory is Memory 1 (SxM1AR)
-
-	// Peripheral burst transfer configuration
-	DMA_STREAM_CR_PBURST_SINGLE = 0UL,					//!< Single transfer
-	DMA_STREAM_CR_PBURST_INCR4  = 0x200000UL,			//!< Incremental burst of four beats
-	DMA_STREAM_CR_PBURST_INCR8	= 0x400000UL,			//!< Incremental burst of eight beats
-	DMA_STREAM_CR_PBURST_INCR16 = DMA_STREAM_CR_PBURST, //!< Incremental burst of sixteen beats
-
-	// Memory burst transfer configuration
-	DMA_STREAM_CR_MBURST_SINGLE = 0UL,				 	//!< Single transfer
-	DMA_STREAM_CR_MBURST_INCR4  = 0x800000UL,			//!< Incremental burst of four beats
-	DMA_STREAM_CR_MBURST_INCR8  = 0x1000000UL, 			//!< Incremental burst of eight beats
-	DMA_STREAM_CR_MBURST_INCR16 = DMA_STREAM_CR_MBURST, //!< Incremental burst of sixteen beats
-
-	// Channel selection
-	DMA_STREAM_CR_CHSEL_0 = 0UL,					 //!< Channel 0
-	DMA_STREAM_CR_CHSEL_1 = 0x2000000UL,			 //!< Channel 1
-	DMA_STREAM_CR_CHSEL_2 = 0x4000000UL,			 //!< Channel 2
-	DMA_STREAM_CR_CHSEL_3 = 0x6000000UL, 		 //!< Channel 3
-	DMA_STREAM_CR_CHSEL_4 = 0x8000000UL, 		 //!< Channel 4
-	DMA_STREAM_CR_CHSEL_5 = 0xA000000UL, 		 //!< Channel 5
-	DMA_STREAM_CR_CHSEL_6 = 0xC000000UL, 		 //!< Channel 6
-	DMA_STREAM_CR_CHSEL_7 = DMA_STREAM_CR_CHSEL, //!< Channel 7
-
-}DMA_STREAM_CR_VALUE_ENUM;
-
-/**
- * DMA STREAM FIFO CONTROL REGISTER
- */
-typedef enum DMA_STREAM_FCR_FIELDS_ENUM
-{
-	DMA_STREAM_FCR_FTH 	 = 0x3UL,	//!< mask of FIFO threshold selection bitfield
-	DMA_STREAM_FCR_DMDIS = 0x4UL,	//!< mask of Direct mode disable bitfield
-	DMA_STREAM_FCR_FS    = 0x38UL,	//!< mask of FIFO status bitfield
-	DMA_STREAM_FCR_FEIE  = 0x80UL	//!< mask of FIFO interrupt enable bitfield
-}DMA_STREAM_FCR_FIELDS_ENUM;
-
-typedef enum DMA_STREAM_FCR_VALUE_ENUM
-{
-	// FIFO threshold selection
-	DMA_STREAM_FCR_FTH_QUARTER 		 = 0UL,	   		 	  //!< 1/4 full FIFO
-	DMA_STREAM_FCR_FTH_HALF   		 = 0x1UL,			  //!< 1/2 full FIFO
-	DMA_STREAM_FCR_FTH_THREE_QUARTER = 0x2UL,    		  //!< 3/4 full FIFO
-	DMA_STREAM_FCR_FTH_FULL			 = DMA_STREAM_FCR_FTH, //!< Full FIFO
-
-	// Direct mode disable
-	DMA_STREAM_FCR_DMDIS_ENABLE  = 0UL,					 //!< Direct mode is enabled
-	DMA_STREAM_FCR_DMDIS_DISABLE = DMA_STREAM_FCR_DMDIS, //!< Direct mode is disabled
-
-	// FIFO status
-	DMA_STREAM_FCR_FS_QUARTER       = 0UL,	  //!< 0 < fifo_level < 1/4
-	DMA_STREAM_FCR_FS_HALF	        = 0x8UL,	  //!< 1/4 < fifo_level < 1/2
-	DMA_STREAM_FCR_FS_THREE_QUARTER = 0x10UL,  //!< 1/2 < fifo_level < 3/4
-	DMA_STREAM_FCR_FS_LESS_FULL     = 0x18UL,  //!< 3/4 < fifo_level < full
-	DMA_STREAM_FCR_FS_EMPTY         = 0x20UL,  //!< FIFO is empty
-	DMA_STREAM_FCR_FS_FULL          = 0x28UL,  //!< FIFO is full
-
-	// FIFO threshold selection
-	DMA_STREAM_FCR_FEIE_DISABLE = 0UL,	//!< FIFO error intrrupt disabled
-	DMA_STREAM_FCR_FEIE_ENABLE  = DMA_STREAM_FCR_FEIE //!< FIFO error interrupt enabled
-}DMA_STREAM_FCR_VALUE_ENUM;
-
-/**
- * Get / Clear the interrupt status of DMA stream
-*/
-Boolean DMA_get_interrupt_status(const DMA_ENUM dma,
-								 const DMA_STREAM_ENUM stream,
-								 const DMA_STREAM_INTERRUPT_ENUM interrupt);
-void DMA_clear_interrupt_flag(const DMA_ENUM dma,
-							  const DMA_STREAM_ENUM stream,
-							  const DMA_STREAM_INTERRUPT_ENUM interrupt);
+dma_return_value_enum dma_set_stream_config(const dma_enum dma, const dma_stream_enum stream, const dma_stream_interface_t* const stream_control_struct);
 
 
-/**
- * Set / get stream configuration value
- */
-void DMA_set_stream_configuration(const DMA_ENUM dma,
-								  const DMA_STREAM_ENUM stream,
-								  const DMA_STREAM_CR_FIELDS_ENUM cr_field,
-								  const DMA_STREAM_CR_VALUE_ENUM cr_value);
-DMA_STREAM_CR_VALUE_ENUM DMA_get_stream_configuration(const DMA_ENUM dma,
-													  const DMA_STREAM_ENUM stream,
-													  const DMA_STREAM_CR_FIELDS_ENUM cr_field);
-/**
- * Set / Get stream number of data items to transfer
- */
-void DMA_set_stream_num_data_items(const DMA_ENUM dma,
-								   const DMA_STREAM_ENUM stream,
-								   const HALF_WORD_TYPE num_data);
-HALF_WORD_TYPE DMA_get_stream_num_data_items(const DMA_ENUM dma,
-										     const DMA_STREAM_ENUM stream);
-
-/**
- * Set stream peripheral address
- */
-void DMA_set_stream_peripheral_address(const DMA_ENUM dma,
-									   const DMA_STREAM_ENUM stream,
-									   const WORD_TYPE address);
-
-/**
- * Set stream memory 0 address
- */
-void DMA_set_stream_memory_0_address(const DMA_ENUM dma,
-									 const DMA_STREAM_ENUM stream,
-									 const WORD_TYPE address);
-
-/**
- * Set stream memory 1 address
- */
-void DMA_set_stream_memory_1_address(const DMA_ENUM dma,
-									 const DMA_STREAM_ENUM stream,
-									 const WORD_TYPE address);
-
-/**
- * Set / Get stream FIFO Control / Status
- */
-void DMA_set_stream_fifo_control(const DMA_ENUM dma,
-								 const DMA_STREAM_ENUM stream,
-								 const DMA_STREAM_FCR_FIELDS_ENUM fcr_field,
-								 const DMA_STREAM_FCR_VALUE_ENUM fcr_value);
-DMA_STREAM_FCR_VALUE_ENUM DMA_get_stream_fifo_status(const DMA_ENUM dma,
-												     const DMA_STREAM_ENUM stream,
-													 const DMA_STREAM_FCR_FIELDS_ENUM fcr_field);
 
 #ifdef __cplusplus
 }

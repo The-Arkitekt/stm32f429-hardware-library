@@ -1,125 +1,118 @@
 #include "dma.h"
 
-Boolean DMA_get_interrupt_status(const DMA_ENUM dma,
-								 const DMA_STREAM_ENUM stream,
-								 const DMA_STREAM_INTERRUPT_ENUM interrupt)
+dma_return_value_enum dma_set_stream_control(const dma_enum dma, const dma_stream_enum stream, const dma_stream_interface_t* const p_stream_control_struct)
 {
-    // Get the pointer to the register
-	WORD_TYPE* register_ptr = (WORD_TYPE*)((WORD_TYPE)dma + __DMA_INTERRUPT_STATUS_OFFSETS[(((WORD_TYPE)stream >> 2U) & 1UL)]);
+	dma_return_value_enum return_val = DMA_RETURN_SUCCESS;
+	dma_stream_reg_t volatile * const p_stream_reg = p_dma_stream[(uint8_t)dma][(uint8_t)stream];
+	uint32_t volatile tmp_reg = 0U;
 
-	return ((((*register_ptr) >> __DMA_STREAM_POSITIONS[((WORD_TYPE)stream & 3U)]) & (WORD_TYPE)interrupt) != 0U) ? TRUE : FALSE;
+	// Error Checking
+	if((0U == p_stream_control_struct) || (0U != ((p_stream_reg->config) & DMA_STREAM_CR_EN_MSK)))
+	{
+		return_val = DMA_RETURN_FAIL;
+	}
+	else
+	{
+		// Set Peripheral Port Register Address
+		p_stream_reg->peripheral_addr = p_stream_control_struct->peripheral_addr;
+
+		// Set Mem0 Address
+		p_stream_reg->mem0_addr = p_stream_control_struct->mem0_addr;
+
+		// Set Mem1 Address
+		p_stream_reg->mem1_addr = p_stream_control_struct->mem1_addr;
+
+		// Set Number of data items to transfer
+		p_stream_reg->num_data = p_stream_control_struct->num_data_items;
+
+		// Get copy of config register
+		tmp_reg = p_stream_reg->config;
+
+		// Select DMA channel
+		tmp_reg &= ~(DMA_STREAM_CR_CHSEL_MSK);
+		tmp_reg |= DMA_STREAM_CR_CHSEL[(uint8_t)(p_stream_control_struct->channel)];
+
+		// Set Peripheral Flow Control
+		tmp_reg &= ~(DMA_STREAM_CR_PFCTRL_MSK);
+		tmp_reg |= DMA_STREAM_CR_PFCTRL[(uint8_t)(p_stream_control_struct->flow_control)];
+
+		// Set Stream Priority
+		tmp_reg &= ~(DMA_STREAM_CR_PL_MSK);
+		tmp_reg |= DMA_STREAM_CR_PL[(uint8_t)(p_stream_control_struct->priority_level)];
+
+		// Set Data Transfer Direction
+		tmp_reg &= ~(DMA_STREAM_CR_DIR_MSK);
+		tmp_reg |= DMA_STREAM_CR_DIR[(uint8_t)(p_stream_control_struct->data_transfer_direction)];
+
+		// Set Peripheral Increment Mode
+		tmp_reg &= ~(DMA_STREAM_CR_PINC_MSK);
+		tmp_reg |= DMA_STREAM_CR_PINC[(uint8_t)(p_stream_control_struct->peripheral_increment_mode)];
+
+		// Set Peripheral Burst
+		tmp_reg &= ~(DMA_STREAM_CR_PBURST_MSK);
+		tmp_reg |= DMA_STREAM_CR_PBURST[(uint8_t)(p_stream_control_struct->peripheral_burst)];
+
+		// Set Peripheral Data Size
+		tmp_reg &= ~(DMA_STREAM_CR_PSIZE_MSK);
+		tmp_reg |= DMA_STREAM_CR_PSIZE[(uint8_t)(p_stream_control_struct->peripheral_data_size)];
+
+		// Set Memory Increment Mode
+		tmp_reg &= ~(DMA_STREAM_CR_MINC_MSK);
+		tmp_reg |= DMA_STREAM_CR_MINC[(uint8_t)(p_stream_control_struct->memory_increment)];
+
+		// Set Memory Burst
+		tmp_reg &= ~(DMA_STREAM_CR_MBURST_MSK);
+		tmp_reg |= DMA_STREAM_CR_MBURST[(uint8_t)(p_stream_control_struct->memory_burst)];
+
+		// Set Memory Data Size
+		tmp_reg &= ~(DMA_STREAM_CR_MSIZE_MSK);
+		tmp_reg |= DMA_STREAM_CR_MSIZE[(uint8_t)(p_stream_control_struct->memory_data_size)];
+
+		// Set Buffer Mode
+		tmp_reg &= ~(DMA_STREAM_CR_DBM_MSK);
+		tmp_reg |= DMA_STREAM_CR_DBM[(uint8_t)(p_stream_control_struct->buffer_mode)];
+
+		// Set Circular Mode
+		tmp_reg &= ~(DMA_STREAM_CR_CIRC_MSK);
+		tmp_reg |= DMA_STREAM_CR_CIRC[(uint8_t)(p_stream_control_struct->circular_mode)];
+
+		// Set Transfer Complete Interrupt
+		tmp_reg &= ~(DMA_STREAM_CR_TCIE_MSK);
+		tmp_reg |= DMA_STREAM_CR_TCIE[(uint8_t)(p_stream_control_struct->transfer_complete_interrupt)];
+
+		// Set Half Transfer Interrupt
+		tmp_reg &= ~(DMA_STREAM_CR_HTIE_MSK);
+		tmp_reg |= DMA_STREAM_CR_HTIE[(uint8_t)(p_stream_control_struct->half_transfer_interrupt)];
+
+		// Set Transfer Error Interrupt
+		tmp_reg &= ~(DMA_STREAM_CR_TEIE_MSK);
+		tmp_reg |= DMA_STREAM_CR_TEIE[(uint8_t)(p_stream_control_struct->transfer_error_interrupt)];
+
+		// Set Direct Mode Error Interrupt
+		tmp_reg &= ~(DMA_STREAM_CR_DMEIE_MSK);
+		tmp_reg |= DMA_STREAM_CR_DMEIE[(uint8_t)(p_stream_control_struct->direct_mode_error_interrupt)];
+
+		// Set values in register
+		p_stream_reg->config = tmp_reg;
+
+		// Get copy of FIFO control register
+		tmp_reg = p_stream_reg->fifo_control;
+
+		// Set FIFO Direct Mode
+		tmp_reg &= ~(DMA_STREAM_FCR_DMDIS_MSK);
+		tmp_reg |= DMA_STREAM_FCR_DMDIS[(uint8_t)(p_stream_control_struct->fifo_direct_mode)];
+
+		// Set FIFO Threshold
+		tmp_reg &= ~(DMA_STREAM_FCR_FTH_MSK);
+		tmp_reg |= DMA_STREAM_FCR_FTH[(uit8_t)(p_stream_control_struct->fifo_threshold)];
+
+		// Set FIFO Error Interrupt
+		tmp_reg &= ~(DMA_STREAM_FCR_FEIE_MSK);
+		tmp_reg |= DMA_STREAM_FCR_FEIE[(uint8_t)(p_stream_control_struct->fifo_error_interrupt)];
+
+		// Set values in register
+		p_stream_reg->fifo_control = tmp_reg;
+	}
+
+	return return_val;
 }
-
-void DMA_clear_interrupt_flag(const DMA_ENUM dma,
-							  const DMA_STREAM_ENUM stream,
-							  const DMA_STREAM_INTERRUPT_ENUM interrupt)
-{
-	WORD_TYPE* register_ptr = (WORD_TYPE*)((WORD_TYPE)dma + __DMA_INTERRUPT_STATUS_OFFSETS[(((WORD_TYPE)stream >> 2U) & 1UL)]);
-
-	(*register_ptr) |= ((WORD_TYPE)interrupt << __DMA_STREAM_POSITIONS[((WORD_TYPE)stream & 3U)]);
-}
-
-void DMA_set_stream_configuration(const DMA_ENUM dma,
-								  const DMA_STREAM_ENUM stream,
-								  const DMA_STREAM_CR_FIELDS_ENUM cr_field,
-								  const DMA_STREAM_CR_VALUE_ENUM cr_value)
-{
-	// Get the pointer to the register
-	WORD_TYPE* register_ptr = (WORD_TYPE*)((WORD_TYPE)dma + __DMA_STREAM_OFFSETS[(WORD_TYPE)stream] + __DMA_STREAM_CR_OFFSET);
-
-	// Clear and set the desired field
-	WORD_TYPE tmp = (*register_ptr);
-	tmp &= ~((WORD_TYPE)cr_field);
-	tmp |= ((WORD_TYPE)cr_value & (WORD_TYPE)cr_field);
-	(*register_ptr) = tmp;
-}
-
-DMA_STREAM_CR_VALUE_ENUM DMA_get_stream_configuration(const DMA_ENUM dma,
-													  const DMA_STREAM_ENUM stream,
-													  const DMA_STREAM_CR_FIELDS_ENUM cr_field)
-{
-	// Get the pointer to the register
-	WORD_TYPE* register_ptr = (WORD_TYPE*)((WORD_TYPE)dma + __DMA_STREAM_OFFSETS[(WORD_TYPE)stream]+ __DMA_STREAM_CR_OFFSET);
-
-	// If bitfield value is zero, the return value will be equal to multiple enums
-	// Be smart about which enum you compare the return value to.
-	return (*register_ptr) & cr_field;
-}
-
-void DMA_set_stream_num_data_items(const DMA_ENUM dma,
-								   const DMA_STREAM_ENUM stream,
-								   const HALF_WORD_TYPE num_data)
-{
-	// Get the pointer to the register
-	WORD_TYPE* register_ptr = (WORD_TYPE*)((WORD_TYPE)dma + __DMA_STREAM_OFFSETS[(WORD_TYPE)stream] + __DMA_STREAM_NDTR_OFFSET);
-
-	(*register_ptr) = num_data;
-}
-
-HALF_WORD_TYPE DMA_get_stream_num_data_items(const DMA_ENUM dma,
-										     const DMA_STREAM_ENUM stream)
-{
-	// Get the pointer to the register
-	WORD_TYPE* register_ptr = (WORD_TYPE*)((WORD_TYPE)dma + __DMA_STREAM_OFFSETS[(WORD_TYPE)stream] + __DMA_STREAM_NDTR_OFFSET);
-
-	return (HALF_WORD_TYPE)(*register_ptr);
-}
-
-void DMA_set_stream_peripheral_address(const DMA_ENUM dma,
-									   const DMA_STREAM_ENUM stream,
-									   const WORD_TYPE address)
-{
-	// Get the pointer to the register
-	WORD_TYPE* register_ptr = (WORD_TYPE*)((WORD_TYPE)dma + __DMA_STREAM_OFFSETS[(WORD_TYPE)stream] + __DMA_STREAM_PAR_OFFSET);
-
-	(*register_ptr) = address;
-}
-
-void DMA_set_stream_memory_0_address(const DMA_ENUM dma,
-									 const DMA_STREAM_ENUM stream,
-									 const WORD_TYPE address)
-{
-	// Get the pointer to the register
-	WORD_TYPE* register_ptr = (WORD_TYPE*)((WORD_TYPE)dma + __DMA_STREAM_OFFSETS[(WORD_TYPE)stream] + __DMA_STREAM_M0AR_OFFSET);
-
-	(*register_ptr) = address;
-}
-
-void DMA_set_stream_memory_1_address(const DMA_ENUM dma,
-									 const DMA_STREAM_ENUM stream,
-									 const WORD_TYPE address)
-{
-	// Get the pointer to the register
-	WORD_TYPE* register_ptr = (WORD_TYPE*)((WORD_TYPE)dma + __DMA_STREAM_OFFSETS[(WORD_TYPE)stream] + __DMA_STREAM_M1AR_OFFSET);
-
-	(*register_ptr) = address;
-}
-
-void DMA_set_stream_fifo_control(const DMA_ENUM dma,
-								 const DMA_STREAM_ENUM stream,
-								 const DMA_STREAM_FCR_FIELDS_ENUM fcr_field,
-								 const DMA_STREAM_FCR_VALUE_ENUM fcr_value)
-{
-	// Get the pointer to the register
-	WORD_TYPE* register_ptr = (WORD_TYPE*)((WORD_TYPE)dma + __DMA_STREAM_OFFSETS[(WORD_TYPE)stream] + __DMA_STREAM_FCR_OFFSET);
-
-	// Clear and set the desired field
-	WORD_TYPE tmp = (*register_ptr);
-	tmp &= ~((WORD_TYPE)fcr_field);
-	tmp |= ((WORD_TYPE)fcr_value & (WORD_TYPE)fcr_field);
-	(*register_ptr) = tmp;
-}
-
-DMA_STREAM_FCR_VALUE_ENUM DMA_get_stream_fifo_status(const DMA_ENUM dma,
-												     const DMA_STREAM_ENUM stream,
-													 const DMA_STREAM_FCR_FIELDS_ENUM fcr_field)
-{
-	// Get the pointer to the register
-	WORD_TYPE* register_ptr = (WORD_TYPE*)((WORD_TYPE)dma + __DMA_STREAM_OFFSETS[(WORD_TYPE)stream] + __DMA_STREAM_FCR_OFFSET);
-
-	// If bitfield value is zero, the return value will be equal to multiple enums
-	// Be smart about which enum you compare the return value to.
-	return (*register_ptr) & (WORD_TYPE)fcr_field;
-}
-
-

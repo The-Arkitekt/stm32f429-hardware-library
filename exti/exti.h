@@ -55,8 +55,6 @@ typedef enum EXTI_LINE_ENUM
 	EXTI_LINE_22 = 0x400000UL
 }EXTI_LINE_ENUM;
 
-
-
 /**
  * Set/Remove the given EXTI line as interrupt source
  */
