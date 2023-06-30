@@ -1,5 +1,5 @@
-#ifndef EXTI_H
-#define EXTI_H
+#ifndef EXAMPLE_H
+#define EXAMPLE_H
 
 #ifdef __cplusplus
 	extern "C" {
@@ -10,7 +10,6 @@
 /**
  * Address constants
 */
-static const uint32_t EXTI_BASE_ADDR = 0x40013C00;
 
 /**
  * Preprocessor defines used for array initialization
@@ -40,10 +39,8 @@ static const uint32_t EXTI_BASE_ADDR = 0x40013C00;
  * Function Prototypes
  */
 
-
-
 #ifdef __cplusplus
 }
 #endif
 
-#endif //EXTI_H
+#endif //EXAMPLE_H

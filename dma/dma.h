@@ -33,6 +33,15 @@ static const uint32_t DMA2_BASE_ADDR = 0x40026400U;
  */
 typedef enum
 {
+	DMA_STATUS_SUCCESS = 0U,
+	DMA_STATUS_STREAM_ENABLED,
+	DMA_STATUS_STREAM_DISABLED,
+	DMA_STATUS_NULL_POINTER_EXCEPTION,
+	DMA_STATUS_UNKNOWN
+}dma_status_enum;
+
+typedef enum
+{
 	DMA_1 = 0U,
 	DMA_2
 }dma_enum;
@@ -48,15 +57,6 @@ typedef enum
 	DMA_STREAM_6,
 	DMA_STREAM_7
 }dma_stream_enum;
-
-typedef enum
-{
-	DMA_STATUS_SUCCESS = 0U,
-	DMA_STATUS_STREAM_ENABLED,
-	DMA_STATUS_STREAM_DISABLED,
-	DMA_STATUS_NULL_POINTER_EXCEPTION,
-	DMA_STATUS_UNKNOWN
-}dma_status_enum;
 
 typedef enum
 {
