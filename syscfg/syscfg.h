@@ -5,22 +5,7 @@
 	extern "C" {
 #endif
 
-#include "register.h"
-
-/**
- * SYSCFG REGISTERS
- * 
- * 	- Pointers to specific System Configuration registers
- * 	- SYSCFG base address = 0x4001 3800
- * 	- Only including registers needed for this library
-*/
-WORD_TYPE* const __SYSCFG_EXTICR_REGISTERS[4U] = 
-{
-	(WORD_TYPE*)0x40013808UL,	//!< SYSCFG_EXTICR1 register address
-	(WORD_TYPE*)0x4001380CUL,	//!< SYSCFG_EXTICR2 register address
-	(WORD_TYPE*)0x40013810UL,	//!< SYSCFG_EXTICR3 register address
-	(WORD_TYPE*)0x40023814UL	//!< SYSCFG_EXTICR4 register address
-};
+#include <stdint.h>
 
 /**
  * EXTI LINE 
@@ -46,7 +31,6 @@ typedef enum SYSCFG_EXTI_LINE_ENUM
 	SYSCFG_EXTI_LINE_14,
 	SYSCFG_EXTI_LINE_15
 }SYSCFG_EXTI_LINE_ENUM;
-static const BYTE_TYPE __SYSCFG_EXTI_MSK = SYSCFG_EXTI_LINE_15;
 
 /**
  * GPIO PORT
@@ -65,18 +49,6 @@ typedef enum SYSCFG_GPIO_PORT_ENUM
 	SYSCFG_GPIO_PORT_J,
 	SYSCFG_GPIO_PORT_K
 }SYSCFG_GPIO_PORT_ENUM;
-
-/**
- * Set the source gpio port as input for given EXTI line
- * 
- * 	- EXTI line corresponds to pin number
- * 	- Only one port can have a given pin number as interrupt/event source 
- *    at a time
- * 	- EX: setting GPIOA and EXTI line 3 means that GPIO port A pin 3
- * 		  is an EXTI interrupt/event source and no other port can have
- *        pin 3 as an interrupt/event source
- */
-void SYSCFG_set_EXTI_source(const SYSCFG_EXTI_LINE_ENUM exti, const SYSCFG_GPIO_PORT_ENUM gpio);
 
 #ifdef __cplusplus
 }

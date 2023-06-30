@@ -5,46 +5,7 @@
 	extern "C" {
 #endif
 
-#include "register.h"
-
-/**
- * NVIC_BASE = 0xE000E100UL
- */
-
-/**
- * Pointers to Interrupt Set Enable registers
- *
- * 	- each register is offset by 0x04 (32-bit)
- */
-static WORD_TYPE* const __NVIC_ISER[8U] =
-{
-	(WORD_TYPE*)0xE000E100U,	//!< ISER0 : interrupts[0,31]
-	(WORD_TYPE*)0xE000E104U,	//!< ISER1 : interrupts[32,63]
-	(WORD_TYPE*)0xE000E108U,	//!< ISER2 : interrupts[64,95]
-	(WORD_TYPE*)0xE000E10CU,	//!< ISER3 : interrupts[96,127]
-	(WORD_TYPE*)0xE000E110U,	//!< ISER4 : interrupts[128.159]
-	(WORD_TYPE*)0xE000E114U,	//!< ISER5 : interrupts[160,191]
-	(WORD_TYPE*)0xE000E118U,	//!< ISER6 : interrupts[192,223]
-	(WORD_TYPE*)0xE000E11CU  	//!< ISER7 : interrupts[224,239]
-};
-
-/**
- * Pointers to Interrupt Clear Enable registers
- *
- * 	- each register is offset by 0x04 (32-bit)
- */
-static WORD_TYPE* const __NVIC_ICER[8U] =
-{
-	(WORD_TYPE*)0xE000E180UL,	//!< ICER0 : interrupts[0,31]
-	(WORD_TYPE*)0xE000E184UL,	//!< ICER1 : interrupts[32,63]
-	(WORD_TYPE*)0xE000E188UL, 	//!< ICER2 : interrupts[64,95]
-	(WORD_TYPE*)0xE000E18CUL,	//!< ICER3 : interrupts[96,127]
-	(WORD_TYPE*)0xE000E190UL,	//!< ICER4 : interrupts[128,159]
-	(WORD_TYPE*)0xE000E194UL,	//!< ICER5 : interrupts[160,191]
-	(WORD_TYPE*)0xE000E198UL,	//!< ICER6 : interrupts[192,223]
-	(WORD_TYPE*)0xE000E19CUL	    //!< ICER7 : interrupts[224,239]
-};
-
+#include <stdint.h>
 
 /**
  * Interrupt vector positions

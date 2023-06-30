@@ -5,15 +5,7 @@
 	extern "C" {
 #endif
 
-#include "register.h"
-
-/**
- * RCC REGISTERS
- *
- * 	- Pointers to specific RCC registers
- */
-static WORD_TYPE* const __RCC_AHB1ENR = (WORD_TYPE*)0x40023830UL;	//!< Enable the clock for AHB1 peripherals
-static WORD_TYPE* const __RCC_APB2ENR = (WORD_TYPE*)0x40023844UL;   //!< Enable the clock for APB2 peripherals
+#include <stdint.h>
 
 /**
  * AHB1 REGISTERS
@@ -49,26 +41,6 @@ typedef enum RCC_APB2_FIELDS_ENUM
 {
 	RCC_APB2_SYSCFG = 0x4000UL	//!< mask of SYSCFG bitfield
 }RCC_APB2_FIELDS_ENUM;
-
-/**
- * Enable the clock for the given AHB1 peripheral
- */
-void RCC_enable_AHB1(const RCC_AHB1_FIELDS_ENUM peripheral);
-
-/**
- * Disable the clock for the given AHB1 peripheral
- */
-void RCC_disable_AHB1(const RCC_AHB1_FIELDS_ENUM peripheral);
-
-/**
- * Enable the clock for the given APB2 peripheral
-*/
-void RCC_enable_APB2(const RCC_APB2_FIELDS_ENUM peripheral);
-
-/**
- * Disavle the clock for the given APB2 peripheral
-*/
-void RCC_disable_APB2(const RCC_APB2_FIELDS_ENUM peripheral);
 
 #ifdef __cplusplus
 }
