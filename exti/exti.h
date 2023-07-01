@@ -55,9 +55,11 @@ typedef enum
 
 typedef enum
 {
-	EXTI_INTERRUPT = 0U,
-	EXTI_EVENT
-}exti_type_enum;
+	EXTI_MODE_DISABLED = 0U,
+	EXTI_MODE_INTERRUPT,
+	EXTI_MODE_EVENT,
+	EXTI_MODE_INVALID
+}exti_mode_enum;
 
 /**
  * Bit Mask Constants
@@ -68,8 +70,7 @@ typedef enum
  */
 typedef struct
 {
-	bool           enable;
-	exti_type_enum type;
+	exti_mode_enum mode;
 	bool           risingTriggerEnable;
 	bool           fallingTriggerEnable;
 }exti_interface_t;
@@ -96,6 +97,7 @@ static exti_reg_t volatile * const EXTI_REG = (exti_reg_t*)EXTI_BASE_ADDR;
  * Function Prototypes
  */
 exti_status_enum exti_set_config(const exti_line_enum line, const exti_interface_t* const exti_config_struct);
+exti_status_enum exti_get_config_status(const exti_line_enum line, exti_interface_t* const exti_config_struct);
 
 
 #ifdef __cplusplus

@@ -16,35 +16,33 @@ void dma_set_stream_enable(const dma_enum dma, const dma_stream_enum stream, con
 dma_status_enum dma_get_stream_enable_status(const dma_enum dma, const dma_stream_enum stream)
 {
 	dma_reg_t volatile * const p_dma_reg = DMA_REG[(uint8_t)dma];
-	dma_status_enum return_val = DMA_STATUS_STREAM_DISABLED;
+	dma_status_enum status = DMA_STATUS_STREAM_DISABLED;
 
 	if (0U != (p_dma_reg->stream[(uint8_t)stream].control & DMA_STREAM_CR_EN_MSK))
 	{
-		return_val = DMA_STATUS_STREAM_ENABLED;
+		status = DMA_STATUS_STREAM_ENABLED;
 	}
 
-	return return_val;
+	return status;
 }
 
 dma_status_enum dma_set_stream_config(const dma_enum dma, const dma_stream_enum stream, const dma_stream_interface_t* const p_stream_config_struct)
 {
-	dma_status_enum return_val = DMA_STATUS_SUCCESS;
-	dma_reg_t volatile * const p_dma_reg = DMA_REG[(uint8_t)dma];
-	uint32_t volatile tmp_reg = 0U;
+	dma_status_enum status = DMA_STATUS_NULL_POINTER_EXCEPTION;
 
 	// Error Checking
-	if(0U == p_stream_config_struct)
-	{
-		return_val = DMA_STATUS_NULL_POINTER_EXCEPTION;
-	}
-	else
+	if(0U != p_stream_config_struct)
 	{
 		if (DMA_STATUS_STREAM_ENABLED == dma_get_stream_enable_status(dma, stream))
 		{
-			return_val = DMA_STATUS_STREAM_ENABLED;
+			status = DMA_STATUS_STREAM_ENABLED;
 		}	
 		else
 		{
+			status                               = DMA_STATUS_SUCCESS;
+			dma_reg_t volatile * const p_dma_reg = DMA_REG[(uint8_t)dma];
+			uint32_t volatile tmp_reg            = 0U;
+
 			// Set Peripheral Port Register Address
 			p_dma_reg->stream[(uint8_t)stream].peripheral_addr = p_stream_config_struct->peripheral_addr;
 
@@ -147,22 +145,20 @@ dma_status_enum dma_set_stream_config(const dma_enum dma, const dma_stream_enum 
 		}
 	}
 
-	return return_val;
+	return status;
 }
 
 dma_status_enum dma_get_stream_config(const dma_enum dma, const dma_stream_enum stream, dma_stream_interface_t* const p_stream_config_struct)
 {
-	dma_status_enum return_val = DMA_STATUS_SUCCESS;
-	dma_reg_t volatile * const p_dma_reg = DMA_REG[(uint8_t)dma];
-	uint32_t volatile tmp_reg = 0U;
+	dma_status_enum status = DMA_STATUS_NULL_POINTER_EXCEPTION;
 
 	// Error Checking
 	if(0U == p_stream_config_struct)
 	{
-		return_val = DMA_STATUS_NULL_POINTER_EXCEPTION;
-	}
-	else
-	{
+		status                               = DMA_STATUS_SUCCESS;
+		dma_reg_t volatile * const p_dma_reg = DMA_REG[(uint8_t)dma];
+		uint32_t volatile tmp_reg            = 0U;
+
 		// Set Peripheral Port Register Address
 		p_stream_config_struct->peripheral_addr = p_dma_reg->stream[(uint8_t)stream].peripheral_addr;
 
@@ -239,5 +235,5 @@ dma_status_enum dma_get_stream_config(const dma_enum dma, const dma_stream_enum 
 		p_stream_config_struct->fifo_error_interrupt = (dma_stream_fifo_error_interrupt_enum)(tmp_reg & DMA_STREAM_FCR_FEIE_MSK);
 	}
 
-	return return_val;
+	return status;
 }
