@@ -74,3 +74,8 @@ exti_status_enum exti_get_config_status(const exti_line_enum line, exti_interfac
 
 	return status;
 }
+
+void exti_set_software_trigger(const exti_line_enum line)
+{
+	EXTI_REG->softwareInterruptEvent |= (uint32_t)line;
+}

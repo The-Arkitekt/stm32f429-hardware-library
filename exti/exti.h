@@ -98,7 +98,7 @@ static exti_reg_t volatile * const EXTI_REG = (exti_reg_t*)EXTI_BASE_ADDR;
  */
 exti_status_enum exti_set_config(const exti_line_enum line, const exti_interface_t* const exti_config_struct);
 exti_status_enum exti_get_config_status(const exti_line_enum line, exti_interface_t* const exti_config_struct);
-
+void exti_set_software_trigger(const exti_line_enum line);
 
 #ifdef __cplusplus
 }
