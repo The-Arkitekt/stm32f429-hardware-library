@@ -79,3 +79,15 @@ void exti_set_software_trigger(const exti_line_enum line)
 {
 	EXTI_REG->softwareInterruptEvent |= (uint32_t)line;
 }
+
+bool exti_check_pending(const exti_line_enum line)
+{
+	bool is_pending = ((EXTI_REG->pending & (uint32_t)line) != 0U) ? true : false;
+
+	return is_pending;
+}
+
+void exti_clear_pending(const exti_line_enum line)
+{
+	EXTI_REG->pending |= (uint32_t)line;
+}

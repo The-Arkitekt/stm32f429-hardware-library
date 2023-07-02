@@ -11,11 +11,7 @@
 /**
  * Address constants
 */
-static const uint32_t EXTI_BASE_ADDR = 0x40013C00;
-
-/**
- * Preprocessor defines used for array initialization
- */
+static const uint32_t EXTI_BASE_ADDR = 0x40013C00U;
 
 /**
  * Enum Definitions
@@ -62,10 +58,6 @@ typedef enum
 }exti_mode_enum;
 
 /**
- * Bit Mask Constants
- */
-
-/**
  * Interface Struct Definitions
  */
 typedef struct
@@ -99,6 +91,8 @@ static exti_reg_t volatile * const EXTI_REG = (exti_reg_t*)EXTI_BASE_ADDR;
 exti_status_enum exti_set_config(const exti_line_enum line, const exti_interface_t* const exti_config_struct);
 exti_status_enum exti_get_config_status(const exti_line_enum line, exti_interface_t* const exti_config_struct);
 void exti_set_software_trigger(const exti_line_enum line);
+bool exti_check_pending(const exti_line_enum line);
+void exti_clear_pending(const exti_line_enum line);
 
 #ifdef __cplusplus
 }
