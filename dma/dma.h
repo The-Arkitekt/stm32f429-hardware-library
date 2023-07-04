@@ -271,7 +271,7 @@ typedef struct
 /**
  * Register Pointer Constants
  */
-static dma_reg_t volatile * const DMA_REG[NUM_DMA] =
+static dma_reg_t volatile * const DMA_REGS[NUM_DMA] =
 {
 	(dma_reg_t*)DMA1_BASE_ADDR,
 	(dma_reg_t*)DMA2_BASE_ADDR
