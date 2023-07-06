@@ -1,6 +1,6 @@
 #include "exti.h"
 
-exti_status_enum exti_set_config(const exti_line_enum line, const exti_interface_t* const exti_config_struct)
+exti_status_enum exti_set_config(const exti_line_enum line, const exti_config_interface_t* const exti_config_struct)
 {
 	exti_status_enum status = EXTI_STATUS_NULL_POINTER_EXCEPTION;
 
@@ -37,7 +37,7 @@ exti_status_enum exti_set_config(const exti_line_enum line, const exti_interface
 	return status;
 }
 
-exti_status_enum exti_get_config_status(const exti_line_enum line, exti_interface_t* const exti_config_struct)
+exti_status_enum exti_get_config_status(const exti_line_enum line, exti_config_interface_t* const exti_config_struct)
 {
 	exti_status_enum status = EXTI_STATUS_NULL_POINTER_EXCEPTION;
 

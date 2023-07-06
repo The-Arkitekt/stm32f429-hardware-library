@@ -26,7 +26,7 @@ dma_status_enum dma_get_stream_enable_status(const dma_enum dma, const dma_strea
 	return status;
 }
 
-dma_status_enum dma_set_stream_config(const dma_enum dma, const dma_stream_enum stream, const dma_stream_interface_t* const p_stream_config_struct)
+dma_status_enum dma_set_stream_config(const dma_enum dma, const dma_stream_enum stream, const dma_stream_config_interface_t* const p_stream_config_struct)
 {
 	dma_status_enum status = DMA_STATUS_NULL_POINTER_EXCEPTION;
 
@@ -148,7 +148,7 @@ dma_status_enum dma_set_stream_config(const dma_enum dma, const dma_stream_enum 
 	return status;
 }
 
-dma_status_enum dma_get_stream_config(const dma_enum dma, const dma_stream_enum stream, dma_stream_interface_t* const p_stream_config_struct)
+dma_status_enum dma_get_stream_config(const dma_enum dma, const dma_stream_enum stream, dma_stream_config_interface_t* const p_stream_config_struct)
 {
 	dma_status_enum status = DMA_STATUS_NULL_POINTER_EXCEPTION;
 

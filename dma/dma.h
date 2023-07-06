@@ -246,7 +246,7 @@ typedef struct
 	dma_stream_half_transfer_interrupt_enum     half_transfer_interrupt;
 	dma_stream_transfer_error_interrupt_enum    transfer_error_interrupt;
 	dma_stream_direct_mode_error_interrupt_enum direct_mode_error_interrupt;
-}dma_stream_interface_t;
+}dma_stream_config_interface_t;
 
 /**
  * Register Struct Definitions
@@ -283,8 +283,8 @@ static dma_reg_t volatile * const DMA_REGS[NUM_DMA] =
 void dma_set_stream_enable(const dma_enum dma, const dma_stream_enum stream, const dma_stream_enable_enum value);
 dma_status_enum dma_get_stream_enable_status(const dma_enum dma, const dma_stream_enum stream);
 
-dma_status_enum dma_set_stream_config(const dma_enum dma, const dma_stream_enum stream, const dma_stream_interface_t* const stream_control_struct);
-dma_status_enum dma_get_stream_config(const dma_enum dma, const dma_stream_enum stream, dma_stream_interface_t* const stream_control_struct);
+dma_status_enum dma_set_stream_config(const dma_enum dma, const dma_stream_enum stream, const dma_stream_config_interface_t* const stream_control_struct);
+dma_status_enum dma_get_stream_config(const dma_enum dma, const dma_stream_enum stream, dma_stream_config_interface_t* const stream_control_struct);
 
 
 #ifdef __cplusplus
