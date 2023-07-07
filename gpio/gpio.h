@@ -33,6 +33,10 @@ static const uint32_t GPIO_K_BASE_ADDR = 0x40022800U;
 #define NUM_GPIO_ALT_FUNC_REGS 2U
 #endif //NUM_GPIO_ALT_FUNC_REGS
 
+#ifndef NUM_GPIO_ALT_FUNC_PER_PIN
+#define NUM_GPIO_ALT_FUNC_PER_PIN 16U
+#endif //NUM_GPIO_ALT_FUNC_PER_PIN
+
 /**
  * Enum Definitions
  */
@@ -103,19 +107,6 @@ typedef enum
 typedef enum
 {
 	//AF0: SYS functions
-	GPIO_AF_MCO1 = 0U,
-	GPIO_AF_JTMS_SWDIO,
-	GPIO_AF_JTCK_SWCLK,
-	GPIO_AF_JTDI,
-	GPIO_AF_JTDO_TRACESWO,
-	GPIO_AF_NJTRST,
-	GPIO_AF_RTC_REFIN,
-	GPIO_AF_MCO2,
-	GPIO_AF_TRACECLK,
-	GPIO_AF_TRACED0,
-	GPIO_AF_TRACED1,
-	GPIO_AF_TRACED2,
-	GPIO_AF_TRACED3,
 
 	//AF1: TIM 1/2 functions
 
@@ -146,7 +137,12 @@ typedef enum
 	//AF14: LCD functions
 
 	//AF15: SYS functions
-};
+	GPIO_AF_EVENT_OUT
+}gpio_alternate_function_enum;
+
+/**
+ * Alternate Function Validity Array
+ */
 
 /**
  * Bit Mask Constants
@@ -159,6 +155,12 @@ static const uint8_t GPIO_PUPD_MSK   = 0x3U;
 /**
  * Interface Struct Definitions
  */
+typedef struct
+{
+	gpio_port_enum port;
+	gpio_pin_enum  pin;
+}gpio_port_pin_t;
+
 typedef struct
 {
 	gpio_mode_enum         mode;
@@ -180,13 +182,13 @@ typedef struct
 	uint32_t outputData;
 	uint32_t bitSetReset;
 	uint32_t configurationLock;
-	uint32_t alternateFunction[NUM_GPIO_ALT_FUNC_REGS]
+	uint32_t alternateFunction[NUM_GPIO_ALT_FUNC_REGS];
 }gpio_port_reg_t;
 
 /**
  * Register Pointer Constants
  */
-static gpio_reg_t volatile * const GPIO_REGS[NUM_GPIO_PORTS] =
+static gpio_port_reg_t volatile * const GPIO_REGS[NUM_GPIO_PORTS] =
 {
 	(gpio_port_reg_t*)GPIO_A_BASE_ADDR,
 	(gpio_port_reg_t*)GPIO_B_BASE_ADDR,

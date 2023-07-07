@@ -12,15 +12,7 @@
 */
 
 /**
- * Preprocessor defines used for array initialization
- */
-
-/**
  * Enum Definitions
- */
-
-/**
- * Bit Mask Constants
  */
 
 /**

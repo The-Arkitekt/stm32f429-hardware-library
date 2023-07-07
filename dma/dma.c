@@ -3,14 +3,12 @@
 void dma_set_stream_enable(const dma_enum dma, const dma_stream_enum stream, const dma_stream_enable_enum value)
 {
 	dma_reg_t volatile * const p_dma_reg = DMA_REGS[(uint8_t)dma];
-	if (value == DMA_STREAM_ENABLE)
-	{
-		p_dma_reg->stream[(uint8_t)stream].control |= DMA_STREAM_CR_EN_MSK;
-	}
-	else
-	{
-		p_dma_reg->stream[(uint8_t)stream].control &= ~(DMA_STREAM_CR_EN_MSK);
-	}
+	uint32_t volatile tmp_reg            = p_dma_reg->stream[(uint8_t)stream].control;
+
+	tmp_reg &= ~((uint32_t)DMA_STREAM_ENABLE);
+	tmp_reg |= (uint32_t)value;
+
+	p_dma_reg->stream[(uint8_t)stream].control;
 }
 
 dma_status_enum dma_get_stream_enable_status(const dma_enum dma, const dma_stream_enum stream)
@@ -18,7 +16,7 @@ dma_status_enum dma_get_stream_enable_status(const dma_enum dma, const dma_strea
 	dma_reg_t volatile * const p_dma_reg = DMA_REGS[(uint8_t)dma];
 	dma_status_enum status = DMA_STATUS_STREAM_DISABLED;
 
-	if (0U != (p_dma_reg->stream[(uint8_t)stream].control & DMA_STREAM_CR_EN_MSK))
+	if (0U != (p_dma_reg->stream[(uint8_t)stream].control & DMA_STREAM_ENABLE))
 	{
 		status = DMA_STATUS_STREAM_ENABLED;
 	}
