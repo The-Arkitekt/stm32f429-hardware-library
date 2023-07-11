@@ -9,21 +9,43 @@
 #include <stdbool.h>
 
 /**
- * Address Constants
- */
-static const uint32_t DMA1_BASE_ADDR = 0x40026000U;
-static const uint32_t DMA2_BASE_ADDR = 0x40026400U;
+ * Constant Definitions
+*/
+static const uint32_t DMA_1_BASE_ADDR = 0x40026000U;
+static const uint32_t DMA_2_BASE_ADDR = 0x40026400U;
+
+static const uint8_t STREAM_0_4_INTERRUPT_REG_SHIFT_AMT = 0U;
+static const uint8_t STREAM_1_5_INTERRUPT_REG_SHIFT_AMT = 6U;
+static const uint8_t STREAM_2_6_INTERRUPT_REG_SHIFT_AMT = 16U;
+static const uint8_t STREAM_3_7_INTERRUPT_REG_SHIFT_AMT = 22U;
+static const uint8_t const INTERRUPT_REGISTER_SHIFT_AMT[(uint8_t)DMA_STREAM_MAX_VALUE] = 
+{
+	STREAM_0_4_INTERRUPT_REG_SHIFT_AMT,
+	STREAM_1_5_INTERRUPT_REG_SHIFT_AMT,
+	STREAM_2_6_INTERRUPT_REG_SHIFT_AMT,
+	STREAM_3_7_INTERRUPT_REG_SHIFT_AMT,
+	STREAM_0_4_INTERRUPT_REG_SHIFT_AMT,
+	STREAM_1_5_INTERRUPT_REG_SHIFT_AMT,
+	STREAM_2_6_INTERRUPT_REG_SHIFT_AMT,
+	STREAM_3_7_INTERRUPT_REG_SHIFT_AMT
+};
 
 /**
- * Enum Definitions
+ * Indexing Enum Definitions
  */
-
 typedef enum
 {
 	DMA_1 = 0U,
 	DMA_2,
 	DMA_MAX_VALUE
 }dma_enum;
+
+typedef enum
+{
+	DMA_INTERRUPT_REG_LOW = 0U,
+	DMA_INTERRUPT_REG_HIGH,
+	DMA_INTERRUPT_REG_MAX_VALUE
+}dma_interrupt_reg_enum;
 
 typedef enum
 {
@@ -38,10 +60,22 @@ typedef enum
 	DMA_STREAM_MAX_VALUE
 }dma_stream_enum;
 
+/**
+ * Bit Mask Enum Definitions
+*/
 typedef enum
 {
-	DMA_STREAM_DISABLE = 0U,
-	DMA_STREAM_ENABLE  = 0x00000001U
+	DMA_INTERRUPT_FIFO_ERROR        = 0x1U,
+	DMA_INTERRUPT_DIRECT_MODE_ERROR = 0x4U,
+	DMA_INTERRUPT_TRANSFER_ERROR    = 0x8U,
+	DMA_INTERRUPT_HALF_TRANSFER     = 0x10U,
+	DMA_INTERRUPT_TRANSFER_COMPLETE = 0x20U
+}dma_interrupt_type_enum;
+
+typedef enum
+{
+	DMA_STREAM_DISABLED = 0U,
+	DMA_STREAM_ENABLED = 0x00000001U
 }dma_stream_enable_enum;
 
 typedef enum
@@ -53,13 +87,13 @@ typedef enum
 	DMA_STREAM_CHANNEL_4 = 0x08000000U,
 	DMA_STREAM_CHANNEL_5 = 0x0A000000U,
 	DMA_STREAM_CHANNEL_6 = 0x0C000000U,
-	DMA_STREAM_CHANNEL_7 = 0x0E000000U
+	DMA_STREAM_CHANNEL_7 = 0x0E000000U,
 }dma_stream_channel_enum;
 
 typedef enum
 {
 	DMA_STREAM_FLOW_CONTROL_DMA        = 0U,
-	DMA_STREAM_FLOW_CONTROL_PERIPHERAL = 0x00000020U
+	DMA_STREAM_FLOW_CONTROL_PERIPHERAL = 0x00000020U,
 }dma_stream_flow_control_enum;
 
 typedef enum
@@ -83,14 +117,6 @@ typedef enum
 	DMA_STREAM_FIFO_THRESHOLD_THREEQUARTER = 0x00000002U,
 	DMA_STREAM_FIFO_THRESHOLD_FULL         = 0x00000003U
 }dma_stream_fifo_threshold_enum;
-
-typedef enum
-{
-	DMA_STREAM_INTERRUPT_REG_LOW = 0U,
-	DMA_STREAM_INTERRUPT_REG_HIGH,
-	DMA_STREAM_INTERRUPT_REG_MAX_VALUE
-};
-
 typedef enum
 {
 	DMA_STREAM_FIFO_ERROR_INTERRUPT_DISABLE = 0U,
@@ -101,7 +127,8 @@ typedef enum
 {
 	DMA_STREAM_DATA_TRANSFER_PERIPHERAL_TO_MEM = 0U,
 	DMA_STREAM_DATA_TRANSFER_MEM_TO_PERIPHERAL = 0x00000040U,
-	DMA_STREAM_DATA_TRANSFER_MEM_TO_MEM        = 0x00000080U
+	DMA_STREAM_DATA_TRANSFER_MEM_TO_MEM        = 0x00000080U,
+	DMA_STREAM_DATA_TRANSFER_RESERVED_MASK     = 0x000000C0U
 }dma_stream_data_transfer_direction_enum;
 
 typedef enum
@@ -120,9 +147,10 @@ typedef enum
 
 typedef enum
 {
-	DMA_STREAM_PERIPHERAL_DATASIZE_BYTE     = 0U,
-	DMA_STREAM_PERIPHERAL_DATASIZE_HALFWORD = 0x00000800U,
-	DMA_STREAM_PERIPHERAL_DATASIZE_WORD     = 0x00001000U
+	DMA_STREAM_PERIPHERAL_DATASIZE_BYTE          = 0U,
+	DMA_STREAM_PERIPHERAL_DATASIZE_HALFWORD      = 0x00000800U,
+	DMA_STREAM_PERIPHERAL_DATASIZE_WORD          = 0x00001000U,
+	DMA_STREAM_PERIPHERAL_DATASIZE_RESERVED_MASK = 0x00001800U
 }dma_stream_peripheral_data_size_enum;
 
 typedef enum
@@ -141,9 +169,10 @@ typedef enum
 
 typedef enum
 {
-	DMA_STREAM_MEM_DATASIZE_BYTE     = 0U,
-	DMA_STREAM_MEM_DATASIZE_HALFWORD = 0x00002000U,
-	DMA_STREAM_MEM_DATASIZE_WORD     = 0x00004000U
+	DMA_STREAM_MEM_DATASIZE_BYTE          = 0U,
+	DMA_STREAM_MEM_DATASIZE_HALFWORD      = 0x00002000U,
+	DMA_STREAM_MEM_DATASIZE_WORD          = 0x00004000U,
+	DMA_STREAM_MEM_DATASIZE_RESERVED_MASK = 0x00006000U,
 }dma_stream_mem_data_size_enum;
 
 typedef enum
@@ -181,29 +210,6 @@ typedef enum
 	DMA_STREAM_DIRECT_MODE_ERROR_INTERRUPT_DISABLE = 0U,
 	DMA_STREAM_DIRECT_MODE_ERROR_INTERRUPT_ENABLE  = 0x00000002U
 }dma_stream_direct_mode_error_interrupt_enum;
-
-/**
- * Bit Mask Constants
- */
-static const uint32_t DMA_STREAM_CR_CHSEL_MSK  = DMA_STREAM_CHANNEL_7;
-static const uint32_t DMA_STREAM_CR_PFCTRL_MSK = DMA_STREAM_FLOW_CONTROL_PERIPHERAL;
-static const uint32_t DMA_STREAM_CR_PL_MSK     = DMA_STREAM_PRIORITY_VERYHIGH;
-static const uint32_t DMA_STREAM_FCR_DMDIS_MSK = DMA_STREAM_FIFO_DIRECT_MODE_DISABLE;
-static const uint32_t DMA_STREAM_FCR_FTH_MSK   = DMA_STREAM_FIFO_THRESHOLD_FULL;
-static const uint32_t DMA_STREAM_FCR_FEIE_MSK  = DMA_STREAM_FIFO_ERROR_INTERRUPT_ENABLE;
-static const uint32_t DMA_STREAM_CR_DIR_MSK    = 0x000000C0U;
-static const uint32_t DMA_STREAM_CR_PINC_MSK   = DMA_STREAM_PERIPHERAL_INCREMENT_MODE;
-static const uint32_t DMA_STREAM_CR_PBURST_MSK = DMA_STREAM_PERIPHERAL_BURST_INCR16;
-static const uint32_t DMA_STREAM_CR_PSIZE_MSK  = 0x00001800U;
-static const uint32_t DMA_STREAM_CR_MINC_MSK   = DMA_STREAM_MEM_INCREMENT_MODE;
-static const uint32_t DMA_STREAM_CR_MBURST_MSK = DMA_STREAM_MEM_BURST_INCR16;
-static const uint32_t DMA_STREAM_CR_MSIZE_MSK  = 0x00006000U;
-static const uint32_t DMA_STREAM_CR_DBM_MSK    = DMA_STREAM_DOUBLE_BUFFER_MODE;
-static const uint32_t DMA_STREAM_CR_CIRC_MSK   = DMA_STREAM_CIRCULAR_MODE_ENABLE;
-static const uint32_t DMA_STREAM_CR_TCIE_MSK   = DMA_STREAM_TRANSFER_COMPLETE_INTERRUPT_ENABLE;
-static const uint32_t DMA_STREAM_CR_HTIE_MSK   = DMA_STREAM_HALF_TRANSFER_INTERRUPT_ENABLE;
-static const uint32_t DMA_STREAM_CR_TEIE_MSK   = DMA_STREAM_TRANSFER_ERROR_INTERRUPT_ENABLE;
-static const uint32_t DMA_STREAM_CR_DMEIE_MSK  = DMA_STREAM_DIRECT_MODE_ERROR_INTERRUPT_ENABLE;
 
 /**
  * Interface Struct Definitions
@@ -250,18 +256,18 @@ typedef struct
 
 typedef struct
 {
-	uint32_t         status[DMA_STREAM_INTERRUPT_REG_MAX_VALUE];
-	uint32_t         clear[DMA_STREAM_INTERRUPT_REG_MAX_VALUE];
+	uint32_t         status[DMA_INTERRUPT_REG_MAX_VALUE];
+	uint32_t         clear[DMA_INTERRUPT_REG_MAX_VALUE];
 	dma_stream_reg_t stream[DMA_STREAM_MAX_VALUE];
 }dma_reg_t;
 
 /**
- * Register Pointer Constants
- */
-static dma_reg_t volatile * const DMA_REGS[DMA_MAX_VALUE] =
+ * Register Pointer Definitions
+*/
+static dma_reg_t volatile * const DMA_REG_PTRS[(uint8_t)DMA_MAX_VALUE] = 
 {
-	(dma_reg_t*)DMA1_BASE_ADDR,
-	(dma_reg_t*)DMA2_BASE_ADDR
+	(dma_reg_t*)DMA_1_BASE_ADDR,
+	(dma_reg_t*)DMA_2_BASE_ADDR
 };
 
 /**
@@ -270,9 +276,11 @@ static dma_reg_t volatile * const DMA_REGS[DMA_MAX_VALUE] =
 void dma_set_stream_enable(const dma_enum dma, const dma_stream_enum stream, const dma_stream_enable_enum value);
 dma_stream_enable_enum dma_get_stream_enable_status(const dma_enum dma, const dma_stream_enum stream);
 
-dma_status_enum dma_set_stream_config(const dma_enum dma, const dma_stream_enum stream, const dma_stream_config_interface_t* const stream_control_struct);
-dma_status_enum dma_get_stream_config(const dma_enum dma, const dma_stream_enum stream, dma_stream_config_interface_t* const stream_control_struct);
+bool dma_set_stream_config(const dma_enum dma, const dma_stream_enum stream, const dma_stream_config_interface_t* const stream_control_struct);
+bool dma_get_stream_config(const dma_enum dma, const dma_stream_enum stream, dma_stream_config_interface_t* const stream_control_struct);
 
+bool get_interrupt_status(const dma_enum dma, const dma_stream_enum stream, const dma_interrupt_type_enum interrupt);
+void clear_interrupt_flag(const dma_enum dma, const dma_stream_enum stream, const dma_interrupt_type_enum interrupt);
 
 #ifdef __cplusplus
 }

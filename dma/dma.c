@@ -2,159 +2,143 @@
 
 void dma_set_stream_enable(const dma_enum dma, const dma_stream_enum stream, const dma_stream_enable_enum value)
 {
-	dma_reg_t volatile * const p_dma_reg = DMA_REGS[(uint8_t)dma];
-	uint32_t volatile tmp_reg            = p_dma_reg->stream[(uint8_t)stream].control;
+	uint32_t volatile tmp_reg = DMA_REG_PTRS[(uint8_t)dma]->stream[(uint8_t)stream].control;
 
-	tmp_reg &= ~((uint32_t)DMA_STREAM_ENABLE);
+	tmp_reg &= ~((uint32_t)DMA_STREAM_ENABLED);
 	tmp_reg |= (uint32_t)value;
 
-	p_dma_reg->stream[(uint8_t)stream].control;
+	DMA_REG_PTRS[(uint8_t)dma]->stream[(uint8_t)stream].control;
 }
 
-dma_status_enum dma_get_stream_enable_status(const dma_enum dma, const dma_stream_enum stream)
+dma_stream_enable_enum dma_get_stream_enable_status(const dma_enum dma, const dma_stream_enum stream)
 {
-	dma_reg_t volatile * const p_dma_reg = DMA_REGS[(uint8_t)dma];
-	dma_status_enum status = DMA_STATUS_STREAM_DISABLED;
+	return (dma_stream_enable_enum)((DMA_REG_PTRS[(uint8_t)dma]->stream[(uint8_t)stream].control) & (uint32_t)DMA_STREAM_ENABLED);
+}
 
-	if (0U != (p_dma_reg->stream[(uint8_t)stream].control & DMA_STREAM_ENABLE))
+bool dma_set_stream_config(const dma_enum dma, const dma_stream_enum stream, const dma_stream_config_interface_t* const p_stream_config_struct)
+{
+	bool success = false;
+
+	// Error Checking
+	if((0U != p_stream_config_struct) && (DMA_STREAM_DISABLED != dma_get_stream_enable_status(dma, stream)))
 	{
-		status = DMA_STATUS_STREAM_ENABLED;
+		dma_reg_t volatile * const p_dma_reg = DMA_REG_PTRS[(uint8_t)dma];
+		uint32_t volatile tmp_reg            = 0U;
+
+		// Set Peripheral Port Register Address
+		p_dma_reg->stream[(uint8_t)stream].peripheral_addr = p_stream_config_struct->peripheral_addr;
+
+		// Set Mem0 Address
+		p_dma_reg->stream[(uint8_t)stream].mem0_addr = p_stream_config_struct->mem0_addr;
+
+		// Set Mem1 Address
+		p_dma_reg->stream[(uint8_t)stream].mem1_addr = p_stream_config_struct->mem1_addr;
+
+		// Set Number of data items to transfer
+		p_dma_reg->stream[(uint8_t)stream].num_data = p_stream_config_struct->num_data_items;
+
+		// Get copy of config register
+		tmp_reg = p_dma_reg->stream[(uint8_t)stream].control;
+
+		// Select DMA channel
+		tmp_reg &= ~(DMA_STREAM_CHANNEL_7);
+		tmp_reg |= (uint32_t)(p_stream_config_struct->channel);
+
+		// Set Peripheral Flow Control
+		tmp_reg &= ~(DMA_STREAM_FLOW_CONTROL_PERIPHERAL);
+		tmp_reg |= (uint32_t)(p_stream_config_struct->flow_control);
+
+		// Set Stream Priority
+		tmp_reg &= ~(DMA_STREAM_PRIORITY_VERYHIGH);
+		tmp_reg |= (uint32_t)(p_stream_config_struct->priority_level);
+
+		// Set Data Transfer Direction
+		tmp_reg &= ~(DMA_STREAM_DATA_TRANSFER_RESERVED_MASK);
+		tmp_reg |= (uint32_t)(p_stream_config_struct->data_transfer_direction);
+
+		// Set Peripheral Increment Mode
+		tmp_reg &= ~(DMA_STREAM_PERIPHERAL_INCREMENT_MODE);
+		tmp_reg |= (uint32_t)(p_stream_config_struct->peripheral_increment_mode);
+
+		// Set Peripheral Burst
+		tmp_reg &= ~(DMA_STREAM_PERIPHERAL_BURST_INCR16);
+		tmp_reg |= (uint32_t)(p_stream_config_struct->peripheral_burst);
+
+		// Set Peripheral Data Size
+		tmp_reg &= ~(DMA_STREAM_PERIPHERAL_DATASIZE_RESERVED_MASK);
+		tmp_reg |= (uint32_t)(p_stream_config_struct->peripheral_data_size);
+
+		// Set Memory Increment Mode
+		tmp_reg &= ~(DMA_STREAM_MEM_INCREMENT_MODE);
+		tmp_reg |= (uint32_t)(p_stream_config_struct->memory_increment);
+
+		// Set Memory Burst
+		tmp_reg &= ~(DMA_STREAM_MEM_BURST_INCR16);
+		tmp_reg |= (uint32_t)(p_stream_config_struct->memory_burst);
+
+		// Set Memory Data Size
+		tmp_reg &= ~(DMA_STREAM_MEM_DATASIZE_RESERVED_MASK);
+		tmp_reg |= (uint32_t)(p_stream_config_struct->memory_data_size);
+
+		// Set Buffer Mode
+		tmp_reg &= ~(DMA_STREAM_DOUBLE_BUFFER_MODE);
+		tmp_reg |= (uint32_t)(p_stream_config_struct->buffer_mode);
+
+		// Set Circular Mode
+		tmp_reg &= ~(DMA_STREAM_CIRCULAR_MODE_ENABLE);
+		tmp_reg |= (uint32_t)(p_stream_config_struct->circular_mode);
+
+		// Set Transfer Complete Interrupt
+		tmp_reg &= ~(DMA_STREAM_TRANSFER_COMPLETE_INTERRUPT_ENABLE);
+		tmp_reg |= (uint32_t)(p_stream_config_struct->transfer_complete_interrupt);
+
+		// Set Half Transfer Interrupt
+		tmp_reg &= ~(DMA_STREAM_HALF_TRANSFER_INTERRUPT_ENABLE);
+		tmp_reg |= (uint32_t)(p_stream_config_struct->half_transfer_interrupt);
+
+		// Set Transfer Error Interrupt
+		tmp_reg &= ~(DMA_STREAM_TRANSFER_ERROR_INTERRUPT_ENABLE);
+		tmp_reg |= (uint32_t)(p_stream_config_struct->transfer_error_interrupt);
+
+		// Set Direct Mode Error Interrupt
+		tmp_reg &= ~(DMA_STREAM_DIRECT_MODE_ERROR_INTERRUPT_ENABLE);
+		tmp_reg |= (uint32_t)(p_stream_config_struct->direct_mode_error_interrupt);
+
+		// Set values in register
+		p_dma_reg->stream[(uint8_t)stream].control = tmp_reg;
+
+		// Get copy of FIFO control register
+		tmp_reg = p_dma_reg->stream[(uint8_t)stream].fifo_control;
+
+		// Set FIFO Direct Mode
+		tmp_reg &= ~(DMA_STREAM_FIFO_DIRECT_MODE_DISABLE);
+		tmp_reg |= (uint32_t)(p_stream_config_struct->fifo_direct_mode);
+
+		// Set FIFO Threshold
+		tmp_reg &= ~(DMA_STREAM_FIFO_THRESHOLD_FULL);
+		tmp_reg |= (uint32_t)(p_stream_config_struct->fifo_threshold);
+
+		// Set FIFO Error Interrupt
+		tmp_reg &= ~(DMA_STREAM_FIFO_ERROR_INTERRUPT_ENABLE);
+		tmp_reg |= (uint32_t)(p_stream_config_struct->fifo_error_interrupt);
+
+		// Set values in register
+		p_dma_reg->stream[(uint8_t)stream].fifo_control = tmp_reg;
+
+		success = true;
 	}
 
-	return status;
+	return success;
 }
 
-dma_status_enum dma_set_stream_config(const dma_enum dma, const dma_stream_enum stream, const dma_stream_config_interface_t* const p_stream_config_struct)
+bool dma_get_stream_config(const dma_enum dma, const dma_stream_enum stream, dma_stream_config_interface_t* const p_stream_config_struct)
 {
-	dma_status_enum status = DMA_STATUS_NULL_POINTER_EXCEPTION;
+	bool success = false;
 
 	// Error Checking
 	if(0U != p_stream_config_struct)
 	{
-		if (DMA_STATUS_STREAM_ENABLED == dma_get_stream_enable_status(dma, stream))
-		{
-			status = DMA_STATUS_STREAM_ENABLED;
-		}	
-		else
-		{
-			status                               = DMA_STATUS_SUCCESS;
-			dma_reg_t volatile * const p_dma_reg = DMA_REGS[(uint8_t)dma];
-			uint32_t volatile tmp_reg            = 0U;
-
-			// Set Peripheral Port Register Address
-			p_dma_reg->stream[(uint8_t)stream].peripheral_addr = p_stream_config_struct->peripheral_addr;
-
-			// Set Mem0 Address
-			p_dma_reg->stream[(uint8_t)stream].mem0_addr = p_stream_config_struct->mem0_addr;
-
-			// Set Mem1 Address
-			p_dma_reg->stream[(uint8_t)stream].mem1_addr = p_stream_config_struct->mem1_addr;
-
-			// Set Number of data items to transfer
-			p_dma_reg->stream[(uint8_t)stream].num_data = p_stream_config_struct->num_data_items;
-
-			// Get copy of config register
-			tmp_reg = p_dma_reg->stream[(uint8_t)stream].control;
-
-			// Select DMA channel
-			tmp_reg &= ~(DMA_STREAM_CR_CHSEL_MSK);
-			tmp_reg |= (uint32_t)(p_stream_config_struct->channel);
-
-			// Set Peripheral Flow Control
-			tmp_reg &= ~(DMA_STREAM_CR_PFCTRL_MSK);
-			tmp_reg |= (uint32_t)(p_stream_config_struct->flow_control);
-
-			// Set Stream Priority
-			tmp_reg &= ~(DMA_STREAM_CR_PL_MSK);
-			tmp_reg |= (uint32_t)(p_stream_config_struct->priority_level);
-
-			// Set Data Transfer Direction
-			tmp_reg &= ~(DMA_STREAM_CR_DIR_MSK);
-			tmp_reg |= (uint32_t)(p_stream_config_struct->data_transfer_direction);
-
-			// Set Peripheral Increment Mode
-			tmp_reg &= ~(DMA_STREAM_CR_PINC_MSK);
-			tmp_reg |= (uint32_t)(p_stream_config_struct->peripheral_increment_mode);
-
-			// Set Peripheral Burst
-			tmp_reg &= ~(DMA_STREAM_CR_PBURST_MSK);
-			tmp_reg |= (uint32_t)(p_stream_config_struct->peripheral_burst);
-
-			// Set Peripheral Data Size
-			tmp_reg &= ~(DMA_STREAM_CR_PSIZE_MSK);
-			tmp_reg |= (uint32_t)(p_stream_config_struct->peripheral_data_size);
-
-			// Set Memory Increment Mode
-			tmp_reg &= ~(DMA_STREAM_CR_MINC_MSK);
-			tmp_reg |= (uint32_t)(p_stream_config_struct->memory_increment);
-
-			// Set Memory Burst
-			tmp_reg &= ~(DMA_STREAM_CR_MBURST_MSK);
-			tmp_reg |= (uint32_t)(p_stream_config_struct->memory_burst);
-
-			// Set Memory Data Size
-			tmp_reg &= ~(DMA_STREAM_CR_MSIZE_MSK);
-			tmp_reg |= (uint32_t)(p_stream_config_struct->memory_data_size);
-
-			// Set Buffer Mode
-			tmp_reg &= ~(DMA_STREAM_CR_DBM_MSK);
-			tmp_reg |= (uint32_t)(p_stream_config_struct->buffer_mode);
-
-			// Set Circular Mode
-			tmp_reg &= ~(DMA_STREAM_CR_CIRC_MSK);
-			tmp_reg |= (uint32_t)(p_stream_config_struct->circular_mode);
-
-			// Set Transfer Complete Interrupt
-			tmp_reg &= ~(DMA_STREAM_CR_TCIE_MSK);
-			tmp_reg |= (uint32_t)(p_stream_config_struct->transfer_complete_interrupt);
-
-			// Set Half Transfer Interrupt
-			tmp_reg &= ~(DMA_STREAM_CR_HTIE_MSK);
-			tmp_reg |= (uint32_t)(p_stream_config_struct->half_transfer_interrupt);
-
-			// Set Transfer Error Interrupt
-			tmp_reg &= ~(DMA_STREAM_CR_TEIE_MSK);
-			tmp_reg |= (uint32_t)(p_stream_config_struct->transfer_error_interrupt);
-
-			// Set Direct Mode Error Interrupt
-			tmp_reg &= ~(DMA_STREAM_CR_DMEIE_MSK);
-			tmp_reg |= (uint32_t)(p_stream_config_struct->direct_mode_error_interrupt);
-
-			// Set values in register
-			p_dma_reg->stream[(uint8_t)stream].control = tmp_reg;
-
-			// Get copy of FIFO control register
-			tmp_reg = p_dma_reg->stream[(uint8_t)stream].fifo_control;
-
-			// Set FIFO Direct Mode
-			tmp_reg &= ~(DMA_STREAM_FCR_DMDIS_MSK);
-			tmp_reg |= (uint32_t)(p_stream_config_struct->fifo_direct_mode);
-
-			// Set FIFO Threshold
-			tmp_reg &= ~(DMA_STREAM_FCR_FTH_MSK);
-			tmp_reg |= (uint32_t)(p_stream_config_struct->fifo_threshold);
-
-			// Set FIFO Error Interrupt
-			tmp_reg &= ~(DMA_STREAM_FCR_FEIE_MSK);
-			tmp_reg |= (uint32_t)(p_stream_config_struct->fifo_error_interrupt);
-
-			// Set values in register
-			p_dma_reg->stream[(uint8_t)stream].fifo_control = tmp_reg;
-		}
-	}
-
-	return status;
-}
-
-dma_status_enum dma_get_stream_config(const dma_enum dma, const dma_stream_enum stream, dma_stream_config_interface_t* const p_stream_config_struct)
-{
-	dma_status_enum status = DMA_STATUS_NULL_POINTER_EXCEPTION;
-
-	// Error Checking
-	if(0U == p_stream_config_struct)
-	{
-		status                               = DMA_STATUS_SUCCESS;
-		dma_reg_t volatile * const p_dma_reg = DMA_REGS[(uint8_t)dma];
+		dma_reg_t volatile * const p_dma_reg = DMA_REG_PTRS[(uint8_t)dma];
 		uint32_t volatile tmp_reg            = 0U;
 
 		// Set Peripheral Port Register Address
@@ -173,65 +157,101 @@ dma_status_enum dma_get_stream_config(const dma_enum dma, const dma_stream_enum 
 		tmp_reg = p_dma_reg->stream[(uint8_t)stream].control;
 
 		// Select DMA channel
-		p_stream_config_struct->channel = (dma_stream_channel_enum)(tmp_reg & DMA_STREAM_CR_CHSEL_MSK);
+		p_stream_config_struct->channel = (dma_stream_channel_enum)(tmp_reg & DMA_STREAM_CHANNEL_7);
 
 		// Set Peripheral Flow Control
-		p_stream_config_struct->flow_control = (dma_stream_flow_control_enum)(tmp_reg & DMA_STREAM_CR_PFCTRL_MSK);
+		p_stream_config_struct->flow_control = (dma_stream_flow_control_enum)(tmp_reg & DMA_STREAM_FLOW_CONTROL_PERIPHERAL);
 
 		// Set Stream Priority
-		p_stream_config_struct->priority_level = (dma_stream_priority_enum)(tmp_reg & DMA_STREAM_CR_PL_MSK);
+		p_stream_config_struct->priority_level = (dma_stream_priority_enum)(tmp_reg & DMA_STREAM_PRIORITY_VERYHIGH);
 
 		// Set Data Transfer Direction
-		p_stream_config_struct->data_transfer_direction = (dma_stream_data_transfer_direction_enum)(tmp_reg & DMA_STREAM_CR_DIR_MSK);
+		p_stream_config_struct->data_transfer_direction = (dma_stream_data_transfer_direction_enum)(tmp_reg & DMA_STREAM_DATA_TRANSFER_RESERVED_MASK);
 
 		// Set Peripheral Increment Mode
-		p_stream_config_struct->peripheral_increment_mode = (dma_stream_peripheral_increment_enum)(tmp_reg & DMA_STREAM_CR_PINC_MSK);
+		p_stream_config_struct->peripheral_increment_mode = (dma_stream_peripheral_increment_enum)(tmp_reg & DMA_STREAM_PERIPHERAL_INCREMENT_MODE);
 
 		// Set Peripheral Burst
-		p_stream_config_struct->peripheral_burst = (dma_stream_peripheral_burst_enum)(tmp_reg & DMA_STREAM_CR_PBURST_MSK);
+		p_stream_config_struct->peripheral_burst = (dma_stream_peripheral_burst_enum)(tmp_reg & DMA_STREAM_PERIPHERAL_BURST_INCR16);
 
 		// Set Peripheral Data Size
-		p_stream_config_struct->peripheral_data_size = (dma_stream_peripheral_data_size_enum)(tmp_reg & DMA_STREAM_CR_PSIZE_MSK);
+		p_stream_config_struct->peripheral_data_size = (dma_stream_peripheral_data_size_enum)(tmp_reg & DMA_STREAM_PERIPHERAL_DATASIZE_RESERVED_MASK);
 
 		// Set Memory Increment Mode
-		p_stream_config_struct->memory_increment = (dma_stream_mem_increment_enum)(tmp_reg & DMA_STREAM_CR_MINC_MSK);
+		p_stream_config_struct->memory_increment = (dma_stream_mem_increment_enum)(tmp_reg & DMA_STREAM_MEM_INCREMENT_MODE);
 
 		// Set Memory Burst
-		p_stream_config_struct->memory_burst = (dma_stream_mem_burst_enum)(tmp_reg & DMA_STREAM_CR_MBURST_MSK);
+		p_stream_config_struct->memory_burst = (dma_stream_mem_burst_enum)(tmp_reg & DMA_STREAM_MEM_BURST_INCR16);
 
 		// Set Memory Data Size
-		p_stream_config_struct->memory_data_size = (dma_stream_mem_data_size_enum)(tmp_reg & DMA_STREAM_CR_MSIZE_MSK);
+		p_stream_config_struct->memory_data_size = (dma_stream_mem_data_size_enum)(tmp_reg & DMA_STREAM_MEM_DATASIZE_RESERVED_MASK);
 
 		// Set Buffer Mode
-		p_stream_config_struct->buffer_mode = (dma_stream_buffer_mode_enum)(tmp_reg & DMA_STREAM_CR_DBM_MSK);
+		p_stream_config_struct->buffer_mode = (dma_stream_buffer_mode_enum)(tmp_reg & DMA_STREAM_DOUBLE_BUFFER_MODE);
 
 		// Set Circular Mode
-		p_stream_config_struct->circular_mode = (dma_stream_circular_mode_enum)(tmp_reg & DMA_STREAM_CR_CIRC_MSK);
+		p_stream_config_struct->circular_mode = (dma_stream_circular_mode_enum)(tmp_reg & DMA_STREAM_CIRCULAR_MODE_ENABLE);
 
 		// Set Transfer Complete Interrupt
-		p_stream_config_struct->transfer_complete_interrupt = (dma_stream_transfer_complete_interrupt_enum)(tmp_reg & DMA_STREAM_CR_TCIE_MSK);
+		p_stream_config_struct->transfer_complete_interrupt = (dma_stream_transfer_complete_interrupt_enum)(tmp_reg & DMA_STREAM_TRANSFER_COMPLETE_INTERRUPT_ENABLE);
 
 		// Set Half Transfer Interrupt
-		p_stream_config_struct->half_transfer_interrupt = (dma_stream_half_transfer_interrupt_enum)(tmp_reg & DMA_STREAM_CR_HTIE_MSK);
+		p_stream_config_struct->half_transfer_interrupt = (dma_stream_half_transfer_interrupt_enum)(tmp_reg & DMA_STREAM_HALF_TRANSFER_INTERRUPT_ENABLE);
 
 		// Set Transfer Error Interrupt
-		p_stream_config_struct->transfer_error_interrupt = (dma_stream_transfer_error_interrupt_enum)(tmp_reg & DMA_STREAM_CR_TEIE_MSK);
+		p_stream_config_struct->transfer_error_interrupt = (dma_stream_transfer_error_interrupt_enum)(tmp_reg & DMA_STREAM_TRANSFER_ERROR_INTERRUPT_ENABLE);
 
 		// Set Direct Mode Error Interrupt
-		p_stream_config_struct->direct_mode_error_interrupt = (dma_stream_direct_mode_error_interrupt_enum)(tmp_reg & DMA_STREAM_CR_DMEIE_MSK);
+		p_stream_config_struct->direct_mode_error_interrupt = (dma_stream_direct_mode_error_interrupt_enum)(tmp_reg & DMA_STREAM_DIRECT_MODE_ERROR_INTERRUPT_ENABLE);
 
 		// Get copy of FIFO control register
 		tmp_reg = p_dma_reg->stream[(uint8_t)stream].fifo_control;
 
 		// Set FIFO Direct Mode
-		p_stream_config_struct->fifo_direct_mode = (dma_stream_fifo_direct_mode_enum)(tmp_reg & DMA_STREAM_FCR_DMDIS_MSK);
+		p_stream_config_struct->fifo_direct_mode = (dma_stream_fifo_direct_mode_enum)(tmp_reg & DMA_STREAM_FIFO_DIRECT_MODE_DISABLE);
 
 		// Set FIFO Threshold
-		p_stream_config_struct->fifo_threshold = (dma_stream_fifo_threshold_enum)(tmp_reg & DMA_STREAM_FCR_FTH_MSK);
+		p_stream_config_struct->fifo_threshold = (dma_stream_fifo_threshold_enum)(tmp_reg & DMA_STREAM_FIFO_THRESHOLD_FULL);
 
 		// Set FIFO Error Interrupt
-		p_stream_config_struct->fifo_error_interrupt = (dma_stream_fifo_error_interrupt_enum)(tmp_reg & DMA_STREAM_FCR_FEIE_MSK);
+		p_stream_config_struct->fifo_error_interrupt = (dma_stream_fifo_error_interrupt_enum)(tmp_reg & DMA_STREAM_FIFO_ERROR_INTERRUPT_ENABLE);
+
+		success = true;
 	}
 
-	return status;
+	return success;
+}
+
+bool get_interrupt_status(const dma_enum dma, const dma_stream_enum stream, const dma_interrupt_type_enum interrupt)
+{
+	bool interrupt_pending = false;
+	uint32_t interrupt_msk = ((uint32_t)interrupt << INTERRUPT_REGISTER_SHIFT_AMT[(uint8_t)stream]);
+
+	if ((stream == DMA_STREAM_0) || (stream == DMA_STREAM_1) || (stream == DMA_STREAM_2) || (stream == DMA_STREAM_3))
+	{
+		interrupt_pending = (DMA_REG_PTRS[(uint8_t)dma]->status[(uint8_t)DMA_INTERRUPT_REG_LOW] & interrupt_msk); 
+	}
+	else
+	{
+		interrupt_pending = (DMA_REG_PTRS[(uint8_t)dma]->status[(uint8_t)DMA_INTERRUPT_REG_HIGH] & interrupt_msk);
+	}
+
+	return interrupt_pending;
+}
+
+void clear_interrupt_flag(const dma_enum dma, const dma_stream_enum stream, const dma_interrupt_type_enum interrupt)
+{
+	if ((dma != DMA_MAX_VALUE) && (stream != DMA_STREAM_MAX_VALUE))
+	{
+		uint32_t interrupt_msk = ((uint32_t)interrupt << INTERRUPT_REGISTER_SHIFT_AMT[(uint8_t)stream]);
+
+		if ((stream == DMA_STREAM_0) || (stream == DMA_STREAM_1) || (stream == DMA_STREAM_2) || (stream == DMA_STREAM_3))
+		{
+			DMA_REG_PTRS[(uint8_t)dma]->clear[(uint8_t)DMA_INTERRUPT_REG_LOW] |= interrupt_msk;
+		}
+		else
+		{
+			DMA_REG_PTRS[(uint8_t)dma]->clear[(uint8_t)DMA_INTERRUPT_REG_HIGH] |= interrupt_msk;
+		}
+	}
 }

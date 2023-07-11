@@ -9,19 +9,24 @@
 #include <stdbool.h>
 
 /**
- * Address constants
+ * Constant Definitions
 */
 static const uint32_t EXTI_BASE_ADDR = 0x40013C00U;
 
 /**
- * Enum Definitions
- */
+ * Indexing Enum Definitions
+*/
 typedef enum
 {
-	EXTI_STATUS_SUCCESS = 0U,
-	EXTI_STATUS_NULL_POINTER_EXCEPTION,
-}exti_status_enum;
+	EXTI_MODE_DISABLED = 0U,
+	EXTI_MODE_INTERRUPT,
+	EXTI_MODE_EVENT,
+	EXTI_MODE_INVALID
+}exti_mode_enum;
 
+/**
+ * Bit Mask Enum Definitions
+*/
 typedef enum
 {
 	EXTI_LINE_0  = 0x00000001U,
@@ -49,14 +54,6 @@ typedef enum
 	EXTI_LINE_22 = 0x00400000U
 }exti_line_enum;
 
-typedef enum
-{
-	EXTI_MODE_DISABLED = 0U,
-	EXTI_MODE_INTERRUPT,
-	EXTI_MODE_EVENT,
-	EXTI_MODE_INVALID
-}exti_mode_enum;
-
 /**
  * Interface Struct Definitions
  */
@@ -81,15 +78,15 @@ typedef struct
 }exti_reg_t;
 
 /**
- * Register Pointer Constants
+ * Register Pointer Definitions
  */
 static exti_reg_t volatile * const EXTI_REG = (exti_reg_t*)EXTI_BASE_ADDR;
 
 /**
  * Function Prototypes
  */
-exti_status_enum exti_set_config(const exti_line_enum line, const exti_config_interface_t* const exti_config_struct);
-exti_status_enum exti_get_config_status(const exti_line_enum line, exti_config_interface_t* const exti_config_struct);
+bool exti_set_config(const exti_line_enum line, const exti_config_interface_t* const exti_config_struct);
+bool exti_get_config_status(const exti_line_enum line, exti_config_interface_t* const exti_config_struct);
 void exti_set_software_trigger(const exti_line_enum line);
 bool exti_check_pending(const exti_line_enum line);
 void exti_clear_pending(const exti_line_enum line);

@@ -8,12 +8,16 @@
 #include <stdint.h>
 
 /**
- * Address constants
+ * Constant Definitions
 */
 
 /**
- * Enum Definitions
+ * Indexing Enum Definitions
  */
+
+/**
+ * Bit Mask Enum Definitions
+*/
 
 /**
  * Interface Struct Definitions
@@ -24,12 +28,12 @@
  */
 
 /**
- * Register Pointer Constants
- */
+ * Register Pointer Definitions
+*/
 
 /**
  * Function Prototypes
- */
+*/
 
 #ifdef __cplusplus
 }

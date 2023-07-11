@@ -8,7 +8,7 @@
 #include <stdint.h>
 
 /**
- * Address constants
+ * Constant Definitions
 */
 static const uint32_t GPIO_A_BASE_ADDR = 0x40020000U;
 static const uint32_t GPIO_B_BASE_ADDR = 0x40020400U;
@@ -23,22 +23,7 @@ static const uint32_t GPIO_J_BASE_ADDR = 0x40022400U;
 static const uint32_t GPIO_K_BASE_ADDR = 0x40022800U;
 
 /**
- * Preprocessor defines used for array initialization
- */
-#ifndef NUM_GPIO_PORTS
-#define NUM_GPIO_PORTS 11U
-#endif //NUM_GPIO_PORTS
-
-#ifndef NUM_GPIO_ALT_FUNC_REGS
-#define NUM_GPIO_ALT_FUNC_REGS 2U
-#endif //NUM_GPIO_ALT_FUNC_REGS
-
-#ifndef NUM_GPIO_ALT_FUNC_PER_PIN
-#define NUM_GPIO_ALT_FUNC_PER_PIN 16U
-#endif //NUM_GPIO_ALT_FUNC_PER_PIN
-
-/**
- * Enum Definitions
+ * Indexing Enum Definitions
  */
 typedef enum
 {
@@ -53,8 +38,19 @@ typedef enum
 	GPIO_PORT_I,
 	GPIO_PORT_J,
 	GPIO_PORT_K,
+	GPIO_PORT_MAX_VALUE
 }gpio_port_enum;
 
+typedef enum
+{
+	GPIO_ALT_FUNC_REGISTER_LOW = 0U,
+	GPIO_ALT_FUNC_REGISTER_HIGH,
+	GPIO_ALT_FUNCTION_REGISTER_MAX_VALUE
+}gpio_alt_function_register_enum;
+
+/**
+ * Bit Mask Enum Definitions
+*/
 typedef enum
 {
 	GPIO_PIN_0 = 0U,
@@ -99,9 +95,10 @@ typedef enum
 
 typedef enum
 {
-	GPIO_NO_PULL   = 0U,
-	GPIO_PULL_UP   = 0x1U,
-	GPIO_PULL_DOWN = 0x2U
+	GPIO_NO_PULL            = 0U,
+	GPIO_PULL_UP            = 0x1U,
+	GPIO_PULL_DOWN          = 0x2U,
+	GPIO_PULL_RESERVED_MASK = 0x3U
 }gpio_pull_up_down_enum;
 
 typedef enum
@@ -144,13 +141,6 @@ typedef enum
  * Alternate Function Validity Array
  */
 
-/**
- * Bit Mask Constants
- */
-static const uint8_t GPIO_MODE_MSK   = GPIO_MODE_ANALOG;
-static const uint8_t GPIO_OTYPE_MSK  = GPIO_OUTPUT_OPEN_DRAIN;
-static const uint8_t GPIO_OSPEED_MSK = GPIO_OUTPUT_SPEED_VERY_HIGH;
-static const uint8_t GPIO_PUPD_MSK   = 0x3U;
 
 /**
  * Interface Struct Definitions
@@ -182,13 +172,13 @@ typedef struct
 	uint32_t outputData;
 	uint32_t bitSetReset;
 	uint32_t configurationLock;
-	uint32_t alternateFunction[NUM_GPIO_ALT_FUNC_REGS];
+	uint32_t alternateFunction[GPIO_ALT_FUNCTION_REGISTER_MAX_VALUE];
 }gpio_port_reg_t;
 
 /**
  * Register Pointer Constants
  */
-static gpio_port_reg_t volatile * const GPIO_REGS[NUM_GPIO_PORTS] =
+static gpio_port_reg_t volatile * const GPIO_REGS[GPIO_PORT_MAX_VALUE] =
 {
 	(gpio_port_reg_t*)GPIO_A_BASE_ADDR,
 	(gpio_port_reg_t*)GPIO_B_BASE_ADDR,
@@ -200,7 +190,7 @@ static gpio_port_reg_t volatile * const GPIO_REGS[NUM_GPIO_PORTS] =
 	(gpio_port_reg_t*)GPIO_H_BASE_ADDR,
 	(gpio_port_reg_t*)GPIO_I_BASE_ADDR,
 	(gpio_port_reg_t*)GPIO_J_BASE_ADDR,
-	(gpio_port_reg_t*)GPIO_K_BASE_ADDR,
+	(gpio_port_reg_t*)GPIO_K_BASE_ADDR
 };
 
 /**

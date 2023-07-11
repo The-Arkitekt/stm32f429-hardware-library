@@ -1,12 +1,11 @@
 #include "exti.h"
 
-exti_status_enum exti_set_config(const exti_line_enum line, const exti_config_interface_t* const exti_config_struct)
+bool exti_set_config(const exti_line_enum line, const exti_config_interface_t* const exti_config_struct)
 {
-	exti_status_enum status = EXTI_STATUS_NULL_POINTER_EXCEPTION;
+	bool success = false;
 
 	if (0U != exti_config_struct)
 	{
-		status                    = EXTI_STATUS_SUCCESS;
 		uint32_t volatile tmp_reg = 0U;
 
 		// Configure rising trigger
@@ -32,19 +31,19 @@ exti_status_enum exti_set_config(const exti_line_enum line, const exti_config_in
 		tmp_reg &= ~((uint32_t)line);
 		tmp_reg |= (exti_config_struct->mode == EXTI_MODE_EVENT) ? (uint32_t)line : 0U;
 		EXTI_REG->eventMask = tmp_reg;
+
+		success = true;
 	}
 
-	return status;
+	return success;
 }
 
-exti_status_enum exti_get_config_status(const exti_line_enum line, exti_config_interface_t* const exti_config_struct)
+bool exti_get_config_status(const exti_line_enum line, exti_config_interface_t* const exti_config_struct)
 {
-	exti_status_enum status = EXTI_STATUS_NULL_POINTER_EXCEPTION;
+	bool success = false;
 
 	if (0U != exti_config_struct)
 	{
-		status = EXTI_STATUS_SUCCESS;
-
 		// Get rising trigger
 		exti_config_struct->risingTriggerEnable = (((EXTI_REG->risingTriggerSelect) & (uint32_t)line) != 0U) ? true : false;
 
@@ -70,9 +69,11 @@ exti_status_enum exti_get_config_status(const exti_line_enum line, exti_config_i
 		{
 			exti_config_struct->mode = EXTI_MODE_EVENT;
 		}
+
+		success = true;
 	}
 
-	return status;
+	return success;
 }
 
 void exti_set_software_trigger(const exti_line_enum line)
