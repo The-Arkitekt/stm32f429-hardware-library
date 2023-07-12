@@ -48,9 +48,6 @@ typedef enum
 	GPIO_ALT_FUNCTION_REGISTER_MAX_VALUE
 }gpio_alt_function_register_enum;
 
-/**
- * Bit Mask Enum Definitions
-*/
 typedef enum
 {
 	GPIO_PIN_0 = 0U,
@@ -68,9 +65,13 @@ typedef enum
 	GPIO_PIN_12,
 	GPIO_PIN_13,
 	GPIO_PIN_14,
-	GPIO_PIN_15
+	GPIO_PIN_15,
+	GPIO_PIN_MAX_VALUE
 }gpio_pin_enum;
 
+/**
+ * Bit Mask Enum Definitions
+*/
 typedef enum
 {
 	GPIO_MODE_INPUT     = 0U,
@@ -127,30 +128,19 @@ typedef enum
 
 	//AF11: ETH functions
 
-	// AF12: FMC, SDIO, OTG2_FS functions
+	//AF12: FMC, SDIO, OTG2_FS functions
 
 	//AF13: DCMI functions
 
 	//AF14: LCD functions
 
 	//AF15: SYS functions
-	GPIO_AF_EVENT_OUT
+	GPIO_AF_EVENT_OUT = 0xF0U,
 }gpio_alternate_function_enum;
-
-/**
- * Alternate Function Validity Array
- */
-
 
 /**
  * Interface Struct Definitions
  */
-typedef struct
-{
-	gpio_port_enum port;
-	gpio_pin_enum  pin;
-}gpio_port_pin_t;
-
 typedef struct
 {
 	gpio_mode_enum         mode;
