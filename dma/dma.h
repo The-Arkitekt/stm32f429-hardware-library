@@ -18,17 +18,6 @@ static const uint8_t STREAM_0_4_INTERRUPT_REG_SHIFT_AMT = 0U;
 static const uint8_t STREAM_1_5_INTERRUPT_REG_SHIFT_AMT = 6U;
 static const uint8_t STREAM_2_6_INTERRUPT_REG_SHIFT_AMT = 16U;
 static const uint8_t STREAM_3_7_INTERRUPT_REG_SHIFT_AMT = 22U;
-static const uint8_t const INTERRUPT_REGISTER_SHIFT_AMT[(uint8_t)DMA_STREAM_MAX_VALUE] = 
-{
-	STREAM_0_4_INTERRUPT_REG_SHIFT_AMT,
-	STREAM_1_5_INTERRUPT_REG_SHIFT_AMT,
-	STREAM_2_6_INTERRUPT_REG_SHIFT_AMT,
-	STREAM_3_7_INTERRUPT_REG_SHIFT_AMT,
-	STREAM_0_4_INTERRUPT_REG_SHIFT_AMT,
-	STREAM_1_5_INTERRUPT_REG_SHIFT_AMT,
-	STREAM_2_6_INTERRUPT_REG_SHIFT_AMT,
-	STREAM_3_7_INTERRUPT_REG_SHIFT_AMT
-};
 
 /**
  * Indexing Enum Definitions
@@ -36,16 +25,8 @@ static const uint8_t const INTERRUPT_REGISTER_SHIFT_AMT[(uint8_t)DMA_STREAM_MAX_
 typedef enum
 {
 	DMA_1 = 0U,
-	DMA_2,
-	DMA_MAX_VALUE
+	DMA_2
 }dma_enum;
-
-typedef enum
-{
-	DMA_INTERRUPT_REG_LOW = 0U,
-	DMA_INTERRUPT_REG_HIGH,
-	DMA_INTERRUPT_REG_MAX_VALUE
-}dma_interrupt_reg_enum;
 
 typedef enum
 {
@@ -59,6 +40,14 @@ typedef enum
 	DMA_STREAM_7,
 	DMA_STREAM_MAX_VALUE
 }dma_stream_enum;
+
+
+typedef enum
+{
+	DMA_INTERRUPT_REG_LOW = 0U,
+	DMA_INTERRUPT_REG_HIGH,
+	DMA_INTERRUPT_REG_MAX_VALUE
+}dma_interrupt_reg_enum;
 
 /**
  * Bit Mask Enum Definitions
@@ -211,6 +200,22 @@ typedef enum
 	DMA_STREAM_DIRECT_MODE_ERROR_INTERRUPT_ENABLE  = 0x00000002U
 }dma_stream_direct_mode_error_interrupt_enum;
 
+
+/**
+ * Interrupt Registers Shift Amount Array
+ */
+static const uint8_t INTERRUPT_REGISTER_SHIFT_AMT[] =
+{
+	STREAM_0_4_INTERRUPT_REG_SHIFT_AMT,
+	STREAM_1_5_INTERRUPT_REG_SHIFT_AMT,
+	STREAM_2_6_INTERRUPT_REG_SHIFT_AMT,
+	STREAM_3_7_INTERRUPT_REG_SHIFT_AMT,
+	STREAM_0_4_INTERRUPT_REG_SHIFT_AMT,
+	STREAM_1_5_INTERRUPT_REG_SHIFT_AMT,
+	STREAM_2_6_INTERRUPT_REG_SHIFT_AMT,
+	STREAM_3_7_INTERRUPT_REG_SHIFT_AMT
+};
+
 /**
  * Interface Struct Definitions
  */
@@ -264,7 +269,7 @@ typedef struct
 /**
  * Register Pointer Definitions
 */
-static dma_reg_t volatile * const DMA_REG_PTRS[(uint8_t)DMA_MAX_VALUE] = 
+static dma_reg_t volatile * const DMA_REG_PTRS[] =
 {
 	(dma_reg_t*)DMA_1_BASE_ADDR,
 	(dma_reg_t*)DMA_2_BASE_ADDR

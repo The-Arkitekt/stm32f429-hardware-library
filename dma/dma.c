@@ -241,7 +241,7 @@ bool get_interrupt_status(const dma_enum dma, const dma_stream_enum stream, cons
 
 void clear_interrupt_flag(const dma_enum dma, const dma_stream_enum stream, const dma_interrupt_type_enum interrupt)
 {
-	if ((dma != DMA_MAX_VALUE) && (stream != DMA_STREAM_MAX_VALUE))
+	if (stream != DMA_STREAM_MAX_VALUE)
 	{
 		uint32_t interrupt_msk = ((uint32_t)interrupt << INTERRUPT_REGISTER_SHIFT_AMT[(uint8_t)stream]);
 

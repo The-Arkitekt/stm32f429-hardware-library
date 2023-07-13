@@ -6,6 +6,7 @@
 #endif
 
 #include <stdint.h>
+#include <stdbool.h>
 
 /**
  * Constant Definitions
@@ -22,6 +23,7 @@ static const uint32_t GPIO_I_BASE_ADDR = 0x40022000U;
 static const uint32_t GPIO_J_BASE_ADDR = 0x40022400U;
 static const uint32_t GPIO_K_BASE_ADDR = 0x40022800U;
 
+static const uint8_t GPIO_ALT_FUNC_DECODE_SHFT_AMT = 4U;
 /**
  * Indexing Enum Definitions
  */
@@ -43,13 +45,6 @@ typedef enum
 
 typedef enum
 {
-	GPIO_ALT_FUNC_REGISTER_LOW = 0U,
-	GPIO_ALT_FUNC_REGISTER_HIGH,
-	GPIO_ALT_FUNCTION_REGISTER_MAX_VALUE
-}gpio_alt_function_register_enum;
-
-typedef enum
-{
 	GPIO_PIN_0 = 0U,
 	GPIO_PIN_1,
 	GPIO_PIN_2,
@@ -68,6 +63,13 @@ typedef enum
 	GPIO_PIN_15,
 	GPIO_PIN_MAX_VALUE
 }gpio_pin_enum;
+
+typedef enum
+{
+	GPIO_ALT_FUNC_REGISTER_LOW = 0U,
+	GPIO_ALT_FUNC_REGISTER_HIGH,
+	GPIO_ALT_FUNCTION_REGISTER_MAX_VALUE
+}gpio_alt_function_register_enum;
 
 /**
  * Bit Mask Enum Definitions
@@ -136,6 +138,8 @@ typedef enum
 
 	//AF15: SYS functions
 	GPIO_AF_EVENT_OUT = 0xF0U,
+
+	GPIO_AF_INV
 }gpio_alternate_function_enum;
 
 /**
@@ -186,6 +190,7 @@ static gpio_port_reg_t volatile * const GPIO_REGS[GPIO_PORT_MAX_VALUE] =
 /**
  * Function Prototypes
  */
+
 
 #ifdef __cplusplus
 }
