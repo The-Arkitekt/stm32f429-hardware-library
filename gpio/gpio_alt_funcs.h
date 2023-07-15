@@ -7,10 +7,6 @@
 
 #include "gpio.h"
 
-#ifndef GPIO_MAX_ALT_FUNCS_PER_PIN
-#define GPIO_MAX_ALT_FUNCS_PER_PIN 16U
-#endif //GPIO_MAX_ALT_FUNCS_PER_PIN
-
 typedef struct
 {
 	const gpio_alternate_function_enum valid_alt_functions[GPIO_PIN_MAX_VALUE][GPIO_MAX_ALT_FUNCS_PER_PIN];

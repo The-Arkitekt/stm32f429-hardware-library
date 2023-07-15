@@ -9,8 +9,8 @@
 #include <stdbool.h>
 
 /**
- * Constant Definitions
-*/
+ * Address constants
+ */
 static const uint32_t GPIO_A_BASE_ADDR = 0x40020000U;
 static const uint32_t GPIO_B_BASE_ADDR = 0x40020400U;
 static const uint32_t GPIO_C_BASE_ADDR = 0x40020800U;
@@ -23,7 +23,6 @@ static const uint32_t GPIO_I_BASE_ADDR = 0x40022000U;
 static const uint32_t GPIO_J_BASE_ADDR = 0x40022400U;
 static const uint32_t GPIO_K_BASE_ADDR = 0x40022800U;
 
-static const uint8_t GPIO_ALT_FUNC_DECODE_SHFT_AMT = 4U;
 /**
  * Indexing Enum Definitions
  */
@@ -60,8 +59,7 @@ typedef enum
 	GPIO_PIN_12,
 	GPIO_PIN_13,
 	GPIO_PIN_14,
-	GPIO_PIN_15,
-	GPIO_PIN_MAX_VALUE
+	GPIO_PIN_15
 }gpio_pin_enum;
 
 typedef enum
@@ -77,32 +75,35 @@ typedef enum
 typedef enum
 {
 	GPIO_MODE_INPUT     = 0U,
-	GPIO_MODE_OUTPUT    = 0x1U,
-	GPIO_MODE_ALTERNATE = 0x2U,
-	GPIO_MODE_ANALOG    = 0x3U,
+	GPIO_MODE_OUTPUT    = 0x00000001U,
+	GPIO_MODE_ALTERNATE = 0x00000002U,
+	GPIO_MODE_ANALOG    = 0x00000003U,
 }gpio_mode_enum;
+static const uint32_t GPIO_MODE_MSK = GPIO_MODE_ANALOG;
 
 typedef enum
 {
 	GPIO_OUTPUT_PUSH_PULL  = 0U,
-	GPIO_OUTPUT_OPEN_DRAIN = 0x1U
+	GPIO_OUTPUT_OPEN_DRAIN = 0x0000001U
 }gpio_output_type_enum;
+static const uint32_t GPIO_OUTPUT_TYPE_MSK = GPIO_OUTPUT_OPEN_DRAIN;
 
 typedef enum
 {
 	GPIO_OUTPUT_SPEED_LOW       = 0U,
-	GPIO_OUTPUT_SPEED_MED       = 0x1U,
-	GPIO_OUTPUT_SPEED_HIGH      = 0x2U,
-	GPIO_OUTPUT_SPEED_VERY_HIGH = 0x3U,
+	GPIO_OUTPUT_SPEED_MED       = 0x00000001U,
+	GPIO_OUTPUT_SPEED_HIGH      = 0x00000002U,
+	GPIO_OUTPUT_SPEED_VERY_HIGH = 0x00000003U,
 }gpio_output_speed_enum;
+static const uint32_t GPIO_OUTPUT_SPEED_MSK = GPIO_OUTPUT_SPEED_VERY_HIGH;
 
 typedef enum
 {
 	GPIO_NO_PULL            = 0U,
-	GPIO_PULL_UP            = 0x1U,
-	GPIO_PULL_DOWN          = 0x2U,
-	GPIO_PULL_RESERVED_MASK = 0x3U
+	GPIO_PULL_UP            = 0x00000001U,
+	GPIO_PULL_DOWN          = 0x00000002U
 }gpio_pull_up_down_enum;
+static const uint32_t GPIO_PULL_MSK = 0x00000003U;
 
 typedef enum
 {
@@ -141,16 +142,28 @@ typedef enum
 
 	GPIO_AF_INV
 }gpio_alternate_function_enum;
+static const uint32_t GPIO_ALT_FUNC_MSK = 0xFU;
+
+#ifndef GPIO_MAX_ALT_FUNCS_PER_PIN
+#define GPIO_MAX_ALT_FUNCS_PER_PIN 16U
+#endif //GPIO_MAX_ALT_FUNCS_PER_PIN
+
+static const uint8_t GPIO_ALT_FUNC_DECODE_SHFT_AMT = 4U;
+static const uint8_t GPIO_ALT_FUNC_BIT_SHFT_MULTIPLIER = 2U;
+static const uint8_t GPIO_ALT_FUNC_INDEX_DECODE_SHFT_AMT = 7U;
+static const uint8_t GPIO_NUM_ALT_FUNCS_PER_REGISTER = GPIO_MAX_ALT_FUNCS_PER_PIN / GPIO_ALT_FUNCTION_REGISTER_MAX_VALUE;
+static const uint8_t GPIO_ALT_FUNC_POSITION_MSK = GPIO_NUM_ALT_FUNCS_PER_REGISTER - 1U;
 
 /**
  * Interface Struct Definitions
  */
 typedef struct
 {
-	gpio_mode_enum         mode;
-	gpio_output_type_enum  outputType;
-	gpio_output_speed_enum outputSpeed;
-	gpio_pull_up_down_enum pullUpDown;
+	gpio_mode_enum               mode;
+	gpio_output_type_enum        outputType;
+	gpio_output_speed_enum       outputSpeed;
+	gpio_pull_up_down_enum       pullUpDown;
+	gpio_alternate_function_enum altFunc;
 }gpio_port_config_interface_t;
 
 /**
@@ -190,7 +203,11 @@ static gpio_port_reg_t volatile * const GPIO_REGS[GPIO_PORT_MAX_VALUE] =
 /**
  * Function Prototypes
  */
+bool gpio_set_config(const gpio_port_enum port, const gpio_pin_enum pin, const gpio_port_config_interface_t* const gpio_config_struct);
+bool gpio_get_config(const gpio_port_enum port, const gpio_pin_enum pin, const gpio_port_config_interface_t* const gpio_config_struct);
 
+bool gpio_get_pin_state(const gpio_port_enum port, const gpio_pin_enum pin);
+void gpio_set_pin_state(const gpio_port_enum port, const gpio_pin_enum pin);
 
 #ifdef __cplusplus
 }

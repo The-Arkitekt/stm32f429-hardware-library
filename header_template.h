@@ -8,8 +8,8 @@
 #include <stdint.h>
 
 /**
- * Constant Definitions
-*/
+ * Register Address Constants
+ */
 
 /**
  * Indexing Enum Definitions
